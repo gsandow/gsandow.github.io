@@ -258,187 +258,7 @@
             
               
                 
-                <a class="post-title-link" href="/2015/11/14/inotify_rsync/" itemprop="url">
-                  rsync + inotify 实现实时同步
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            發表於
-            <time itemprop="dateCreated" datetime="2015-11-14T21:17:53+08:00" content="2015-11-14">
-              2015-11-14
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分類於
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2015/11/14/inotify_rsync/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/11/14/inotify_rsync/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-            主机规划
-
-
-服务器
-外网IP
-
-内网IP
-主机名称
-
-
-
-
-A1-nginx 负载服务器
-10.0.0.5/24
-
-127.16.1.5/24
-lb01
-
-
-A2-nginx 负载服务器
-10.0.0.6/24
-
-127.16.1.6/24
-lb02
-
-
-B1-apache软件web服务器
-10.0.0.7/24
-
-127.16.1.7/24
-web02
-
-
-B2-apache软件web服务器
-10.0.0.8/24
-
-127.16.1.8/24
-web01
-
-
-C3-My Sql 数据库服务器
-10.0.0.51/24
-
-127.16.1.51/24
-Db01
-
-
-C1-NFS 存储服务器
-10.0.0.31/24
-
-127.16.1.31/24
-NFS01
-
-
-C2-rsync 数据库服务器
-10.0.0.41/24
-
-127.16.1.41/24
-Backup
-
-
-X-管理服务器
-10.0.0.61/24
-
-127.16.1.61/24
-m01
-
-
-
-
-红色仅为虚拟机中测试所用 机房根据实际需求配置
-
-克隆虚拟机并配置网卡
-编辑eth0的配置文件：vi /etc/sysconf
-            ...
-          </span>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/11/14/inotify_rsync/#more" rel="contents">
-              閱讀全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/11/14/vim/" itemprop="url">
+                <a class="post-title-link" href="/2015/11/15/vim/" itemprop="url">
                   vim常用操作
                 </a>
               
@@ -449,8 +269,8 @@ m01
         <div class="post-meta">
           <span class="post-time">
             發表於
-            <time itemprop="dateCreated" datetime="2015-11-14T09:38:11+08:00" content="2015-11-14">
-              2015-11-14
+            <time itemprop="dateCreated" datetime="2015-11-15T10:27:50+08:00" content="2015-11-15">
+              2015-11-15
             </time>
           </span>
 
@@ -475,8 +295,8 @@ m01
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2015/11/14/vim/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/11/14/vim/" itemprop="commentsCount"></span>
+                <a href="/2015/11/15/vim/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/11/15/vim/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -616,7 +436,187 @@ ctrl +
             ...
           </span>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/11/14/vim/#more" rel="contents">
+            <a class="btn" href="/2015/11/15/vim/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/11/14/inotify_rsync/" itemprop="url">
+                  rsync + inotify 实现实时同步
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            發表於
+            <time itemprop="dateCreated" datetime="2015-11-14T21:17:53+08:00" content="2015-11-14">
+              2015-11-14
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分類於
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015/11/14/inotify_rsync/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/11/14/inotify_rsync/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+            主机规划
+
+
+服务器
+外网IP
+
+内网IP
+主机名称
+
+
+
+
+A1-nginx 负载服务器
+10.0.0.5/24
+
+127.16.1.5/24
+lb01
+
+
+A2-nginx 负载服务器
+10.0.0.6/24
+
+127.16.1.6/24
+lb02
+
+
+B1-apache软件web服务器
+10.0.0.7/24
+
+127.16.1.7/24
+web02
+
+
+B2-apache软件web服务器
+10.0.0.8/24
+
+127.16.1.8/24
+web01
+
+
+C3-My Sql 数据库服务器
+10.0.0.51/24
+
+127.16.1.51/24
+Db01
+
+
+C1-NFS 存储服务器
+10.0.0.31/24
+
+127.16.1.31/24
+NFS01
+
+
+C2-rsync 数据库服务器
+10.0.0.41/24
+
+127.16.1.41/24
+Backup
+
+
+X-管理服务器
+10.0.0.61/24
+
+127.16.1.61/24
+m01
+
+
+
+
+红色仅为虚拟机中测试所用 机房根据实际需求配置
+
+克隆虚拟机并配置网卡
+编辑eth0的配置文件：vi /etc/sysconf
+            ...
+          </span>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/11/14/inotify_rsync/#more" rel="contents">
               閱讀全文 &raquo;
             </a>
           </div>
