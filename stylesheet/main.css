@@ -633,7 +633,7 @@ body {
 }
 .header-inner {
   margin: 0 auto;
-  padding: 100px 0 70px;
+  padding: 1px 0 10px;
   width: 1200px;
 }
 .one-column .header-inner {
@@ -683,7 +683,7 @@ body {
   background: #222;
 }
 .header {
-  background: #fff;
+  background: #eee;
 }
 .header-inner {
   position: relative;
@@ -691,6 +691,7 @@ body {
 .site-meta {
   margin: 0;
   text-align: center;
+  float: left;
 }
 @media (max-width: 767px) {
   .site-meta {
@@ -700,9 +701,7 @@ body {
 .brand {
   position: relative;
   display: inline-block;
-  padding: 0 40px;
-  color: #fff;
-  background: #222;
+  color: #222;
   border-bottom: none;
   font-family: Lato, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
@@ -718,8 +717,8 @@ body {
 .site-title {
   display: inline-block;
   vertical-align: top;
-  line-height: 36px;
-  font-size: 20px;
+  line-height: 80px;
+  font-size: 30px;
   font-weight: normal;
 }
 .site-subtitle {
@@ -776,7 +775,7 @@ body {
 .menu {
   margin-top: 20px;
   padding-left: 0;
-  text-align: center;
+  text-align: right;
 }
 .menu .menu-item {
   display: inline-block;
@@ -961,7 +960,7 @@ body {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #2df1ff;
+  background: #dfffb1;
 }
 .sidebar-nav {
   margin: 0 0 20px;
@@ -1266,7 +1265,7 @@ body {
   font-size: 16px;
 }
 .posts-expand .post-meta {
-  margin: 3px 0 60px 0;
+  margin: 3px 0 10px 0;
   color: #999;
   font-size: 12px;
   text-align: center;
@@ -1346,14 +1345,14 @@ body {
 }
 .posts-expand .post-eof {
   display: block;
-  margin: 160px auto 120px;
+  margin: 10px auto 50px;
   width: 8%;
   height: 1px;
   background: #ccc;
   text-align: center;
 }
 .post-more-link {
-  margin-top: 50px;
+  margin-top: 10px;
 }
 .posts-expand .post-body .fancybox img {
   margin: 0 auto;
