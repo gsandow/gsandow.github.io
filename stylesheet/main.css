@@ -267,7 +267,7 @@ h6 {
   }
 }
 p {
-  margin: 0 0 25px 0;
+  margin: 0 0 15px 0;
 }
 a {
   color: #555;
@@ -312,9 +312,9 @@ hr {
   background-image: repeating-linear-gradient(-45deg, #fff, #fff 4px, transparent 4px, transparent 8px);
 }
 blockquote {
-  padding: 0 15px;
+  padding: 0 40px;
   color: #666;
-  border-left: 4px solid #ddd;
+  background: #d5e9f6 url(http://7xndvx.com1.z0.glb.clouddn.com/tab_info.png) no-repeat left top; 
 }
 blockquote cite::before {
   content: "-";
@@ -458,8 +458,8 @@ td {
 pre,
 .highlight {
   background: #000;
-  margin: 20px 0;
-  padding: 15px;
+  margin: 0px 0;
+  padding: 0px;
   overflow: auto;
   font-size: 13px;
   color: #eaeaea;
@@ -475,9 +475,10 @@ code {
 }
 code {
   word-break: break-all;
-  background: #eee;
+  background: #f9f2f4;
   text-shadow: 0 1px #fff;
   padding: 0 0.3em;
+  color: #ce4365;
 }
 pre code {
   background: none;
@@ -487,7 +488,7 @@ pre code {
 .highlight pre {
   border: none;
   margin: 0;
-  padding: 1px;
+  padding: 1px 5px;
 }
 .highlight table {
   margin: 0;
@@ -517,7 +518,7 @@ pre code {
 }
 .highlight .gutter pre {
   text-align: right;
-  padding-right: 20px;
+  padding-right: 10px;
 }
 .highlight .line {
   height: 20px;
@@ -607,7 +608,10 @@ pre .xml .cdata {
 }
 pre .title,
 pre .css .hexcolor {
-  color: #70c0b1;
+  color: #94CF27;
+}
+pre .keyword {
+ color: #c3256c;
 }
 pre .function,
 pre .python .decorator,
@@ -619,7 +623,6 @@ pre .javascript .title,
 pre .coffeescript .title {
   color: #7aa6da;
 }
-pre .keyword,
 pre .javascript .function {
   color: #c397d8;
 }
@@ -724,7 +727,7 @@ body {
 }
 .site-subtitle {
   margin-top: 10px;
-  font-size: 13px;
+  font-size: 18px;
   color: #999;
 }
 .use-motion .brand {
