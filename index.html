@@ -267,6 +267,114 @@
             
               
                 
+                <a class="post-title-link" href="/NFS/" itemprop="url">
+                  NFS网络文件系统
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            發表於
+            <time itemprop="dateCreated" datetime="2015-11-20T21:35:00+08:00" content="2015-11-20">
+              2015-11-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分類於
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/NFS/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="NFS/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+            NFS网络文件系统NFS 系统介绍network file sysctem 是网络文件系统，它的主要功能是通过网络让i同的主机系统之间可以共享文件或目录，NFS客户端一般为应用服务器，RPC (remote procedure call) 是能使客户端执行其他系统中程序的一种机制。NFS本身是没有提供信息传输的协议和功能的，但NFS却能让我们通过网络进行资料的分享，这是因为NFS使用了一些其它的传输协议。而这些传输协议用到这个RPC功能的。。所以只要用到NFS的地方都要启动RPC服务，不论是NFS SERVER或者NFS CLIENT。这样SERVER和CLIENT才能通过RPC来实现PROGRAM PORT的对应。可以这么理解RPC和NFS的关系：NFS是一个文件系统，而RPC是负责负责信息的传输。大企业： MFS, FASTDFS , GLUSTERFS, CEPH
+在客户端与服务端都需要安装NFS与RPC123$ sed -i 's/keepcache=0/keepcache=1/g' /etc/yum.conf$ sed -n  '1,4p' /etc/yum.conf$ yu
+            ...
+          </span>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/NFS/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/the-three-musketeers/" itemprop="url">
                   linux 三剑客
                 </a>
@@ -1133,7 +1241,7 @@ metacharacter:metacharacter 便是一个或者多个不同于literal用法的拥
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">7</span>
               <span class="site-state-item-name">文章</span>
             </a>
           </div>
@@ -1147,7 +1255,7 @@ metacharacter:metacharacter 便是一个或者多个不同于literal用法的拥
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-count">6</span>
               <span class="site-state-item-name">標籤</span>
               </a>
           </div>
