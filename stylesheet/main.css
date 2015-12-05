@@ -344,9 +344,12 @@ dd {
 .gist table {
   width: auto;
 }
-.highlight table td,
-.gist table td {
+.highlight table,
+.gist table  {
   border: none;
+}
+.gutter {
+ border-right: 1px solid black;
 }
 .highlight a,
 .gist a {
@@ -385,15 +388,9 @@ table>tbody>tr:hover {
 caption,
 th,
 td {
-  padding: 8px;
   text-align: left;
   vertical-align: middle;
   font-weight: normal;
-}
-th,
-td {
-  border-bottom: 3px solid #ddd;
-  border-right: 1px solid #eee;
 }
 th {
   padding-bottom: 10px;
@@ -457,13 +454,14 @@ td {
 }
 pre,
 .highlight {
-  background: #000;
+  background: #FFF;
   margin: 0px 0;
   padding: 0px;
   overflow: auto;
   font-size: 13px;
   color: #eaeaea;
   line-height: 1.6;
+  box-shadow: #000 0 0 10px;
 }
 .highlight .gutter pre,
 .gist .gist-file .gist-data .line-numbers {
@@ -485,19 +483,19 @@ pre code {
   text-shadow: none;
   padding: 0;
 }
+.highlight .code {
+  width: 100%;
+}
 .highlight pre {
   border: none;
   margin: 0;
   padding: 1px 5px;
+  background-color: #ccc;
 }
 .highlight table {
   margin: 0;
   width: auto;
   border: none;
-}
-.highlight td {
-  border: none;
-  padding: 0;
 }
 .highlight figcaption {
   font-size: 0.85em;
@@ -519,9 +517,11 @@ pre code {
 .highlight .gutter pre {
   text-align: right;
   padding-right: 10px;
+  background-color: #9e9d9d;
 }
 .highlight .line {
   height: 20px;
+  color: black;
 }
 .gist {
   margin: 20px 0;
@@ -592,7 +592,7 @@ pre .built_in,
 pre .literal,
 pre .params,
 pre .constant {
-  color: #e78c45;
+  color: #000;
 }
 pre .ruby .class .title,
 pre .css .rules .attribute {
@@ -604,7 +604,7 @@ pre .inheritance,
 pre .header,
 pre .ruby .symbol,
 pre .xml .cdata {
-  color: #b9ca4a;
+  color: #043fff;
 }
 pre .title,
 pre .css .hexcolor {

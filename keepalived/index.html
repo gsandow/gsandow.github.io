@@ -37,7 +37,7 @@
 <link href="/stylesheet/main.css" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="linux," />
+  <meta name="keywords" content="keepalived," />
 
 
 
@@ -53,120 +53,20 @@
 
 
 
-<meta name="description" content="本文指在对VIM做简单的介绍，当你习惯之后，就会发现VIM是一个非常高效的文本编辑器而且不需要鼠標就可以完成任何操作，现在就让我们来见识VIM的强大
-VIM语法总结命令模式下的编辑
-
-
-
-语法
-描述
-语法
-描述
-
-
-
-
-：wq!
-强制保存
-：q!
-强制退出不保存
-
-
-:set nu
-显示行号
-:set nonu
-取消显示行号
-
-
-u
-undo
-ctrl + r
-redo
-
-
-.
-重复前面命令
-2.">
+<meta name="description" content="keepalived 介绍Keepalived是一个基于VRRP协议来实现的服务高可用方案，可以利用其来避免IP单点故障，类似的工具还有heartbeat、corosync、pacemaker。但是它一般不会单独出现，而是与其它负载均衡技术（如lvs、haproxy、nginx）一起工作来达到集群的高可用。
+VRRP协议VRRP全称 Virtual Router Redundancy Protoc">
 <meta property="og:type" content="article">
-<meta property="og:title" content="vim常用操作">
-<meta property="og:url" content="gsandow.github.io/vim/index.html">
+<meta property="og:title" content="keepalived实现负载均衡高可用">
+<meta property="og:url" content="gsandow.github.io/keepalived/index.html">
 <meta property="og:site_name" content="听雨阁">
-<meta property="og:description" content="本文指在对VIM做简单的介绍，当你习惯之后，就会发现VIM是一个非常高效的文本编辑器而且不需要鼠標就可以完成任何操作，现在就让我们来见识VIM的强大
-VIM语法总结命令模式下的编辑
-
-
-
-语法
-描述
-语法
-描述
-
-
-
-
-：wq!
-强制保存
-：q!
-强制退出不保存
-
-
-:set nu
-显示行号
-:set nonu
-取消显示行号
-
-
-u
-undo
-ctrl + r
-redo
-
-
-.
-重复前面命令
-2.">
-<meta property="og:image" content="gsandow.github.io/images/word_moves.jpg">
-<meta property="og:image" content="gsandow.github.io/images/line_moves.jpg">
-<meta property="og:image" content="gsandow.github.io/images/rectangular-blocks.gif">
-<meta property="og:image" content="gsandow.github.io/images/macros.gif">
-<meta property="og:image" content="gsandow.github.io/images/Vim-mindmap.png">
-<meta property="og:updated_time" content="2015-11-15T12:55:53.000Z">
+<meta property="og:description" content="keepalived 介绍Keepalived是一个基于VRRP协议来实现的服务高可用方案，可以利用其来避免IP单点故障，类似的工具还有heartbeat、corosync、pacemaker。但是它一般不会单独出现，而是与其它负载均衡技术（如lvs、haproxy、nginx）一起工作来达到集群的高可用。
+VRRP协议VRRP全称 Virtual Router Redundancy Protoc">
+<meta property="og:image" content="http://7xndvx.com1.z0.glb.clouddn.com/nginx-keepalived-vrrp.jpg">
+<meta property="og:updated_time" content="2015-12-05T16:10:34.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="vim常用操作">
-<meta name="twitter:description" content="本文指在对VIM做简单的介绍，当你习惯之后，就会发现VIM是一个非常高效的文本编辑器而且不需要鼠標就可以完成任何操作，现在就让我们来见识VIM的强大
-VIM语法总结命令模式下的编辑
-
-
-
-语法
-描述
-语法
-描述
-
-
-
-
-：wq!
-强制保存
-：q!
-强制退出不保存
-
-
-:set nu
-显示行号
-:set nonu
-取消显示行号
-
-
-u
-undo
-ctrl + r
-redo
-
-
-.
-重复前面命令
-2.">
+<meta name="twitter:title" content="keepalived实现负载均衡高可用">
+<meta name="twitter:description" content="keepalived 介绍Keepalived是一个基于VRRP协议来实现的服务高可用方案，可以利用其来避免IP单点故障，类似的工具还有heartbeat、corosync、pacemaker。但是它一般不会单独出现，而是与其它负载均衡技术（如lvs、haproxy、nginx）一起工作来达到集群的高可用。
+VRRP协议VRRP全称 Virtual Router Redundancy Protoc">
 
 
 
@@ -178,7 +78,7 @@ redo
   };
 </script>
 
-  <title> vim常用操作 | 听雨阁 </title>
+  <title> keepalived实现负载均衡高可用 | 听雨阁 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
@@ -363,7 +263,7 @@ redo
             
             
               
-                vim常用操作
+                keepalived实现负载均衡高可用
               
             
           </h1>
@@ -372,8 +272,8 @@ redo
         <div class="post-meta">
           <span class="post-time">
             發表於
-            <time itemprop="dateCreated" datetime="2015-11-15T20:55:53+08:00" content="2015-11-15">
-              2015-11-15
+            <time itemprop="dateCreated" datetime="2015-12-06T00:10:34+08:00" content="2015-12-06">
+              2015-12-06
             </time>
           </span>
 
@@ -398,8 +298,8 @@ redo
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/vim/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="vim/" itemprop="commentsCount"></span>
+                <a href="/keepalived/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="keepalived/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -418,178 +318,70 @@ redo
       
 
       
-        <span itemprop="articleBody"><p>本文指在对VIM做简单的介绍，当你习惯之后，就会发现VIM是一个非常高效的文本编辑器而且不需要鼠標就可以完成任何操作，现在就让我们来见识VIM的强大</p>
-<h1 id="VIM语法总结">VIM语法总结</h1><p><strong>命令模式下的编辑</strong></p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">：wq!</td>
-<td style="text-align:left">强制保存</td>
-<td style="text-align:center">：q!</td>
-<td style="text-align:left">强制退出不保存</td>
-</tr>
-<tr>
-<td style="text-align:center">:set nu</td>
-<td style="text-align:left">显示行号</td>
-<td style="text-align:center">:set nonu</td>
-<td style="text-align:left">取消显示行号</td>
-</tr>
-<tr>
-<td style="text-align:center">u</td>
-<td style="text-align:left">undo</td>
-<td style="text-align:center">ctrl + r</td>
-<td style="text-align:left">redo</td>
-</tr>
-<tr>
-<td style="text-align:center">.</td>
-<td style="text-align:left">重复前面命令</td>
-<td style="text-align:center">2.</td>
-<td style="text-align:left">重复前面命令2次</td>
-</tr>
-<tr>
-<td style="text-align:center">dd</td>
-<td style="text-align:left">向下删除一行</td>
-<td style="text-align:center">2dd</td>
-<td style="text-align:left">删除两行</td>
-</tr>
-<tr>
-<td style="text-align:center">dt\</td>
-<td style="text-align:left">删除行之后内容直到遇到“\”</td>
-</tr>
-<tr>
-<td style="text-align:center">ye或 yw</td>
-<td style="text-align:left">从当前位置拷贝到本单词的最后一个字符</td>
-<td style="text-align:center">gu(gU)</td>
-<td style="text-align:left">换成小写(大写)字母</td>
-</tr>
-</tbody>
-</table>
-<p><strong>如何移动</strong></p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">w</td>
-<td style="text-align:left">移动到单词开头</td>
-<td style="text-align:center">e</td>
-<td style="text-align:left">移动到单词结尾</td>
-</tr>
-<tr>
-<td style="text-align:center">gg</td>
-<td style="text-align:left">移动到的第一行</td>
-<td style="text-align:center">G</td>
-<td style="text-align:left">移动到最后一行</td>
-</tr>
-<tr>
-<td style="text-align:center">0</td>
-<td style="text-align:left">移动到行的开头</td>
-<td style="text-align:center">$</td>
-<td style="text-align:left">动到行的结尾</td>
-</tr>
-<tr>
-<td style="text-align:center">^</td>
-<td style="text-align:left">移动到行的开头非blank字符</td>
-<td style="text-align:center">g_</td>
-<td style="text-align:left">动到行的结尾非blank字符</td>
-</tr>
-<tr>
-<td style="text-align:center">fa</td>
-<td style="text-align:left">到下一个a出现的位置</td>
-<td style="text-align:center">3fa</td>
-<td style="text-align:left">第3次出现a的位置</td>
-</tr>
-<tr>
-<td style="text-align:center">2g</td>
-<td style="text-align:left">移动到第二行</td>
-<td style="text-align:center">%</td>
-<td style="text-align:left">匹配括号移动，包括 (, {, [. </td>
-</tr>
-<tr>
-<td style="text-align:center">*</td>
-<td style="text-align:left">匹配光标当前所在单词移到到下一个匹配到的单词</td>
-<td style="text-align:center">#</td>
-<td style="text-align:left">移动到上一个匹配到的单词</td>
-</tr>
-<tr>
-<td style="text-align:center">/patten</td>
-<td style="text-align:left">搜索，按n继续向下搜索</td>
-<td style="text-align:center">N</td>
-<td style="text-align:left">按N继续向上搜索</td>
-</tr>
-</tbody>
-</table>
-<p>ctrl + o 跳到上一次修改的地方</p>
-<p><img src="/images/word_moves.jpg" alt="word_moves"><img src="/images/line_moves.jpg" alt="line_moves"></p>
-<p><strong>以什么样的形式进入插入模式</strong></p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-<th style="text-align:center"></th>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">A</td>
-<td style="text-align:left">移动到行未并进入插入模式</td>
-<td style="text-align:center"></td>
-<td style="text-align:center">x</td>
-<td style="text-align:left">删除光标所在位置的字符</td>
-</tr>
-<tr>
-<td style="text-align:center">I</td>
-<td style="text-align:left">移到到行首并进入插入模式</td>
-<td style="text-align:center"></td>
-<td style="text-align:center">X</td>
-<td style="text-align:left">删除光标所在位置之前的字符</td>
-</tr>
-<tr>
-<td style="text-align:center">o</td>
-<td style="text-align:left">在当前行之后新建一行并进入插入模式</td>
-</tr>
-</tbody>
-</table>
-<p><strong>区域选择</strong></p>
-<p>其格式为 <code>&lt;action&gt;a&lt;object&gt;</code> 和 <code>&lt;action&gt;i&lt;object&gt;</code></p>
+        <span itemprop="articleBody"><h2 id="keepalived_介绍">keepalived 介绍</h2><p>Keepalived是一个基于VRRP协议来实现的服务高可用方案，可以利用其来避免IP单点故障，类似的工具还有heartbeat、corosync、pacemaker。但是它一般不会单独出现，而是与其它负载均衡技术（如lvs、haproxy、nginx）一起工作来达到集群的高可用。<br><img src="http://7xndvx.com1.z0.glb.clouddn.com/nginx-keepalived-vrrp.jpg" alt="keepalived"></p>
+<h3 id="VRRP协议">VRRP协议</h3><p>VRRP全称 Virtual Router Redundancy Protocol，即 <a href="http://en.wikipedia.org/wiki/VRRP" target="_blank" rel="external">虚拟路由冗余协议</a>。可以认为它是实现路由器高可用的容错协议，即将N台提供相同功能的路由器组成一个路由器组(Router Group)，这个组里面有一个master和多个backup，但在外界看来就像一台一样，构成虚拟路由器，拥有一个虚拟IP（vip，也就是路由器所在局域网内其他机器的默认路由），占有这个IP的master实际负责ARP相应和转发IP数据包，组中的其它路由器作为备份的角色处于待命状态。master会发组播消息，当backup在超时时间内收不到vrrp包时就认为master宕掉了，这时就需要根据VRRP的优先级来选举一个backup当master，保证路由器的高可用。</p>
+<p>  在VRRP协议实现里，虚拟路由器使用 00-00-5E-00-01-XX 作为虚拟MAC地址，XX就是唯一的 VRID （Virtual Router IDentifier），这个地址同一时间只有一个物理路由器占用。在虚拟路由器里面的物理路由器组里面通过多播IP地址 224.0.0.18 来定时发送通告消息。每个Router都有一个 1-255 之间的优先级别，级别最高的（highest priority）将成为主控（master）路由器。通过降低master的优先权可以让处于backup状态的路由器抢占（pro-empt）主路由器的状态，两个backup优先级相同的IP地址较大者为master，接管虚拟IP。</p>
+<p>来自freeloda对 heartbeat/corosync的比较</p>
+<blockquote>
+<p>Heartbeat、Corosync、Keepalived这三个集群组件我们到底选哪个好，首先我想说明的是，Heartbeat、Corosync是属于同一类型，Keepalived与Heartbeat、Corosync，根本不是同一类型的。Keepalived使用的vrrp协议方式，虚拟路由冗余协议 (Virtual Router Redundancy Protocol，简称VRRP)；Heartbeat或Corosync是基于主机或网络服务的高可用方式；简单的说就是，Keepalived的目的是模拟路由器的高可用，Heartbeat或Corosync的目的是实现Service的高可用。</p>
 <ul>
-<li>action可以是任何的命令，如 d (删除), y (拷贝), v (可以视模式选择)。</li>
-<li>object 可能是： w 一个单词， W 一个以空格为分隔的单词， s 一个句字， p 一个段落。也可以是一个特别的字符：”、 ‘、 )、 }、 ]。</li>
+<li>所以一般Keepalived是实现前端高可用，常用的前端高可用的组合有，就是我们常见的LVS+Keepalived、Nginx+Keepalived、HAproxy+Keepalived。而Heartbeat或Corosync是实现服务的高可用，常见的组合有Heartbeat v3(Corosync)+Pacemaker+NFS+Httpd 实现Web服务器的高可用、Heartbeat v3(Corosync)+Pacemaker+NFS+MySQL 实现MySQL服务器的高可用。总结一下，Keepalived中实现轻量级的高可用，一般用于前端高可用，且不需要共享存储，一般常用于两个节点的高可用。而Heartbeat(或Corosync)一般用于服务的高可用，且需要共享存储，一般用于多节点的高可用。这个问题我们说明白了。</li>
+<li>又有博友会问了，那heartbaet与corosync我们又应该选择哪个好啊，我想说我们一般用corosync，因为corosync的运行机制更优于heartbeat，就连从heartbeat分离出来的pacemaker都说在以后的开发当中更倾向于corosync，所以现在corosync+pacemaker是最佳组合</li>
 </ul>
-<p>举例： <code>daw</code> 删除一个单词</p>
-<p><strong>块操作</strong></p>
-<p>命令模式下按 <strong>ctrl + v</strong> 移动光标选中需要修改的行（区域），<br>然后按<strong>x</strong> 或者 <strong>d</strong> 删除该内容</p>
-<p>批量在行首增加内容：<br> <code>ctrl + v</code> &gt;&gt; <code>0</code> &gt;&gt; <code>I</code> &gt;&gt; 写下想增加的内容 &gt;&gt;<code>Esc</code></p>
-<p><img src="/images/rectangular-blocks.gif" alt="rectangular-blocks"></p>
-<p>批量在行尾增加内容：</p>
-<p> <code>ctrl + v</code> &gt;&gt; <code>$</code> &gt;&gt; <code>A</code> &gt;&gt; 写下想增加的内容 &gt;&gt;<code>Esc</code></p>
-<p>块移动  <code>&lt;</code> , <code>&gt;</code> 左右缩进 。 <code>=</code> 自动给缩进。 </p>
-<p><strong>自动补全</strong></p>
-<p>vim 下在编辑模式下也有自动补全功能便不是tab键，而是 <code>ctrl + n</code>， <code>ctrl + p</code> 如果匹配到多个可以按多次来找到自己想要的单词</p>
-<p><strong>宏录制</strong></p>
-<p><code>qa</code>  开始录制宏，并把宏的名字取名为a<br><code>q</code>  停止录制宏<br><code>@a</code>  用@来调用宏并执行<br><code>@@</code>  快捷的执行最新操作的宏</p>
-<p><img src="/images/macros.gif" alt="macros"></p>
-<p><code>qa</code>  &gt;&gt;<code>Y</code> &gt;&gt; <code>p</code> &gt;&gt; <code>ctrl + a</code> &gt;&gt; <code>q</code> &gt;&gt; <code>@a</code> &gt;&gt; <code>100@@</code></p>
-<p>最后来一张图，基本的语法就完全OK了</p>
-<p><img src="/images/Vim-mindmap.png" alt="vim-midmap"></p>
-<p><strong>结语</strong>：不论什么命令都可以在前面加数字来表示重复n次该命令</p>
+</blockquote>
+<h2 id="Keepalived_+_nginx">Keepalived + nginx</h2><p>keepalived可以认为是VRRP协议在Linux上的实现，主要有三个模块，分别是core、check和vrrp。core模块为keepalived的核心，负责主进程的启动、维护以及全局配置文件的加载和解析。check负责健康检查，包括常见的各种检查方式。vrrp模块是来实现VRRP协议的。</p>
+<h2 id="安装keepalived">安装keepalived</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ yum install -y keepalived</span><br></pre></td></tr></table></figure>
+<h2 id="nginx_监控脚本">nginx 监控脚本</h2><p>用于检测ngnix的运行状态，并在nginx进程不存在时尝试重新启动nginx，如果启动失败则停止keepalived,准备让其它机器接管</p>
+<p><code>/servser/scripts/check_nginx.sh</code> :</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/bash</span></span><br><span class="line">counter=$(ps -C nginx --no-heading|wc <span class="operator">-l</span>)</span><br><span class="line"><span class="keyword">if</span> [ <span class="string">"<span class="variable">$&#123;counter&#125;</span>"</span> = <span class="string">"0"</span> ]; <span class="keyword">then</span></span><br><span class="line">    /usr/<span class="built_in">local</span>/bin/nginx</span><br><span class="line">    sleep <span class="number">2</span></span><br><span class="line">    counter=$(ps -C nginx --no-heading|wc <span class="operator">-l</span>)</span><br><span class="line">    <span class="keyword">if</span> [ <span class="string">"<span class="variable">$&#123;counter&#125;</span>"</span> = <span class="string">"0"</span> ]; <span class="keyword">then</span></span><br><span class="line">        /etc/init.d/keepalived stop</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<h2 id="配置keepalived-conf">配置keepalived.conf</h2><p><code>/etc/keepalived/keepalived.conf</code> :</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">! Configuration File <span class="keyword">for</span> keepalived</span><br><span class="line">global_defs &#123;</span><br><span class="line">    notification_email &#123;</span><br><span class="line">        <span class="number">921070747</span>@example.com</span><br><span class="line">        gsandow@example.com</span><br><span class="line">    &#125;</span><br><span class="line">    notification_email_from itsection@example.com</span><br><span class="line">    smtp_server mail.example.com</span><br><span class="line">    smtp_connect_timeout <span class="number">30</span></span><br><span class="line">    router_id LVS_DEVEL</span><br><span class="line">&#125;</span><br><span class="line">vrrp_script chk_nginx &#123;</span><br><span class="line"><span class="comment">#    script "killall -0 nginx"</span></span><br><span class="line">    script <span class="string">"/server/scripts/check_nginx.sh"</span> </span><br><span class="line">    interval <span class="number">2</span> </span><br><span class="line">    weight -<span class="number">5</span> </span><br><span class="line">    fall <span class="number">3</span>  </span><br><span class="line">    rise <span class="number">2</span> </span><br><span class="line">&#125;</span><br><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    state MASTER</span><br><span class="line">    interface eth0</span><br><span class="line">    mcast_src_ip <span class="number">172.29</span>.<span class="number">88.224</span></span><br><span class="line">    virtual_router_id <span class="number">51</span></span><br><span class="line">    priority <span class="number">101</span></span><br><span class="line">    advert_int <span class="number">2</span></span><br><span class="line">    authentication &#123;</span><br><span class="line">        auth_<span class="built_in">type</span> PASS</span><br><span class="line">        auth_pass <span class="number">1111</span></span><br><span class="line">    &#125;</span><br><span class="line">    virtual_ipaddress &#123;</span><br><span class="line">        <span class="number">172.29</span>.<span class="number">88.222</span></span><br><span class="line">    &#125;</span><br><span class="line">    track_script &#123;</span><br><span class="line">       chk_nginx </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在其它备机BACKUP上，只需要改变 state MASTER -&gt; state BACKUP，priority 101 -&gt; priority 100，mcast_src_ip 172.29.88.224 -&gt; mcast_src_ip 172.29.88.225即可。</p>
+<p>然后启动keepalived<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ /etc/init.d/keepalived start</span><br></pre></td></tr></table></figure></p>
+<h2 id="配置选项说明">配置选项说明</h2><p><strong>global_defs</strong></p>
+<ul>
+<li><code>notification_email</code> ： keepalived在发生诸如切换操作时需要发送email通知地址，后面的 smtp_server 相比也都知道是邮件服务器地址。也可以通过其它方式报警，毕竟邮件不是实时通知的。</li>
+<li><code>router_id</code> ： 机器标识，通常可设为hostname。故障发生时，邮件通知会用到</li>
+</ul>
+<p><strong>vrrp_instance</strong></p>
+<ul>
+<li><code>state</code> ： 指定instance(Initial)的初始状态，就是说在配置好后，这台服务器的初始状态就是这里指定的，但这里指定的不算，还是得要通过竞选通过优先级来确定。如果这里设置为MASTER，但如若他的优先级不及另外一台，那么这台在发送通告时，会发送自己的优先级，另外一台发现优先级不如自己的高，那么他会就回抢占为MASTER</li>
+<li><code>interface</code> ： 实例绑定的网卡，因为在配置虚拟IP的时候必须是在已有的网卡上添加的</li>
+<li><code>mcast_src_ip</code> ： 发送多播数据包时的源IP地址，这里注意了，这里实际上就是在那个地址上发送VRRP通告，这个非常重要，一定要选择稳定的网卡端口来发送，这里相当于heartbeat的心跳端口，如果没有设置那么就用默认的绑定的网卡的IP，也就是interface指定的IP地址</li>
+<li><code>virtual_router_id</code> ： 这里设置VRID，这里非常重要，相同的VRID为一个组，他将决定多播的MAC地址</li>
+<li><code>priority</code> ： 设置本节点的优先级，优先级高的为master</li>
+<li><code>advert_int</code> ： 检查间隔，默认为1秒。这就是VRRP的定时器，MASTER每隔这样一个时间间隔，就会发送一个advertisement报文以通知组内其他路由器自己工作正常</li>
+<li><code>authentication</code> ： 定义认证方式和密码，主从必须一样</li>
+<li><code>virtual_ipaddress</code> ： 这里设置的就是VIP，也就是虚拟IP地址，他随着state的变化而增加删除，当state为master的时候就添加，当state为backup的时候删除，这里主要是有优先级来决定的，和state设置的值没有多大关系，这里可以设置多个IP地址</li>
+<li><code>track_script</code> ： 引用VRRP脚本，即在 vrrp_script 部分指定的名字。定期运行它们来改变优先级，并最终引发主备切换。</li>
+</ul>
+<p><strong>vrrp_script</strong><br>告诉 keepalived 在什么情况下切换，所以尤为重要。可以有多个 vrrp_script</p>
+<ul>
+<li><code>script</code> ： 自己写的检测脚本。也可以是一行命令如killall -0 nginx</li>
+<li><code>interval 2</code> ： 每2s检测一次</li>
+<li><code>weight -5</code> ： 检测失败（脚本返回非0）则优先级 -5</li>
+<li><code>fall 2</code>： 检测连续 2 次失败才算确定是真失败。会用weight减少优先级（1-255之间）</li>
+<li><code>rise 1</code>： 检测 1 次成功就算成功。但不修改优先级</li>
+</ul>
+<p>这里要提示一下script一般有2种写法：</p>
+<ol>
+<li>通过脚本执行的返回结果，改变优先级，keepalived继续发送通告消息，backup比较优先级再决定</li>
+<li>脚本里面检测到异常，直接关闭keepalived进程，backup机器接收不到advertisement会抢占IP</li>
+</ol>
+<p>上文 vrrp_script 配置部分，killall -0 nginx属于第1种情况，/etc/keepalived/check_nginx.sh属于第2种情况（脚本中关闭keepalived）。个人更倾向于通过shell脚本判断，但有异常时exit 1，正常退出exit 0，然后keepalived根据动态调整的 vrrp_instance 优先级选举决定是否抢占VIP：</p>
+<ul>
+<li>如果脚本执行结果为0，并且weight配置的值大于0，则优先级相应的增加</li>
+<li>如果脚本执行结果非0，并且weight配置的值小于0，则优先级相应的减少</li>
+</ul>
+<p>其他情况，原本配置的优先级不变，即配置文件中priority对应的值。<br>提示：</p>
+<ol>
+<li>优先级不会不断的提高或者降低</li>
+<li>可以编写多个检测脚本并为每个检测脚本设置不同的weight（在配置中列出就行）</li>
+<li>不管提高优先级还是降低优先级，最终优先级的范围是在[1,254]，不会出现优先级小于等于0或者优先级大于等于255的情况</li>
+<li>在MASTER节点的 vrrp_instance 中 配置 nopreempt ，当它异常恢复后，即使它 prio 更高也不会抢占，这样可以避免正常情况下做无谓的切换</li>
+</ol>
+<p>以上可以做到利用脚本检测业务进程的状态，并动态调整优先级从而实现主备切换。</p>
+<p>配置结束<br>在默认的keepalive.conf里面还有 virtual_server,real_server 这样的配置，我们这用不到，它是为lvs准备的。 notify 可以定义在切换成MASTER或BACKUP时执行的脚本，如有需求请自行google。</p>
 </span>
       
     </div>
@@ -598,7 +390,7 @@ redo
       
         <div class="post-tags">
           
-            <a href="/tags/linux/" rel="tag">#linux</a>
+            <a href="/tags/keepalived/" rel="tag">#keepalived</a>
           
         </div>
       
@@ -607,16 +399,16 @@ redo
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/inotify_rsync/" rel="next" title="rsync + inotify 实现实时同步">
-                <i class="fa fa-chevron-left"></i> rsync + inotify 实现实时同步
+              <a href="/lsyncd/" rel="next" title="lsyncd实时同步">
+                <i class="fa fa-chevron-left"></i> lsyncd实时同步
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/ssh-keygen/" rel="prev" title="ssh-keygen及批量分发">
-                ssh-keygen及批量分发 <i class="fa fa-chevron-right"></i>
+              <a href="/varnish/" rel="prev" title="varnish缓存服务器">
+                varnish缓存服务器 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -667,8 +459,8 @@ redo
         
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="vim/"
-           data-title="vim常用操作" data-url="gsandow.github.io/vim/">
+      <div class="ds-thread" data-thread-key="keepalived/"
+           data-title="keepalived实现负载均衡高可用" data-url="gsandow.github.io/keepalived/">
       </div>
     
   </div>
@@ -799,7 +591,7 @@ redo
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#VIM语法总结"><span class="nav-number">1.</span> <span class="nav-text">VIM语法总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#keepalived_介绍"><span class="nav-number">1.</span> <span class="nav-text">keepalived 介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#VRRP协议"><span class="nav-number">1.1.</span> <span class="nav-text">VRRP协议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Keepalived_+_nginx"><span class="nav-number">2.</span> <span class="nav-text">Keepalived + nginx</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装keepalived"><span class="nav-number">3.</span> <span class="nav-text">安装keepalived</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#nginx_监控脚本"><span class="nav-number">4.</span> <span class="nav-text">nginx 监控脚本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置keepalived-conf"><span class="nav-number">5.</span> <span class="nav-text">配置keepalived.conf</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置选项说明"><span class="nav-number">6.</span> <span class="nav-text">配置选项说明</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">

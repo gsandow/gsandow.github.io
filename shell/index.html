@@ -1,0 +1,1147 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+    <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+  
+
+
+
+<link href="/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/stylesheet/main.css" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="shell," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="shell定义变量以及调用变量运行shell 时会遇到三种变量
+
+局部变量, 在脚本或命令中定义，仅在当前shell实例中有效，其他shell启动的程序不能访问局部变量。
+环境变量, 所有的程序，包括shell启动的程序，都能访问环境变量，有些程序需要环境变量来保证其正常运行。必要的时候shell脚本也可以定义环境变量。
+shell变量, 是由shell程序设置的特殊变量。shell变量中有一部分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="shell 语法简单描述">
+<meta property="og:url" content="gsandow.github.io/shell/index.html">
+<meta property="og:site_name" content="听雨阁">
+<meta property="og:description" content="shell定义变量以及调用变量运行shell 时会遇到三种变量
+
+局部变量, 在脚本或命令中定义，仅在当前shell实例中有效，其他shell启动的程序不能访问局部变量。
+环境变量, 所有的程序，包括shell启动的程序，都能访问环境变量，有些程序需要环境变量来保证其正常运行。必要的时候shell脚本也可以定义环境变量。
+shell变量, 是由shell程序设置的特殊变量。shell变量中有一部分">
+<meta property="og:updated_time" content="2015-12-05T17:05:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="shell 语法简单描述">
+<meta name="twitter:description" content="shell定义变量以及调用变量运行shell 时会遇到三种变量
+
+局部变量, 在脚本或命令中定义，仅在当前shell实例中有效，其他shell启动的程序不能访问局部变量。
+环境变量, 所有的程序，包括shell启动的程序，都能访问环境变量，有些程序需要环境变量来保证其正常运行。必要的时候shell脚本也可以定义环境变量。
+shell变量, 是由shell程序设置的特殊变量。shell变量中有一部分">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: '',
+    sidebar: 'post',
+    motion: true
+  };
+</script>
+
+  <title> shell 语法简单描述 | 听雨阁 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-70294115-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?0f24b8759b65280643922c9035ac6bdf";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">听雨阁</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">stay hungry, stay foolish</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            歸檔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            標籤
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            關於
+          </a>
+        </li>
+      
+
+      
+      
+        <li class="menu-item menu-item-search">
+          <a href="#" class="st-search-show-outputs">
+            
+              <i class="menu-item-icon fa fa-search icon-next-search"></i> <br />
+            
+            檢索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'MA224RsRYTYmje5Y13_h','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                shell 语法简单描述
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            發表於
+            <time itemprop="dateCreated" datetime="2015-12-06T01:05:00+08:00" content="2015-12-06">
+              2015-12-06
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分類於
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/shell/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="shell/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h2 id="shell定义变量以及调用变量">shell定义变量以及调用变量</h2><p>运行shell 时会遇到三种变量</p>
+<ul>
+<li>局部变量, 在脚本或命令中定义，仅在当前shell实例中有效，其他shell启动的程序不能访问局部变量。</li>
+<li>环境变量, 所有的程序，包括shell启动的程序，都能访问环境变量，有些程序需要环境变量来保证其正常运行。必要的时候shell脚本也可以定义环境变量。</li>
+<li>shell变量, 是由shell程序设置的特殊变量。shell变量中有一部分是环境变量，有一部分是局部变量，这些变量保证了shell的正常运行</li>
+</ul>
+<p>定义变量时，变量名开始必须以[a-zA-Z]开始，中间不可以有空格或标点符号（可以用“_”)，变量名不可以使用bash的关键字。<br>调用变量，只需要在变量名前加”$”便可以了，考虑到解释器识别边界的问题，一般我们会在变量名外加大括号来确定变量名<br>删除变量可以用 <code>unset</code> 来取消变量的定义 .</p>
+<p>现在我们便创建一个test.sh文件并且给它执行权限在里面输入以下内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#! /bin/sh</span><br><span class="line"></span></span><br><span class="line"><span class="comment">#变量定义举例： </span></span><br><span class="line">myName=<span class="string">"sandow"</span></span><br><span class="line">myUrl=<span class="string">"http://magdre.github.io"</span></span><br><span class="line">myAge=<span class="number">34</span>  </span><br><span class="line"><span class="comment">#调用变量</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"hell everyone my name is <span class="variable">$myName</span>, my blog site is <span class="variable">$myUrl</span>,"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Today, I'm <span class="variable">$&#123;myAge&#125;</span>years old"</span></span><br><span class="line"><span class="comment">#删除变量</span></span><br><span class="line"><span class="built_in">unset</span> myName</span><br></pre></td></tr></table></figure>
+<p>大括号（花括号）是为了让解释器识别变量名的边界，如果不加的话变量名就成了 $myAgeyears 这个变量名为空，输出来的便只有 <strong>Todey, I’m old</strong>  这样与期望值并不一样。</p>
+<h3 id="在shell中的特殊变量名">在shell中的特殊变量名</h3><table>
+<thead>
+<tr>
+<th style="text-align:center">变量</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">$0</td>
+<td style="text-align:left">当前脚本的文件名</td>
+</tr>
+<tr>
+<td style="text-align:center">$n</td>
+<td style="text-align:left">传递给脚本或函数的参数。</td>
+</tr>
+<tr>
+<td style="text-align:center">$#</td>
+<td style="text-align:left">传递给脚本或函数的参数个数。</td>
+</tr>
+<tr>
+<td style="text-align:center">$*</td>
+<td style="text-align:left">传递给脚本或函数的所有参数。</td>
+</tr>
+<tr>
+<td style="text-align:center">\$@</td>
+<td style="text-align:left">传递给脚本或函数的所有参数。被双引号(“ “)包含时，与 \$* 稍有不同</td>
+</tr>
+<tr>
+<td style="text-align:center">\$?</td>
+<td style="text-align:left">上个命令的退出状态，或函数的返回值。</td>
+</tr>
+<tr>
+<td style="text-align:center">\$\$</td>
+<td style="text-align:left">当前Shell进程ID。对于 Shell 脚本，就是这些脚本所在的进程ID。</td>
+</tr>
+</tbody>
+</table>
+<p><strong>$n</strong> n 是一个数字，表示第几个参数,例 <code>$1</code> 。 如果超过10便需要写成 <code>${10}</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/bash</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"File Name: <span class="variable">$0</span>"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"First Parameter : <span class="variable">$1</span>"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Second Parameter : <span class="variable">$2</span>"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Quoted Values: <span class="variable">$@</span>"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Quoted Values: $*"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Total Number of Parameters : <span class="variable">$#</span>"</span></span><br></pre></td></tr></table></figure>
+<p>我们在命令行输入<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./<span class="keyword">test</span>.<span class="keyword">sh</span> hello world</span><br></pre></td></tr></table></figure></p>
+<p>便可以得到下面结果<br>./tesh.sh<br>hello<br>world<br>hello world<br>hello world<br>2</p>
+<h3 id="变量赋值与转换">变量赋值与转换</h3><table>
+<thead>
+<tr>
+<th style="text-align:left">形式</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">\${var}</td>
+<td style="text-align:left">变量本来的值</td>
+</tr>
+<tr>
+<td style="text-align:left">\${var:-word}</td>
+<td style="text-align:left">如果变量 var 为空或已被删除(unset)，那么返回 word，但不改变 var 的值。</td>
+</tr>
+<tr>
+<td style="text-align:left">\${var:=word}</td>
+<td style="text-align:left">如果变量 var 为空或已被删除(unset)，那么返回 word，并将 var 的值设置为 word。</td>
+</tr>
+<tr>
+<td style="text-align:left">\${var:?message}</td>
+<td style="text-align:left">如果变量 var 为空或已被删除(unset)，那么将消息 message 送到标准错误输出，可以用来检测变量 var 是否可以被正常赋值。 若此替换出现在Shell脚本中，那么脚本将停止运行。</td>
+</tr>
+<tr>
+<td style="text-align:left">\${var:+word}</td>
+<td style="text-align:left">如果变量 var 被定义，那么返回 word，但不改变 var 的值。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="shell里的运算">shell里的运算</h2><p>在原生bash中不支持简单的数学运算，但是可以通过其他命令来实现，例如 awk 和 expr，expr 最常用。<br>在使用expr时的格式为 <code>expr 1 + 2</code> </p>
+<p>a=10   b=20</p>
+<h3 id="算术运算符">算术运算符</h3><table>
+<thead>
+<tr>
+<th style="text-align:center">运算符</th>
+<th style="text-align:center">说明</th>
+<th style="text-align:left">举例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">+</td>
+<td style="text-align:center">加法</td>
+<td style="text-align:left"><code>expr $a + $b</code> 结果为 30。</td>
+</tr>
+<tr>
+<td style="text-align:center">-</td>
+<td style="text-align:center">减法</td>
+<td style="text-align:left"><code>expr $a - $b</code> 结果为 10。</td>
+</tr>
+<tr>
+<td style="text-align:center">*</td>
+<td style="text-align:center">乘法</td>
+<td style="text-align:left"><code>expr $a \* $b</code> 结果为  200。</td>
+</tr>
+<tr>
+<td style="text-align:center">/</td>
+<td style="text-align:center">除法</td>
+<td style="text-align:left"><code>expr $b / $a</code> 结果为 2。</td>
+</tr>
+<tr>
+<td style="text-align:center">%</td>
+<td style="text-align:center">取余</td>
+<td style="text-align:left"><code>expr $b % $a</code> 结果为 0。</td>
+</tr>
+<tr>
+<td style="text-align:center">=</td>
+<td style="text-align:center">赋值</td>
+<td style="text-align:left">a=\$b 将把变量 b 的值赋给 a。</td>
+</tr>
+<tr>
+<td style="text-align:center">==</td>
+<td style="text-align:center">相等</td>
+<td style="text-align:left">用于比较两个数字，相同则返回 true。 [ $a == $b ] 返回 false。</td>
+</tr>
+<tr>
+<td style="text-align:center">!=</td>
+<td style="text-align:center">不相等</td>
+<td style="text-align:left">用于比较两个数字，不相同则返回 true。 [ $a != $b ] 返回 true。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="关系运算">关系运算</h3><table>
+<thead>
+<tr>
+<th style="text-align:center">运算符</th>
+<th style="text-align:left">说明</th>
+<th style="text-align:left">举例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">-eq</td>
+<td style="text-align:left">检测两个数是否相等,相等返回 true</td>
+<td style="text-align:left">[ \$a -eq \$b ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-ne</td>
+<td style="text-align:left">检测两个数是否相等，不相等返回 true</td>
+<td style="text-align:left">[ \$a -ne \$b ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-gt</td>
+<td style="text-align:left">检测左边的数是否大于右边的，如果是，则返回 true</td>
+<td style="text-align:left">[ \$a -gt \$b ] 返回 false</td>
+</tr>
+<tr>
+<td style="text-align:center">-lt</td>
+<td style="text-align:left">检测左边的数是否小于右边的，如果是，则返回 true</td>
+<td style="text-align:left">[ \$a -lt \$b ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-ge</td>
+<td style="text-align:left">检测左边的数是否大等于右边的，如果是，则返回 true</td>
+<td style="text-align:left">[ \$a -ge \$b ] 返回 false</td>
+</tr>
+<tr>
+<td style="text-align:center">-le</td>
+<td style="text-align:left">检测左边的数是否小于等于右边的，如果是，则返回 true</td>
+<td style="text-align:left">[ \$a -le \$b ] 返回 true。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="逻辑运算">逻辑运算</h3><table>
+<thead>
+<tr>
+<th style="text-align:center">运算符</th>
+<th style="text-align:left">说明</th>
+<th style="text-align:left">举例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">!</td>
+<td style="text-align:left">非运算,表达式为 true 则返回 false</td>
+<td style="text-align:left">[ ! false ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-o</td>
+<td style="text-align:left">或运算，有一个表达式为true则返回true</td>
+<td style="text-align:left">[ \$a -lt 20 -o \$b -gt 100 ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-a</td>
+<td style="text-align:left">与运算，两个表达式都为true才返回true</td>
+<td style="text-align:left">[ \$a -lt 20 -a \$b -gt 100 ] 返回 false</td>
+</tr>
+</tbody>
+</table>
+<p>###字符串运算符</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">运算符</th>
+<th style="text-align:left">说明</th>
+<th style="text-align:left">举例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">=</td>
+<td style="text-align:left">检测两个字符串是否相等，相等返回 true</td>
+<td style="text-align:left">[ \$a = \$b ] 返回 false。</td>
+</tr>
+<tr>
+<td style="text-align:center">!=</td>
+<td style="text-align:left">检测两个字符串是否相等，不相等返回 true</td>
+<td style="text-align:left">[ \$a != \$b ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-z</td>
+<td style="text-align:left">检测字符串长度是否为0，为0返回 true</td>
+<td style="text-align:left">[ -z \$a ] 返回 false</td>
+</tr>
+<tr>
+<td style="text-align:center">-n</td>
+<td style="text-align:left">检测字符串长度是否为0，不为0返回 true</td>
+<td style="text-align:left">[ -n \$a ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">str</td>
+<td style="text-align:left">检测字符串是否为空，不为空返回 true</td>
+<td style="text-align:left">[str \$a ] 返回 true</td>
+</tr>
+</tbody>
+</table>
+<h3 id="文件测试运算符">文件测试运算符</h3><p>file=”/var/www/tutorialspoint/unix/test.sh</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">操作符</th>
+<th style="text-align:left">说明</th>
+<th style="text-align:left">举例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">-b file</td>
+<td style="text-align:left">检测文件是否是<strong>块设备</strong>文件，如果是，则返回 true</td>
+<td style="text-align:left">[ -b \$file ] 返回 false</td>
+</tr>
+<tr>
+<td style="text-align:center">-c file</td>
+<td style="text-align:left">检测文件是否是<strong>字符设备</strong>文件，如果是，则返回 true</td>
+<td style="text-align:left">[ -b \$file ] 返回 false</td>
+</tr>
+<tr>
+<td style="text-align:center">-d file</td>
+<td style="text-align:left">检测文件是否是<strong>目录</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -d \$file ] 返回 false</td>
+</tr>
+<tr>
+<td style="text-align:center">-f file</td>
+<td style="text-align:left">检测文件是否是<strong>普通文件</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -f \$file ] 返回 true。</td>
+</tr>
+<tr>
+<td style="text-align:center">-g file</td>
+<td style="text-align:left">检测文件是否<strong>设置了SGID位</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -g \$file ] 返回 false</td>
+</tr>
+<tr>
+<td style="text-align:center">-k file</td>
+<td style="text-align:left">检测文件是否设置了<strong>粘着位(Sticky Bit)</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -k \$file ] 返回 false</td>
+</tr>
+<tr>
+<td style="text-align:center">-p file</td>
+<td style="text-align:left">检测文件是否是具名<strong>管道</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -p \$file ] 返回 false </td>
+</tr>
+<tr>
+<td style="text-align:center">-u file</td>
+<td style="text-align:left">检测文件是否设置了<strong>SUID位</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -u \$file ] 返回 false。 </td>
+</tr>
+<tr>
+<td style="text-align:center">-r file</td>
+<td style="text-align:left">检测文件是否<strong>可读</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -r \$file ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-w file</td>
+<td style="text-align:left">检测文件是否<strong>可写</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -w \$file ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-x file</td>
+<td style="text-align:left">检测文件是否<strong>可执行</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -x \$file ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-s file</td>
+<td style="text-align:left">检测文件是否<strong>为空</strong>（文件大小是否大于0），不为空返回 true</td>
+<td style="text-align:left">[ -s \$file ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-e file</td>
+<td style="text-align:left">检测文件（包括目录）<strong>是否存在</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -e \$file ] 返回 true</td>
+</tr>
+</tbody>
+</table>
+<h3 id="shell_中的if_判断语法">shell 中的if 判断语法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> [ expression <span class="number">1</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">   Statement(s) to be executed <span class="keyword">if</span> expression <span class="number">1</span> is <span class="literal">true</span></span><br><span class="line"><span class="keyword">elif</span> [ expression <span class="number">2</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">   Statement(s) to be executed <span class="keyword">if</span> expression <span class="number">2</span> is <span class="literal">true</span></span><br><span class="line"><span class="keyword">elif</span> [ expression <span class="number">3</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">   Statement(s) to be executed <span class="keyword">if</span> expression <span class="number">3</span> is <span class="literal">true</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">   Statement(s) to be executed <span class="keyword">if</span> no expression is <span class="literal">true</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<h3 id="case_语法">case 语法</h3><p>case 与excel里的case类似，取值先匹配每一个模式，模式匹配后，刚执行匹配模式相应命令，而不会继续其他模式。如果无一匹配模式，使用星号“*”<br>来捕获该值，再执行后面的命令。 case的值后面必须为 <code>关键字 in</code>，每一模式必须以左括号结束，取值可以为变量或常数。匹配发现聚会符合某一模式后，其间所有命令开始执行直至遇到<code>;;</code>，结束。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> var <span class="keyword">in</span></span><br><span class="line">pattern1)</span><br><span class="line">    <span class="built_in">command</span>1</span><br><span class="line">    <span class="built_in">command</span>2</span><br><span class="line">    <span class="built_in">command</span>3</span><br><span class="line">    ;;</span><br><span class="line">pattern2）</span><br><span class="line">    <span class="built_in">command</span>1</span><br><span class="line">    <span class="built_in">command</span>2</span><br><span class="line">    <span class="built_in">command</span>3</span><br><span class="line">    ;;</span><br><span class="line">*)</span><br><span class="line">    <span class="built_in">command</span>1</span><br><span class="line">    <span class="built_in">command</span>2</span><br><span class="line">    <span class="built_in">command</span>3</span><br><span class="line">    ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
+<h3 id="for_语法">for 语法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> 变量 <span class="keyword">in</span> 列表</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    <span class="built_in">command</span>1</span><br><span class="line">    <span class="built_in">command</span>2</span><br><span class="line">    ...</span><br><span class="line">    <span class="built_in">command</span>N</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<h3 id="while_语法">while 语法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> <span class="built_in">command</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">   Statement(s) to be executed <span class="keyword">if</span> <span class="built_in">command</span> is <span class="literal">true</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<h3 id="until_语法">until 语法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">until <span class="built_in">command</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">   Statement(s) to be executed until <span class="built_in">command</span> is <span class="literal">true</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<h3 id="函数语法">函数语法</h3><p>function函数用于把代码模块化，为以后方便灵活调用。</p>
+<figure class="highlight ceylon"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="keyword">function</span><span class="number">_n</span>ame () &#123;</span><br><span class="line">    list <span class="keyword">of</span> commands</span><br><span class="line">    [ <span class="keyword">return</span> <span class="keyword">value</span> ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>向函数内传递文件和上面一样 <code>function_name p1 p2 p3</code> 然后在函数内部用  <code>$n</code> 调用</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/shell/" rel="tag">#shell</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/varnish/" rel="next" title="varnish缓存服务器">
+                <i class="fa fa-chevron-left"></i> varnish缓存服务器
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="shell/"
+           data-title="shell 语法简单描述" data-url="gsandow.github.io/shell/">
+      </div>
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="sandow" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">sandow</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">博學   慎思   笃行</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-name">文章</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-name">分類</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">標籤</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="http://github.com/gsandow" target="_blank">
+                  
+                    <i class="fa fa-github"></i> GitHub
+                  
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/jkshiqiao" target="_blank">
+                  
+                    <i class="fa fa-weibo"></i> Weibo
+                  
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.douban.com/people/gsandow/" target="_blank">
+                  
+                    <i class="fa fa-douban"></i> Douban
+                  
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://coursera.org/" target="_blank">Coursera</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.edx.org" target="_blank">edx</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.52nlp.cn/" target="_blank">52nlp</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#shell定义变量以及调用变量"><span class="nav-number">1.</span> <span class="nav-text">shell定义变量以及调用变量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#在shell中的特殊变量名"><span class="nav-number">1.1.</span> <span class="nav-text">在shell中的特殊变量名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#变量赋值与转换"><span class="nav-number">1.2.</span> <span class="nav-text">变量赋值与转换</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#shell里的运算"><span class="nav-number">2.</span> <span class="nav-text">shell里的运算</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#算术运算符"><span class="nav-number">2.1.</span> <span class="nav-text">算术运算符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关系运算"><span class="nav-number">2.2.</span> <span class="nav-text">关系运算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#逻辑运算"><span class="nav-number">2.3.</span> <span class="nav-text">逻辑运算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文件测试运算符"><span class="nav-number">2.4.</span> <span class="nav-text">文件测试运算符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shell_中的if_判断语法"><span class="nav-number">2.5.</span> <span class="nav-text">shell 中的if 判断语法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#case_语法"><span class="nav-number">2.6.</span> <span class="nav-text">case 语法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#for_语法"><span class="nav-number">2.7.</span> <span class="nav-text">for 语法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#while_语法"><span class="nav-number">2.8.</span> <span class="nav-text">while 语法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#until_语法"><span class="nav-number">2.9.</span> <span class="nav-text">until 语法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#函数语法"><span class="nav-number">2.10.</span> <span class="nav-text">函数语法</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sandow</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 強力驅動
+</div>
+
+<div class="theme-info">
+  主題 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    sandow
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"magdre"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+
+    
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+  
+
+</body>
+</html>

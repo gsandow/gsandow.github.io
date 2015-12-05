@@ -267,6 +267,912 @@
             
               
                 
+                <a class="post-title-link" href="/shell/" itemprop="url">
+                  shell 语法简单描述
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            發表於
+            <time itemprop="dateCreated" datetime="2015-12-06T01:05:00+08:00" content="2015-12-06">
+              2015-12-06
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分類於
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/shell/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="shell/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="shell定义变量以及调用变量">shell定义变量以及调用变量</h2><p>运行shell 时会遇到三种变量</p>
+<ul>
+<li>局部变量, 在脚本或命令中定义，仅在当前shell实例中有效，其他shell启动的程序不能访问局部变量。</li>
+<li>环境变量, 所有的程序，包括shell启动的程序，都能访问环境变量，有些程序需要环境变量来保证其正常运行。必要的时候shell脚本也可以定义环境变量。</li>
+<li>shell变量, 是由shell程序设置的特殊变量。shell变量中有一部分是环境变量，有一部分是局部变量，这些变量保证了shell的正常运行</li>
+</ul>
+<p>定义变量时，变量名开始必须以[a-zA-Z]开始，中间不可以有空格或标点符号（可以用“_”)，变量名不可以使用bash的关键字。<br>调用变量，只需要在变量名前加”$”便可以了，考虑到解释器识别边界的问题，一般我们会在变量名外加大括号来确定变量名<br>删除变量可以用 <code>unset</code> 来取消变量的定义 .</p>
+<p>现在我们便创建一个test.sh文件并且给它执行权限在里面输入以下内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#! /bin/sh</span><br><span class="line"></span></span><br><span class="line"><span class="comment">#变量定义举例： </span></span><br><span class="line">myName=<span class="string">"sandow"</span></span><br><span class="line">myUrl=<span class="string">"http://magdre.github.io"</span></span><br><span class="line">myAge=<span class="number">34</span>  </span><br><span class="line"><span class="comment">#调用变量</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"hell everyone my name is <span class="variable">$myName</span>, my blog site is <span class="variable">$myUrl</span>,"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Today, I'm <span class="variable">$&#123;myAge&#125;</span>years old"</span></span><br><span class="line"><span class="comment">#删除变量</span></span><br><span class="line"><span class="built_in">unset</span> myName</span><br></pre></td></tr></table></figure>
+<p>大括号（花括号）是为了让解释器识别变量名的边界，如果不加的话变量名就成了 $myAgeyears 这个变量名为空，输出来的便只有 <strong>Todey, I’m old</strong>  这样与期望值并不一样。</p>
+<h3 id="在shell中的特殊变量名">在shell中的特殊变量名</h3><table>
+<thead>
+<tr>
+<th style="text-align:center">变量</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">$0</td>
+<td style="text-align:left">当前脚本的文件名</td>
+</tr>
+<tr>
+<td style="text-align:center">$n</td>
+<td style="text-align:left">传递给脚本或函数的参数。</td>
+</tr>
+<tr>
+<td style="text-align:center">$#</td>
+<td style="text-align:left">传递给脚本或函数的参数个数。</td>
+</tr>
+<tr>
+<td style="text-align:center">$*</td>
+<td style="text-align:left">传递给脚本或函数的所有参数。</td>
+</tr>
+<tr>
+<td style="text-align:center">\$@</td>
+<td style="text-align:left">传递给脚本或函数的所有参数。被双引号(“ “)包含时，与 \$* 稍有不同</td>
+</tr>
+<tr>
+<td style="text-align:center">\$?</td>
+<td style="text-align:left">上个命令的退出状态，或函数的返回值。</td>
+</tr>
+<tr>
+<td style="text-align:center">\$\$</td>
+<td style="text-align:left">当前Shell进程ID。对于 Shell 脚本，就是这些脚本所在的进程ID。</td>
+</tr>
+</tbody>
+</table>
+<p><strong>$n</strong> n 是一个数字，表示第几个参数,例 <code>$1</code> 。 如果超过10便需要写成 <code>${10}</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/bash</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"File Name: <span class="variable">$0</span>"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"First Parameter : <span class="variable">$1</span>"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Second Parameter : <span class="variable">$2</span>"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Quoted Values: <span class="variable">$@</span>"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Quoted Values: $*"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Total Number of Parameters : <span class="variable">$#</span>"</span></span><br></pre></td></tr></table></figure>
+<p>我们在命令行输入<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./<span class="keyword">test</span>.<span class="keyword">sh</span> hello world</span><br></pre></td></tr></table></figure></p>
+<p>便可以得到下面结果<br>./tesh.sh<br>hello<br>world<br>hello world<br>hello world<br>2</p>
+<h3 id="变量赋值与转换">变量赋值与转换</h3><table>
+<thead>
+<tr>
+<th style="text-align:left">形式</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">\${var}</td>
+<td style="text-align:left">变量本来的值</td>
+</tr>
+<tr>
+<td style="text-align:left">\${var:-word}</td>
+<td style="text-align:left">如果变量 var 为空或已被删除(unset)，那么返回 word，但不改变 var 的值。</td>
+</tr>
+<tr>
+<td style="text-align:left">\${var:=word}</td>
+<td style="text-align:left">如果变量 var 为空或已被删除(unset)，那么返回 word，并将 var 的值设置为 word。</td>
+</tr>
+<tr>
+<td style="text-align:left">\${var:?message}</td>
+<td style="text-align:left">如果变量 var 为空或已被删除(unset)，那么将消息 message 送到标准错误输出，可以用来检测变量 var 是否可以被正常赋值。 若此替换出现在Shell脚本中，那么脚本将停止运行。</td>
+</tr>
+<tr>
+<td style="text-align:left">\${var:+word}</td>
+<td style="text-align:left">如果变量 var 被定义，那么返回 word，但不改变 var 的值。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="shell里的运算">shell里的运算</h2><p>在原生bash中不支持简单的数学运算，但是可以通过其他命令来实现，例如 awk 和 expr，expr 最常用。<br>在使用expr时的格式为 <code>expr 1 + 2</code> </p>
+<p>a=10   b=20</p>
+<h3 id="算术运算符">算术运算符</h3><table>
+<thead>
+<tr>
+<th style="text-align:center">运算符</th>
+<th style="text-align:center">说明</th>
+<th style="text-align:left">举例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">+</td>
+<td style="text-align:center">加法</td>
+<td style="text-align:left"><code>expr $a + $b</code> 结果为 30。</td>
+</tr>
+<tr>
+<td style="text-align:center">-</td>
+<td style="text-align:center">减法</td>
+<td style="text-align:left"><code>expr $a - $b</code> 结果为 10。</td>
+</tr>
+<tr>
+<td style="text-align:center">*</td>
+<td style="text-align:center">乘法</td>
+<td style="text-align:left"><code>expr $a \* $b</code> 结果为  200。</td>
+</tr>
+<tr>
+<td style="text-align:center">/</td>
+<td style="text-align:center">除法</td>
+<td style="text-align:left"><code>expr $b / $a</code> 结果为 2。</td>
+</tr>
+<tr>
+<td style="text-align:center">%</td>
+<td style="text-align:center">取余</td>
+<td style="text-align:left"><code>expr $b % $a</code> 结果为 0。</td>
+</tr>
+<tr>
+<td style="text-align:center">=</td>
+<td style="text-align:center">赋值</td>
+<td style="text-align:left">a=\$b 将把变量 b 的值赋给 a。</td>
+</tr>
+<tr>
+<td style="text-align:center">==</td>
+<td style="text-align:center">相等</td>
+<td style="text-align:left">用于比较两个数字，相同则返回 true。 [ $a == $b ] 返回 false。</td>
+</tr>
+<tr>
+<td style="text-align:center">!=</td>
+<td style="text-align:center">不相等</td>
+<td style="text-align:left">用于比较两个数字，不相同则返回 true。 [ $a != $b ] 返回 true。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="关系运算">关系运算</h3><table>
+<thead>
+<tr>
+<th style="text-align:center">运算符</th>
+<th style="text-align:left">说明</th>
+<th style="text-align:left">举例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">-eq</td>
+<td style="text-align:left">检测两个数是否相等,相等返回 true</td>
+<td style="text-align:left">[ \$a -eq \$b ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-ne</td>
+<td style="text-align:left">检测两个数是否相等，不相等返回 true</td>
+<td style="text-align:left">[ \$a -ne \$b ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-gt</td>
+<td style="text-align:left">检测左边的数是否大于右边的，如果是，则返回 true</td>
+<td style="text-align:left">[ \$a -gt \$b ] 返回 false</td>
+</tr>
+<tr>
+<td style="text-align:center">-lt</td>
+<td style="text-align:left">检测左边的数是否小于右边的，如果是，则返回 true</td>
+<td style="text-align:left">[ \$a -lt \$b ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-ge</td>
+<td style="text-align:left">检测左边的数是否大等于右边的，如果是，则返回 true</td>
+<td style="text-align:left">[ \$a -ge \$b ] 返回 false</td>
+</tr>
+<tr>
+<td style="text-align:center">-le</td>
+<td style="text-align:left">检测左边的数是否小于等于右边的，如果是，则返回 true</td>
+<td style="text-align:left">[ \$a -le \$b ] 返回 true。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="逻辑运算">逻辑运算</h3><table>
+<thead>
+<tr>
+<th style="text-align:center">运算符</th>
+<th style="text-align:left">说明</th>
+<th style="text-align:left">举例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">!</td>
+<td style="text-align:left">非运算,表达式为 true 则返回 false</td>
+<td style="text-align:left">[ ! false ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-o</td>
+<td style="text-align:left">或运算，有一个表达式为true则返回true</td>
+<td style="text-align:left">[ \$a -lt 20 -o \$b -gt 100 ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-a</td>
+<td style="text-align:left">与运算，两个表达式都为true才返回true</td>
+<td style="text-align:left">[ \$a -lt 20 -a \$b -gt 100 ] 返回 false</td>
+</tr>
+</tbody>
+</table>
+<p>###字符串运算符</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">运算符</th>
+<th style="text-align:left">说明</th>
+<th style="text-align:left">举例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">=</td>
+<td style="text-align:left">检测两个字符串是否相等，相等返回 true</td>
+<td style="text-align:left">[ \$a = \$b ] 返回 false。</td>
+</tr>
+<tr>
+<td style="text-align:center">!=</td>
+<td style="text-align:left">检测两个字符串是否相等，不相等返回 true</td>
+<td style="text-align:left">[ \$a != \$b ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-z</td>
+<td style="text-align:left">检测字符串长度是否为0，为0返回 true</td>
+<td style="text-align:left">[ -z \$a ] 返回 false</td>
+</tr>
+<tr>
+<td style="text-align:center">-n</td>
+<td style="text-align:left">检测字符串长度是否为0，不为0返回 true</td>
+<td style="text-align:left">[ -n \$a ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">str</td>
+<td style="text-align:left">检测字符串是否为空，不为空返回 true</td>
+<td style="text-align:left">[str \$a ] 返回 true</td>
+</tr>
+</tbody>
+</table>
+<h3 id="文件测试运算符">文件测试运算符</h3><p>file=”/var/www/tutorialspoint/unix/test.sh</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">操作符</th>
+<th style="text-align:left">说明</th>
+<th style="text-align:left">举例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">-b file</td>
+<td style="text-align:left">检测文件是否是<strong>块设备</strong>文件，如果是，则返回 true</td>
+<td style="text-align:left">[ -b \$file ] 返回 false</td>
+</tr>
+<tr>
+<td style="text-align:center">-c file</td>
+<td style="text-align:left">检测文件是否是<strong>字符设备</strong>文件，如果是，则返回 true</td>
+<td style="text-align:left">[ -b \$file ] 返回 false</td>
+</tr>
+<tr>
+<td style="text-align:center">-d file</td>
+<td style="text-align:left">检测文件是否是<strong>目录</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -d \$file ] 返回 false</td>
+</tr>
+<tr>
+<td style="text-align:center">-f file</td>
+<td style="text-align:left">检测文件是否是<strong>普通文件</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -f \$file ] 返回 true。</td>
+</tr>
+<tr>
+<td style="text-align:center">-g file</td>
+<td style="text-align:left">检测文件是否<strong>设置了SGID位</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -g \$file ] 返回 false</td>
+</tr>
+<tr>
+<td style="text-align:center">-k file</td>
+<td style="text-align:left">检测文件是否设置了<strong>粘着位(Sticky Bit)</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -k \$file ] 返回 false</td>
+</tr>
+<tr>
+<td style="text-align:center">-p file</td>
+<td style="text-align:left">检测文件是否是具名<strong>管道</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -p \$file ] 返回 false </td>
+</tr>
+<tr>
+<td style="text-align:center">-u file</td>
+<td style="text-align:left">检测文件是否设置了<strong>SUID位</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -u \$file ] 返回 false。 </td>
+</tr>
+<tr>
+<td style="text-align:center">-r file</td>
+<td style="text-align:left">检测文件是否<strong>可读</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -r \$file ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-w file</td>
+<td style="text-align:left">检测文件是否<strong>可写</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -w \$file ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-x file</td>
+<td style="text-align:left">检测文件是否<strong>可执行</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -x \$file ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-s file</td>
+<td style="text-align:left">检测文件是否<strong>为空</strong>（文件大小是否大于0），不为空返回 true</td>
+<td style="text-align:left">[ -s \$file ] 返回 true</td>
+</tr>
+<tr>
+<td style="text-align:center">-e file</td>
+<td style="text-align:left">检测文件（包括目录）<strong>是否存在</strong>，如果是，则返回 true</td>
+<td style="text-align:left">[ -e \$file ] 返回 true</td>
+</tr>
+</tbody>
+</table>
+<h3 id="shell_中的if_判断语法">shell 中的if 判断语法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> [ expression <span class="number">1</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">   Statement(s) to be executed <span class="keyword">if</span> expression <span class="number">1</span> is <span class="literal">true</span></span><br><span class="line"><span class="keyword">elif</span> [ expression <span class="number">2</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">   Statement(s) to be executed <span class="keyword">if</span> expression <span class="number">2</span> is <span class="literal">true</span></span><br><span class="line"><span class="keyword">elif</span> [ expression <span class="number">3</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">   Statement(s) to be executed <span class="keyword">if</span> expression <span class="number">3</span> is <span class="literal">true</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">   Statement(s) to be executed <span class="keyword">if</span> no expression is <span class="literal">true</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<h3 id="case_语法">case 语法</h3><p>case 与excel里的case类似，取值先匹配每一个模式，模式匹配后，刚执行匹配模式相应命令，而不会继续其他模式。如果无一匹配模式，使用星号“*”<br>来捕获该值，再执行后面的命令。 case的值后面必须为 <code>关键字 in</code>，每一模式必须以左括号结束，取值可以为变量或常数。匹配发现聚会符合某一模式后，其间所有命令开始执行直至遇到<code>;;</code>，结束。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> var <span class="keyword">in</span></span><br><span class="line">pattern1)</span><br><span class="line">    <span class="built_in">command</span>1</span><br><span class="line">    <span class="built_in">command</span>2</span><br><span class="line">    <span class="built_in">command</span>3</span><br><span class="line">    ;;</span><br><span class="line">pattern2）</span><br><span class="line">    <span class="built_in">command</span>1</span><br><span class="line">    <span class="built_in">command</span>2</span><br><span class="line">    <span class="built_in">command</span>3</span><br><span class="line">    ;;</span><br><span class="line">*)</span><br><span class="line">    <span class="built_in">command</span>1</span><br><span class="line">    <span class="built_in">command</span>2</span><br><span class="line">    <span class="built_in">command</span>3</span><br><span class="line">    ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
+<h3 id="for_语法">for 语法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> 变量 <span class="keyword">in</span> 列表</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    <span class="built_in">command</span>1</span><br><span class="line">    <span class="built_in">command</span>2</span><br><span class="line">    ...</span><br><span class="line">    <span class="built_in">command</span>N</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<h3 id="while_语法">while 语法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> <span class="built_in">command</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">   Statement(s) to be executed <span class="keyword">if</span> <span class="built_in">command</span> is <span class="literal">true</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<h3 id="until_语法">until 语法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">until <span class="built_in">command</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">   Statement(s) to be executed until <span class="built_in">command</span> is <span class="literal">true</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<h3 id="函数语法">函数语法</h3><p>function函数用于把代码模块化，为以后方便灵活调用。</p>
+<figure class="highlight ceylon"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="keyword">function</span><span class="number">_n</span>ame () &#123;</span><br><span class="line">    list <span class="keyword">of</span> commands</span><br><span class="line">    [ <span class="keyword">return</span> <span class="keyword">value</span> ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>向函数内传递文件和上面一样 <code>function_name p1 p2 p3</code> 然后在函数内部用  <code>$n</code> 调用</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/varnish/" itemprop="url">
+                  varnish缓存服务器
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            發表於
+            <time itemprop="dateCreated" datetime="2015-12-06T00:14:21+08:00" content="2015-12-06">
+              2015-12-06
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分類於
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/varnish/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="varnish/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <p>##varnish squid 简单介绍</p>
+<p><strong>Varnish</strong>是一款高性能、开源的反向代理服务器和缓存服务器.其开发者Poul-Henning Kamp是FreeBSD核心的开发人员之一。Varnish采用全新的软件体系结构，和现在的硬件体系配合比较紧密。Varnish采用VCL的配置，而且具有强大的管理功能，如top、stat、admin、lis，管理方式比较灵活。Varnish的状态机设计不仅巧妙，结构也很清晰，利用二叉堆管理缓存文件，即可达到随时删除的目的。。目前Varnish3.0版本解决了服务器重启后Varnish缓存消失的问题，性能优化上有了更大的提升。<br><img src="http://7xndvx.com1.z0.glb.clouddn.com/nginx-squid-haproxy-varnish.jpg" alt="nginx-squid-varnish"><br><img src="http://7xndvx.com1.z0.glb.clouddn.com/nginx-squid-haproxy-varnish3.jpg" alt="nginx-squid-varnish"><br>Varnish与一般服务器软件类似，分为master（management）进程和child（worker，主要做cache的工作）进程。master进程读入命令，进行一些初始化，然后fork并监控child进程。child进程分配若干线程进行工作，主要包括一些管理线程和很多woker线程。<br><a href="https://www.varnish-cache.org/" target="_blank" rel="external">varnish主页</a></p>
+<p><strong>Varnish和Squid的对比</strong></p>
+<ul>
+<li>Varnish和Squid在完成相同负载的工作时，Squid服务器发生故障的几率要高于Varnish，因此Squid需要经常重启。</li>
+<li>Varnish访问速度更快,Varnish采用了 Visual Page Cache技术，所有缓存的数据都直接从内存读取，而Squid从硬盘读取缓存的数据，Varnish在访问速度方面会更快一些。</li>
+<li>Varnish可以支持更多的并发连接,因为Varnish的TCP连接与释放比Squid快，所以在高并发连接情况下可以支持更多的TCP连接。</li>
+<li>Varnish可以通过管理端口来管理缓存，使用正则表达式就可以批量清除部分缓存，而Squid做不到这一点。</li>
+</ul>
+<h2 id="安装与部署varnish">安装与部署varnish</h2><p>主机环境：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ uname -r</span><br><span class="line"><span class="number">2.6</span><span class="number">.32</span>-<span class="number">573.</span>el6.x86_64</span><br><span class="line">$ cat /etc/redhat-release </span><br><span class="line">CentOS release <span class="number">6.7</span> (Final)</span><br></pre></td></tr></table></figure></p>
+<p><a href="https://www.varnish-cache.org/installation/redhat" target="_blank" rel="external">varnish官网</a></p>
+<h2 id="安装varnish">安装varnish</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ rpm <span class="comment">--nosignature -i https://repo.varnish-cache.org/redhat/varnish-4.0.el6.rpm</span></span><br><span class="line">$ yum <span class="operator"><span class="keyword">install</span> varnish</span></span><br></pre></td></tr></table></figure>
+<p>对于是Ubuntu系统，可以执行以下命令来安装：<br>curl <a href="http://repo.varnish-cache.org/debian/GPG-key.txt" target="_blank" rel="external">http://repo.varnish-cache.org/debian/GPG-key.txt</a> | sudo apt-key add -echo “deb <a href="http://repo.varnish-cache.org/ubuntu/" target="_blank" rel="external">http://repo.varnish-cache.org/ubuntu/</a> precise varnish-3.0” | sudo tee -a /etc/apt/sources.listsudo apt-get updatesudo apt-get install varnish</p>
+<h2 id="开启varnish">开启varnish</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/varnish start</span><br><span class="line">[root@varnish ~]<span class="preprocessor"># netstat -tanp|grep varnish</span></span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:<span class="number">6081</span>                <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:*                   LISTEN      <span class="number">1640</span>/varnishd       </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6082</span>              <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:*                   LISTEN      <span class="number">1639</span>/varnishd       </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> :::<span class="number">6081</span>                     :::*                        LISTEN      <span class="number">1640</span>/varnishd</span><br></pre></td></tr></table></figure>
+<p>这里要注意一下，有可能会报错<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@nginx01 varnish]$ /etc/init.d/varnish <span class="operator"><span class="keyword">start</span></span><br><span class="line"><span class="keyword">Starting</span> Varnish <span class="keyword">Cache</span>:                                    [<span class="keyword">FAILED</span>]</span></span><br></pre></td></tr></table></figure></p>
+<p>那么就查看下日志吧<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@nginx01 lib]$ varnishlog </span><br><span class="line">Can<span class="string">'t open VSM file (Cannot open /var/lib/varnish/nginx01/_.vsm: No such file or directory</span><br><span class="line">)</span></span><br></pre></td></tr></table></figure></p>
+<p>什么情况，为什么没有这个目录，既然没有那么就手动创建一个呗然后再启动，发现还是不行，我擦<br>这是什么情况，好吧，那么手动执行一下试试。。。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@nginx01 varnish]$ varnishd <span class="operator">-d</span> <span class="operator">-f</span> /etc/varnish/default.vcl</span><br><span class="line">Platform: Linux,<span class="number">2.6</span>.<span class="number">32</span>-<span class="number">573</span>.el6.x86_64,x86_64,-smalloc,-smalloc,-hcritbit</span><br><span class="line"><span class="number">200</span> <span class="number">280</span>     </span><br><span class="line">-----------------------------</span><br><span class="line">Varnish Cache CLI <span class="number">1.0</span></span><br><span class="line">-----------------------------</span><br><span class="line">Linux,<span class="number">2.6</span>.<span class="number">32</span>-<span class="number">573</span>.el6.x86_64,x86_64,-smalloc,-smalloc,-hcritbit</span><br><span class="line">varnish-<span class="number">4.0</span>.<span class="number">3</span> revision b8c4a34</span><br><span class="line"></span><br><span class="line">Type <span class="string">'help'</span> <span class="keyword">for</span> <span class="built_in">command</span> list.</span><br><span class="line">Type <span class="string">'quit'</span> to close CLI session.</span><br><span class="line">Type <span class="string">'start'</span> to launch worker process.</span><br></pre></td></tr></table></figure>
+<p>我快崩溃不这是为什么呢。。。找了半天原因，原来是selinux没有关，我擦，看来不关的确会出很多问题啊，关闭后就没有出此问题啦。完美解决。这里介绍几个网址以后有问题了也可以上这里查看<br><a href="https://github.com/rackspace-cookbooks/varnish" target="_blank" rel="external">varnish 在github rackspace cookbook</a><br><a href="https://supermarket.chef.io/cookbooks/selinux" target="_blank" rel="external">selinux cookbook</a></p>
+<p>接下来要做的，就是修改apache的监听端口，将varnish监听端口指向80，将apache监听端口指向一个其他端口，再将varnish出口端口指向apache指向的端口。这样，client–&gt;端口80–&gt;varinsh检测cache–&gt;apache-&gt;client</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ vim /etc/sysconfig/varnish</span><br><span class="line">VARNISH_LISTEN_PORT=<span class="number">80</span></span><br><span class="line"></span><br><span class="line">$ vim /etc/varnish/default.vcl</span><br><span class="line">backend default &#123;</span><br><span class="line">.host = <span class="string">"127.0.0.1"</span>;</span><br><span class="line">.port = <span class="string">"8880"</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$ vim /etc/httpd/conf/httpd.conf</span><br><span class="line">Listen *:<span class="number">8880</span></span><br><span class="line">&lt;VirtualHost *:<span class="number">8880</span>&gt;</span><br><span class="line">ServerAdmin gsandow.com</span><br><span class="line">DocumentRoot /data/www/html/</span><br><span class="line">ErrorLog logs/sample-error.log</span><br><span class="line">CustomLog logs/sampleaccess_<span class="built_in">log</span> common</span><br><span class="line">&lt;/VirtualHost&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="介绍下varnish配置信息">介绍下varnish配置信息</h2><p>查看varnish的各种命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@apache01 blog]$ ll /usr/bin/varnish*</span><br><span class="line">-rwxr-xr-x <span class="number">1</span> root root  <span class="number">23656</span> Feb <span class="number">18</span>  <span class="number">2015</span> /usr/bin/varnishadm</span><br><span class="line">-rwxr-xr-x <span class="number">1</span> root root  <span class="number">29824</span> Feb <span class="number">18</span>  <span class="number">2015</span> /usr/bin/varnishhist</span><br><span class="line">-rwxr-xr-x <span class="number">1</span> root root  <span class="number">32576</span> Feb <span class="number">18</span>  <span class="number">2015</span> /usr/bin/varnishlog</span><br><span class="line">-rwxr-xr-x <span class="number">1</span> root root  <span class="number">45344</span> Feb <span class="number">18</span>  <span class="number">2015</span> /usr/bin/varnishncsa</span><br><span class="line">-rwxr-xr-x <span class="number">1</span> root root  <span class="number">32224</span> Feb <span class="number">18</span>  <span class="number">2015</span> /usr/bin/varnishstat</span><br><span class="line">-rwxr-xr-x <span class="number">1</span> root root <span class="number">132544</span> Feb <span class="number">18</span>  <span class="number">2015</span> /usr/bin/varnishtest</span><br><span class="line">-rwxr-xr-x <span class="number">1</span> root root  <span class="number">41632</span> Feb <span class="number">18</span>  <span class="number">2015</span> /usr/bin/varnishtop</span><br></pre></td></tr></table></figure>
+<p><strong>varnish命令</strong>：</p>
+<ul>
+<li><code>varnishadm</code> 管理Varnish后端的工具 telnet也可以（下面详细介绍）</li>
+<li><code>varnishhist</code> 查看Varnish命中的工具 运行可以看到一张柱状描绘图，|表示缓存命中，#表示未命中，横向代表时间。 【非常有用】</li>
+<li><code>varnishlog</code> 实时显示varnish的请求日志</li>
+<li><code>varnishncsa</code> 以Apache标准的格式combined输出日志</li>
+<li><code>varnishstat</code> 查看状态、参数等，具体查阅百度。【非常有用】</li>
+<li><code>varnishtop</code> 类似top工具，查看varnish相关进程的资源、运行等状况。</li>
+</ul>
+<p><strong>文件位置</strong>：</p>
+<ul>
+<li>/etc/varnish/ 存放varnish VCL配置文件 </li>
+<li>/etc/sysconfig/varnish 【CentOS】 存放varnish服务器运行的参数 </li>
+<li>/etc/default/varnish 【Ubuntu】 存放varnish服务器运行的参数 </li>
+<li>/usr/sbin/varnishd varnish服务器执行文件 </li>
+<li>/etc/init.d/varnish 运行程序 </li>
+</ul>
+<p><a href="http://www.canonware.com/download/jemalloc/jemalloc-latest/doc/jemalloc.html" target="_blank" rel="external">http://www.canonware.com/download/jemalloc/jemalloc-latest/doc/jemalloc.html</a><br><a href="http://sharadchhetri.com/2013/09/25/how-to-install-and-configure-varnish-3-x-in-centos-and-red-hat/" target="_blank" rel="external">Install and configure Varnish Cache server on CentOS/RHEL 6.x</a></p>
+<p><img src="http://7xndvx.com1.z0.glb.clouddn.com/request1.png" alt="request"></p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/keepalived/" itemprop="url">
+                  keepalived实现负载均衡高可用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            發表於
+            <time itemprop="dateCreated" datetime="2015-12-06T00:10:34+08:00" content="2015-12-06">
+              2015-12-06
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分類於
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/keepalived/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="keepalived/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="keepalived_介绍">keepalived 介绍</h2><p>Keepalived是一个基于VRRP协议来实现的服务高可用方案，可以利用其来避免IP单点故障，类似的工具还有heartbeat、corosync、pacemaker。但是它一般不会单独出现，而是与其它负载均衡技术（如lvs、haproxy、nginx）一起工作来达到集群的高可用。<br><img src="http://7xndvx.com1.z0.glb.clouddn.com/nginx-keepalived-vrrp.jpg" alt="keepalived"></p>
+<h3 id="VRRP协议">VRRP协议</h3><p>VRRP全称 Virtual Router Redundancy Protocol，即 <a href="http://en.wikipedia.org/wiki/VRRP" target="_blank" rel="external">虚拟路由冗余协议</a>。可以认为它是实现路由器高可用的容错协议，即将N台提供相同功能的路由器组成一个路由器组(Router Group)，这个组里面有一个master和多个backup，但在外界看来就像一台一样，构成虚拟路由器，拥有一个虚拟IP（vip，也就是路由器所在局域网内其他机器的默认路由），占有这个IP的master实际负责ARP相应和转发IP数据包，组中的其它路由器作为备份的角色处于待命状态。master会发组播消息，当backup在超时时间内收不到vrrp包时就认为master宕掉了，这时就需要根据VRRP的优先级来选举一个backup当master，保证路由器的高可用。</p>
+<p>  在VRRP协议实现里，虚拟路由器使用 00-00-5E-00-01-XX 作为虚拟MAC地址，XX就是唯一的 VRID （Virtual Router IDentifier），这个地址同一时间只有一个物理路由器占用。在虚拟路由器里面的物理路由器组里面通过多播IP地址 224.0.0.18 来定时发送通告消息。每个Router都有一个 1-255 之间的优先级别，级别最高的（highest priority）将成为主控（master）路由器。通过降低master的优先权可以让处于backup状态的路由器抢占（pro-empt）主路由器的状态，两个backup优先级相同的IP地址较大者为master，接管虚拟IP。</p>
+<p>来自freeloda对 heartbeat/corosync的比较</p>
+<blockquote>
+<p>Heartbeat、Corosync、Keepalived这三个集群组件我们到底选哪个好，首先我想说明的是，Heartbeat、Corosync是属于同一类型，Keepalived与Heartbeat、Corosync，根本不是同一类型的。Keepalived使用的vrrp协议方式，虚拟路由冗余协议 (Virtual Router Redundancy Protocol，简称VRRP)；Heartbeat或Corosync是基于主机或网络服务的高可用方式；简单的说就是，Keepalived的目的是模拟路由器的高可用，Heartbeat或Corosync的目的是实现Service的高可用。</p>
+<ul>
+<li>所以一般Keepalived是实现前端高可用，常用的前端高可用的组合有，就是我们常见的LVS+Keepalived、Nginx+Keepalived、HAproxy+Keepalived。而Heartbeat或Corosync是实现服务的高可用，常见的组合有Heartbeat v3(Corosync)+Pacemaker+NFS+Httpd 实现Web服务器的高可用、Heartbeat v3(Corosync)+Pacemaker+NFS+MySQL 实现MySQL服务器的高可用。总结一下，Keepalived中实现轻量级的高可用，一般用于前端高可用，且不需要共享存储，一般常用于两个节点的高可用。而Heartbeat(或Corosync)一般用于服务的高可用，且需要共享存储，一般用于多节点的高可用。这个问题我们说明白了。</li>
+<li>又有博友会问了，那heartbaet与corosync我们又应该选择哪个好啊，我想说我们一般用corosync，因为corosync的运行机制更优于heartbeat，就连从heartbeat分离出来的pacemaker都说在以后的开发当中更倾向于corosync，所以现在corosync+pacemaker是最佳组合</li>
+</ul>
+</blockquote>
+<h2 id="Keepalived_+_nginx">Keepalived + nginx</h2><p>keepalived可以认为是VRRP协议在Linux上的实现，主要有三个模块，分别是core、check和vrrp。core模块为keepalived的核心，负责主进程的启动、维护以及全局配置文件的加载和解析。check负责健康检查，包括常见的各种检查方式。vrrp模块是来实现VRRP协议的。</p>
+<h2 id="安装keepalived">安装keepalived</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ yum install -y keepalived</span><br></pre></td></tr></table></figure>
+<h2 id="nginx_监控脚本">nginx 监控脚本</h2><p>用于检测ngnix的运行状态，并在nginx进程不存在时尝试重新启动nginx，如果启动失败则停止keepalived,准备让其它机器接管</p>
+<p><code>/servser/scripts/check_nginx.sh</code> :</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/bash</span></span><br><span class="line">counter=$(ps -C nginx --no-heading|wc <span class="operator">-l</span>)</span><br><span class="line"><span class="keyword">if</span> [ <span class="string">"<span class="variable">$&#123;counter&#125;</span>"</span> = <span class="string">"0"</span> ]; <span class="keyword">then</span></span><br><span class="line">    /usr/<span class="built_in">local</span>/bin/nginx</span><br><span class="line">    sleep <span class="number">2</span></span><br><span class="line">    counter=$(ps -C nginx --no-heading|wc <span class="operator">-l</span>)</span><br><span class="line">    <span class="keyword">if</span> [ <span class="string">"<span class="variable">$&#123;counter&#125;</span>"</span> = <span class="string">"0"</span> ]; <span class="keyword">then</span></span><br><span class="line">        /etc/init.d/keepalived stop</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<h2 id="配置keepalived-conf">配置keepalived.conf</h2><p><code>/etc/keepalived/keepalived.conf</code> :</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">! Configuration File <span class="keyword">for</span> keepalived</span><br><span class="line">global_defs &#123;</span><br><span class="line">    notification_email &#123;</span><br><span class="line">        <span class="number">921070747</span>@example.com</span><br><span class="line">        gsandow@example.com</span><br><span class="line">    &#125;</span><br><span class="line">    notification_email_from itsection@example.com</span><br><span class="line">    smtp_server mail.example.com</span><br><span class="line">    smtp_connect_timeout <span class="number">30</span></span><br><span class="line">    router_id LVS_DEVEL</span><br><span class="line">&#125;</span><br><span class="line">vrrp_script chk_nginx &#123;</span><br><span class="line"><span class="comment">#    script "killall -0 nginx"</span></span><br><span class="line">    script <span class="string">"/server/scripts/check_nginx.sh"</span> </span><br><span class="line">    interval <span class="number">2</span> </span><br><span class="line">    weight -<span class="number">5</span> </span><br><span class="line">    fall <span class="number">3</span>  </span><br><span class="line">    rise <span class="number">2</span> </span><br><span class="line">&#125;</span><br><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    state MASTER</span><br><span class="line">    interface eth0</span><br><span class="line">    mcast_src_ip <span class="number">172.29</span>.<span class="number">88.224</span></span><br><span class="line">    virtual_router_id <span class="number">51</span></span><br><span class="line">    priority <span class="number">101</span></span><br><span class="line">    advert_int <span class="number">2</span></span><br><span class="line">    authentication &#123;</span><br><span class="line">        auth_<span class="built_in">type</span> PASS</span><br><span class="line">        auth_pass <span class="number">1111</span></span><br><span class="line">    &#125;</span><br><span class="line">    virtual_ipaddress &#123;</span><br><span class="line">        <span class="number">172.29</span>.<span class="number">88.222</span></span><br><span class="line">    &#125;</span><br><span class="line">    track_script &#123;</span><br><span class="line">       chk_nginx </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在其它备机BACKUP上，只需要改变 state MASTER -&gt; state BACKUP，priority 101 -&gt; priority 100，mcast_src_ip 172.29.88.224 -&gt; mcast_src_ip 172.29.88.225即可。</p>
+<p>然后启动keepalived<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ /etc/init.d/keepalived start</span><br></pre></td></tr></table></figure></p>
+<h2 id="配置选项说明">配置选项说明</h2><p><strong>global_defs</strong></p>
+<ul>
+<li><code>notification_email</code> ： keepalived在发生诸如切换操作时需要发送email通知地址，后面的 smtp_server 相比也都知道是邮件服务器地址。也可以通过其它方式报警，毕竟邮件不是实时通知的。</li>
+<li><code>router_id</code> ： 机器标识，通常可设为hostname。故障发生时，邮件通知会用到</li>
+</ul>
+<p><strong>vrrp_instance</strong></p>
+<ul>
+<li><code>state</code> ： 指定instance(Initial)的初始状态，就是说在配置好后，这台服务器的初始状态就是这里指定的，但这里指定的不算，还是得要通过竞选通过优先级来确定。如果这里设置为MASTER，但如若他的优先级不及另外一台，那么这台在发送通告时，会发送自己的优先级，另外一台发现优先级不如自己的高，那么他会就回抢占为MASTER</li>
+<li><code>interface</code> ： 实例绑定的网卡，因为在配置虚拟IP的时候必须是在已有的网卡上添加的</li>
+<li><code>mcast_src_ip</code> ： 发送多播数据包时的源IP地址，这里注意了，这里实际上就是在那个地址上发送VRRP通告，这个非常重要，一定要选择稳定的网卡端口来发送，这里相当于heartbeat的心跳端口，如果没有设置那么就用默认的绑定的网卡的IP，也就是interface指定的IP地址</li>
+<li><code>virtual_router_id</code> ： 这里设置VRID，这里非常重要，相同的VRID为一个组，他将决定多播的MAC地址</li>
+<li><code>priority</code> ： 设置本节点的优先级，优先级高的为master</li>
+<li><code>advert_int</code> ： 检查间隔，默认为1秒。这就是VRRP的定时器，MASTER每隔这样一个时间间隔，就会发送一个advertisement报文以通知组内其他路由器自己工作正常</li>
+<li><code>authentication</code> ： 定义认证方式和密码，主从必须一样</li>
+<li><code>virtual_ipaddress</code> ： 这里设置的就是VIP，也就是虚拟IP地址，他随着state的变化而增加删除，当state为master的时候就添加，当state为backup的时候删除，这里主要是有优先级来决定的，和state设置的值没有多大关系，这里可以设置多个IP地址</li>
+<li><code>track_script</code> ： 引用VRRP脚本，即在 vrrp_script 部分指定的名字。定期运行它们来改变优先级，并最终引发主备切换。</li>
+</ul>
+<p><strong>vrrp_script</strong><br>告诉 keepalived 在什么情况下切换，所以尤为重要。可以有多个 vrrp_script</p>
+<ul>
+<li><code>script</code> ： 自己写的检测脚本。也可以是一行命令如killall -0 nginx</li>
+<li><code>interval 2</code> ： 每2s检测一次</li>
+<li><code>weight -5</code> ： 检测失败（脚本返回非0）则优先级 -5</li>
+<li><code>fall 2</code>： 检测连续 2 次失败才算确定是真失败。会用weight减少优先级（1-255之间）</li>
+<li><code>rise 1</code>： 检测 1 次成功就算成功。但不修改优先级</li>
+</ul>
+<p>这里要提示一下script一般有2种写法：</p>
+<ol>
+<li>通过脚本执行的返回结果，改变优先级，keepalived继续发送通告消息，backup比较优先级再决定</li>
+<li>脚本里面检测到异常，直接关闭keepalived进程，backup机器接收不到advertisement会抢占IP</li>
+</ol>
+<p>上文 vrrp_script 配置部分，killall -0 nginx属于第1种情况，/etc/keepalived/check_nginx.sh属于第2种情况（脚本中关闭keepalived）。个人更倾向于通过shell脚本判断，但有异常时exit 1，正常退出exit 0，然后keepalived根据动态调整的 vrrp_instance 优先级选举决定是否抢占VIP：</p>
+<ul>
+<li>如果脚本执行结果为0，并且weight配置的值大于0，则优先级相应的增加</li>
+<li>如果脚本执行结果非0，并且weight配置的值小于0，则优先级相应的减少</li>
+</ul>
+<p>其他情况，原本配置的优先级不变，即配置文件中priority对应的值。<br>提示：</p>
+<ol>
+<li>优先级不会不断的提高或者降低</li>
+<li>可以编写多个检测脚本并为每个检测脚本设置不同的weight（在配置中列出就行）</li>
+<li>不管提高优先级还是降低优先级，最终优先级的范围是在[1,254]，不会出现优先级小于等于0或者优先级大于等于255的情况</li>
+<li>在MASTER节点的 vrrp_instance 中 配置 nopreempt ，当它异常恢复后，即使它 prio 更高也不会抢占，这样可以避免正常情况下做无谓的切换</li>
+</ol>
+<p>以上可以做到利用脚本检测业务进程的状态，并动态调整优先级从而实现主备切换。</p>
+<p>配置结束<br>在默认的keepalive.conf里面还有 virtual_server,real_server 这样的配置，我们这用不到，它是为lvs准备的。 notify 可以定义在切换成MASTER或BACKUP时执行的脚本，如有需求请自行google。</p>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/lsyncd/" itemprop="url">
+                  lsyncd实时同步
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            發表於
+            <time itemprop="dateCreated" datetime="2015-12-05T23:54:05+08:00" content="2015-12-05">
+              2015-12-05
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分類於
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/lsyncd/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="lsyncd/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="实现同步软件小介绍">实现同步软件小介绍</h2><ol>
+<li><strong>lsyncd</strong>是luo语言封装了inotify和rsync工具，采用了linux2.6.13里的inotify触发机制，然后通过rsync去差异同步，达到实时的效果，它完美解决了 inotify + rsync 海量文件同步带来的文件频繁发送文件列表的问题—通过时间延迟或累计触发事件次数实现，另外，配置简单，lua本身就是一种配置语言，可读性强，而且lsyncd的工作模式可以选择本地目录cp,本地目录rsync， 远程目录rsyncssh。下面是 inotify + rsync 与 sersync 的区别</li>
+<li><strong>inotify + rsync</strong>，随着文件数量的增大到100W+，目录下的文件列表就达20M，在网络状况不佳或者限速的情况下，变更的文件可能10来个才几M，却因此要发送的文件列表就达20M，严重减低的带宽的使用效率以及同步效率；更为要紧的是，加入inotifywait在5s内监控到10个小文件发生变化，便会触发10个rsync同步操作，结果就是真正需要传输的才2-3M的文件，比对的文件列表就达200M。使用这两个组合的好处在于，它们都是最基本的软件，可以通过不同选项做到很精确的控制，比如排除同步的目录，同步多个模块或同步到多个主机。</li>
+<li><strong>sersync</strong> 这么个工具可以提高同步的性能，也解决了同步大文件时出现异常的问题。sersync是国内的一个开发者开源出来的，使用c++编写，采用多线程的方式进行同步，失败后还有重传机制，对临时文件过滤，自带crontab定时同步功能。性能不错，seync只是减少了监听事件，源码中都是在拼接rsync命令，后面的目的地址始终是针对module，只要执行rsync命令，就会对整个目遍历，发送要比对的文件列表，然后再发送变化的文件。<ul>
+<li>国产开源，文档不是很全，而且2011年后再没更新</li>
+<li>采用xml配置文件方式，可读性比较好，但有些原生功能没有实现就没法使用了</li>
+<li>无法实现多目录同步，只能通过多个配置文件启动多个进程</li>
+<li>文件排除功能太弱</li>
+<li>插件功能虽有，不过有些鸡肋</li>
+</ul>
+</li>
+</ol>
+<h2 id="安装lsyncd">安装lsyncd</h2><p>安装lsyncd极为简单，已经收录在ubuntu的官方镜像源里，直接通过apt-get install lsyncd就可以。<br>在Redhat系（我的环境是CentOS 6.2 x86_64 ），可以手动去下载 lsyncd-2.1.5-6.fc21.x86_64.rpm，但首先你得安装两个依赖yum install lua lua-devel。也可以通过在线安装，需要epel-release扩展包：</p>
+<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor"># rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm</span></span><br><span class="line"><span class="preprocessor"># yum install lsyncd</span></span><br></pre></td></tr></table></figure>
+<p>源码编译安装<br>从源码编译安装可以使用最新版的lsyncd程序，但必须要相应的依赖库文件和编译工具：yum install lua lua-devel asciidoc cmake。<br>从 googlecode lsyncd 上下载的lsyncd-2.1.5.tar.gz，直接./configure、make &amp;&amp; make install就可以了。<br>从github上下载lsyncd-master.zip 的2.1.5版本使用的是 cmake 编译工具，无法./configure：</p>
+<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor"># uzip lsyncd-master.zip</span></span><br><span class="line"><span class="preprocessor"># cd lsyncd-master</span></span><br><span class="line"><span class="preprocessor"># cmake -DCMAKE_INSTALL_PREFIX=/usr/local/lsyncd-2.1.5</span></span><br><span class="line"><span class="preprocessor"># make &amp;&amp; make install</span></span><br></pre></td></tr></table></figure>
+<p>我这个版本编译时有个小bug，如果按照INSTALL在build目录中make，会提示：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">100</span>%] Generating doc/lsyncd<span class="number">.1</span></span><br><span class="line">Updating the manpage</span><br><span class="line">a2x: failed: source file not found: doc/lsyncd<span class="number">.1</span>.txt</span><br><span class="line">make[<span class="number">2</span>]: *** [doc/lsyncd<span class="number">.1</span>] Error <span class="number">1</span></span><br><span class="line">make[<span class="number">1</span>]: *** [CMakeFiles/manpage.dir/all] Error <span class="number">2</span></span><br><span class="line">make: *** [all] Error <span class="number">2</span></span><br></pre></td></tr></table></figure></p>
+<p>解决办法是要么直接在解压目录下cmake，不要mkdir build，要么在CMakeList.txt中搜索doc字符串，在前面加上${PROJECT_SOURCE_DIR}</p>
+<h2 id="lsyncd-conf的配置参数">lsyncd.conf的配置参数</h2><h3 id="settings_模块">settings  模块</h3><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">settings &#123;</span><br><span class="line">    logfile      =<span class="string">"/var/logs/lsyncd.log"</span>,</span><br><span class="line">    statusFile   =<span class="string">"/var/logs/lsyncd.status"</span>,</span><br><span class="line">    inotifyMode  = <span class="string">"CloseWrite"</span>,</span><br><span class="line">    maxProcesses = <span class="number">7</span>,</span><br><span class="line">    <span class="comment">-- nodaemon =true,</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>里面是全局设置，–开头表示注释，下面是几个常用选项说明：</p>
+<ul>
+<li><code>logfile</code> 定义日志文件</li>
+<li><code>stausFile</code> 定义状态文件</li>
+<li><code>nodaemon=true</code> 表示不启用守护模式，默认</li>
+<li><code>statusInterval</code> 将lsyncd的状态写入上面的statusFile的间隔，默认10秒</li>
+<li><code>inotifyMode</code> 指定inotify监控的事件，默认是CloseWrite，还可以是Modify或CloseWrite or Modify</li>
+<li><code>maxProcesses</code> 同步进程的最大个数。假如同时有20个文件需要同步，而maxProcesses = 8，则最大能看到有8个rysnc进程</li>
+<li><code>maxDelays</code> 累计到多少所监控的事件激活一次同步，即使后面的delay延迟时间还未到</li>
+</ul>
+<h3 id="sync_模块">sync  模块</h3><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">sync &#123;</span><br><span class="line">    default.rsync,</span><br><span class="line">    source    = <span class="string">"/data/buffer"</span>,</span><br><span class="line">    target    = <span class="string">"rsync_backup@172.16.1.77::mysql"</span>,</span><br><span class="line">    delete=<span class="string">"running"</span>,</span><br><span class="line">    exclude = &#123; <span class="string">".tmp"</span>, <span class="string">".swap"</span> &#125;,</span><br><span class="line">    <span class="comment">-- excludeFrom = "/server/scripts/rsync_exclude.lst"</span></span><br><span class="line">    delay = <span class="number">30</span>,</span><br><span class="line">    <span class="comment">-- excludeFrom = "/etc/rsyncd.d/rsync_exclude.lst",</span></span><br><span class="line">    rsync     = &#123;</span><br><span class="line">        password_file = <span class="string">"/etc/rsync.password"</span></span><br><span class="line">        archive   = <span class="keyword">true</span>,</span><br><span class="line">        compress  = <span class="keyword">true</span>,</span><br><span class="line">        verbose   = <span class="keyword">true</span></span><br><span class="line">        _extra = &#123;<span class="string">"--bwlimit=200"</span>&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>lsyncd.conf可以有多个sync，各自的source，各自的target，各自的模式，互不影响。里面是定义同步参数，可以继续使用maxDelays来重写settings的全局变量。</p>
+<ul>
+<li>一般第一个参数指定lsyncd以什么模式运行：<strong>rsync、rsyncssh、direct</strong>三种模式：<ul>
+<li><code>default.rsync</code> ：本地目录间同步，使用rsync，也可以达到使用ssh形式的远程rsync效果，或daemon方式连接远程rsyncd进程；</li>
+<li><code>default.direct</code> ：本地目录间同步，使用cp、rm等命令完成差异文件备份；</li>
+<li><code>default.rsyncssh</code> ：同步到远程主机目录，rsync的ssh模式，需要使用key来认证</li>
+</ul>
+</li>
+<li><code>source</code> 同步的源目录，使用绝对路径。    </li>
+<li><code>target</code> 定义目的地址.对应不同的模式有几种写法：<ul>
+<li><code>/tmp/dest</code> ：本地目录同步，可用于direct和rsync模式</li>
+<li><code>172.29.88.223:/tmp/dest</code> ：同步到远程服务器目录，可用于rsync和rsyncssh模式，拼接的命令类似于<code>/usr/bin/rsync -ltsd --delete --include-from=- --exclude=* SOURCE TARGET</code>，剩下的就是rsync的内容了，比如指定username，免密码同步</li>
+<li><code>172.29.88.223::module</code> ：同步到远程服务器目录，用于rsync模式</li>
+</ul>
+</li>
+<li><code>init</code> 这是一个优化选项，当init = false，只同步进程启动以后发生改动事件的文件，原有的目录即使有差异也不会同步。默认是true</li>
+<li><code>delay</code> 累计事件，等待rsync同步延时时间，默认15秒（最大累计到1000个不可合并的事件）。也就是15s内监控目录下发生的改动，会累积到一次rsync同步，避免过于频繁的同步。（可合并的意思是，15s内两次修改了同一文件，最后只同步最新的文件）</li>
+<li><code>excludeFrom</code> 排除选项，后面指定排除的列表文件，如excludeFrom = “/etc/lsyncd.exclude”，如果是简单的排除，可以使用exclude = LIST。<br>这里的排除规则写法与原生rsync有点不同，更为简单：<ul>
+<li>监控路径里的任何部分匹配到一个文本，都会被排除，例如/bin/foo/bar可以匹配规则foo</li>
+<li>如果规则以斜线/开头，则从头开始要匹配全部</li>
+<li>如果规则以/结尾，则要匹配监控路径的末尾</li>
+<li>?匹配任何字符，但不包括/</li>
+<li>*匹配0或多个字符，但不包括/</li>
+<li>**匹配0或多个字符，可以是/</li>
+</ul>
+</li>
+<li><code>delete</code> 为了保持target与souce完全同步，Lsyncd默认会delete = true来允许同步删除。它除了false，还有startup、running值，请参考 Lsyncd 2.1.x ‖ Layer 4 Config ‖ Default Behavior。</li>
+</ul>
+<h3 id="rsync">rsync</h3><p>（提示一下，delete和exclude本来都是rsync的选项，上面是配置在sync中的，我想这样做的原因是为了减少rsync的开销）</p>
+<ul>
+<li>bwlimit 限速，单位kb/s，与rsync相同（这么重要的选项在文档里竟然没有标出）</li>
+<li>compress 压缩传输默认为true。在带宽与cpu负载之间权衡，本地目录同步可以考虑把它设为false</li>
+<li>perms 默认保留文件权限。</li>
+</ul>
+<p>其它rsync的选项<br>其它还有rsyncssh模式独有的配置项，如host、targetdir、rsync_path、password_file，见后文示例。rsyncOps={“-avz”,”–delete”}这样的写法在2.1.*版本已经不支持。</p>
+<p>再来一例</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line">settings &#123;</span><br><span class="line">    logfile =<span class="string">"/usr/local/lsyncd-2.1.5/var/lsyncd.log"</span>,</span><br><span class="line">    statusFile =<span class="string">"/usr/local/lsyncd-2.1.5/var/lsyncd.status"</span>,</span><br><span class="line">    inotifyMode = <span class="string">"CloseWrite"</span>,</span><br><span class="line">    maxProcesses = <span class="number">8</span>,</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">-- I. 本地目录同步，direct：cp/rm/mv。 适用：500+万文件，变动不大</span></span><br><span class="line">sync &#123;</span><br><span class="line">    default.direct,</span><br><span class="line">    source    = <span class="string">"/tmp/src"</span>,</span><br><span class="line">    target    = <span class="string">"/tmp/dest"</span>,</span><br><span class="line">    delay = <span class="number">1</span></span><br><span class="line">    maxProcesses = <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">-- II. 本地目录同步，rsync模式：rsync</span></span><br><span class="line">sync &#123;</span><br><span class="line">    default.rsync,</span><br><span class="line">    source    = <span class="string">"/tmp/src"</span>,</span><br><span class="line">    target    = <span class="string">"/tmp/dest1"</span>,</span><br><span class="line">    excludeFrom = <span class="string">"/etc/rsyncd.d/rsync_exclude.lst"</span>,</span><br><span class="line">    rsync     = &#123;</span><br><span class="line">        binary = <span class="string">"/usr/bin/rsync"</span>,</span><br><span class="line">        archive = <span class="keyword">true</span>,</span><br><span class="line">        compress = <span class="keyword">true</span>,</span><br><span class="line">        bwlimit   = <span class="number">2000</span></span><br><span class="line">        &#125; </span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">-- III. 远程目录同步，rsync模式 + rsyncd daemon</span></span><br><span class="line">sync &#123;</span><br><span class="line">    default.rsync,</span><br><span class="line">    source    = <span class="string">"/tmp/src"</span>,</span><br><span class="line">    target    = <span class="string">"syncuser@172.29.88.223::module1"</span>,</span><br><span class="line">    delete=<span class="string">"running"</span>,</span><br><span class="line">    exclude = &#123; <span class="string">".*"</span>, <span class="string">".tmp"</span> &#125;,</span><br><span class="line">    delay = <span class="number">30</span>,</span><br><span class="line">    init = <span class="keyword">false</span>,</span><br><span class="line">    rsync     = &#123;</span><br><span class="line">        binary = <span class="string">"/usr/bin/rsync"</span>,</span><br><span class="line">        archive = <span class="keyword">true</span>,</span><br><span class="line">        compress = <span class="keyword">true</span>,</span><br><span class="line">        verbose   = <span class="keyword">true</span>,</span><br><span class="line">        password_file = <span class="string">"/etc/rsyncd.d/rsync.pwd"</span>,</span><br><span class="line">        _extra    = &#123;<span class="string">"--bwlimit=200"</span>&#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">-- IV. 远程目录同步，rsync模式 + ssh shell</span></span><br><span class="line">sync &#123;</span><br><span class="line">    default.rsync,</span><br><span class="line">    source    = <span class="string">"/tmp/src"</span>,</span><br><span class="line">    target    = <span class="string">"172.29.88.223:/tmp/dest"</span>,</span><br><span class="line">    <span class="comment">-- target    = "root@172.29.88.223:/remote/dest",</span></span><br><span class="line">    <span class="comment">-- 上面target，注意如果是普通用户，必须拥有写权限</span></span><br><span class="line">    maxDelays = <span class="number">5</span>,</span><br><span class="line">    delay = <span class="number">30</span>,</span><br><span class="line">    <span class="comment">-- init = true,</span></span><br><span class="line">    rsync     = &#123;</span><br><span class="line">        binary = <span class="string">"/usr/bin/rsync"</span>,</span><br><span class="line">        archive = <span class="keyword">true</span>,</span><br><span class="line">        compress = <span class="keyword">true</span>,</span><br><span class="line">        bwlimit   = <span class="number">2000</span></span><br><span class="line">        <span class="comment">-- rsh = "/usr/bin/ssh -p 22 -o StrictHostKeyChecking=no"</span></span><br><span class="line">        <span class="comment">-- 如果要指定其它端口，请用上面的rsh</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">-- V. 远程目录同步，rsync模式 + rsyncssh，效果与上面相同</span></span><br><span class="line">sync &#123;</span><br><span class="line">    default.rsyncssh,</span><br><span class="line">    source    = <span class="string">"/tmp/src2"</span>,</span><br><span class="line">    host      = <span class="string">"172.29.88.223"</span>,</span><br><span class="line">    targetdir = <span class="string">"/remote/dir"</span>,</span><br><span class="line">    excludeFrom = <span class="string">"/etc/rsyncd.d/rsync_exclude.lst"</span>,</span><br><span class="line">    <span class="comment">-- maxDelays = 5,</span></span><br><span class="line">    delay = <span class="number">0</span>,</span><br><span class="line">    <span class="comment">-- init = false,</span></span><br><span class="line">    rsync    = &#123;</span><br><span class="line">        binary = <span class="string">"/usr/bin/rsync"</span>,</span><br><span class="line">        archive = <span class="keyword">true</span>,</span><br><span class="line">        compress = <span class="keyword">true</span>,</span><br><span class="line">        verbose   = <span class="keyword">true</span>,</span><br><span class="line">        _extra = &#123;<span class="string">"--bwlimit=2000"</span>&#125;,</span><br><span class="line">        &#125;,</span><br><span class="line">    ssh      = &#123;</span><br><span class="line">        port  =  <span class="number">1234</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/the-god-father/" itemprop="url">
                   教父
                 </a>
@@ -278,7 +1184,7 @@
         <div class="post-meta">
           <span class="post-time">
             發表於
-            <time itemprop="dateCreated" datetime="2015-11-22T12:45:40+08:00" content="2015-11-22">
+            <time itemprop="dateCreated" datetime="2015-11-22T12:49:16+08:00" content="2015-11-22">
               2015-11-22
             </time>
           </span>
@@ -329,7 +1235,7 @@
             
               <p><img src="/images/thegodfathe_1r.jpg" alt="父子"><br><img src="/images/thegodfathe_5.jpg" alt="迈克1"></p>
 <hr>
-<h2 id="说说自己的感悟">说说自己的感悟</h2><p>在别人看来即使你很坏，甚至是恶人，但是在家人看来，你永远是好丈夫，好父亲。不背叛家庭，你必须有义务，有责任去保护家里的每一个人不使之受伤，要知道这个世界并不是你一个人在奋斗，也不是为了自己奋斗，为了自己所爱的人，为了自己所爱的人能够幸福。现在也必须做事考虑后果，要对别人负责，对自己负责。</p>
+<p>在别人看来即使你很坏，甚至是恶人，但是在家人看来，你永远是好丈夫，好父亲。不背叛家庭，你必须有义务，有责任去保护家里的每一个人不使之受伤，要知道这个世界并不是你一个人在奋斗，也不是为了自己奋斗，为了自己所爱的人，为了自己所爱的人能够幸福。现在也必须做事考虑后果，要对别人负责，对自己负责。</p>
 <h2 id="speak_softely_love">speak softely love</h2><p>是我最喜欢的一首歌，也许是因为自己在心情低落的时候看的这部电影，而其中的音乐每次听着都特别伤心，特别心痛。</p>
 <iframe src="http://www.tudou.com/programs/view/html5embed.action?type=0&code=7lqAMEScZS0&lcode=&resourceId=418557855_06_05_99" allowtransparency="true" allowfullscreen="true" allowfullscreeninteractive="true" scrolling="no" border="0" frameborder="0" style="width:100%;height:450px;"></iframe>
 
@@ -1213,1036 +2119,14 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/vim/" itemprop="url">
-                  vim常用操作
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            發表於
-            <time itemprop="dateCreated" datetime="2015-11-15T20:55:53+08:00" content="2015-11-15">
-              2015-11-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分類於
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/vim/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="vim/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p>本文指在对VIM做简单的介绍，当你习惯之后，就会发现VIM是一个非常高效的文本编辑器而且不需要鼠標就可以完成任何操作，现在就让我们来见识VIM的强大</p>
-<h1 id="VIM语法总结">VIM语法总结</h1><p><strong>命令模式下的编辑</strong></p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">：wq!</td>
-<td style="text-align:left">强制保存</td>
-<td style="text-align:center">：q!</td>
-<td style="text-align:left">强制退出不保存</td>
-</tr>
-<tr>
-<td style="text-align:center">:set nu</td>
-<td style="text-align:left">显示行号</td>
-<td style="text-align:center">:set nonu</td>
-<td style="text-align:left">取消显示行号</td>
-</tr>
-<tr>
-<td style="text-align:center">u</td>
-<td style="text-align:left">undo</td>
-<td style="text-align:center">ctrl + r</td>
-<td style="text-align:left">redo</td>
-</tr>
-<tr>
-<td style="text-align:center">.</td>
-<td style="text-align:left">重复前面命令</td>
-<td style="text-align:center">2.</td>
-<td style="text-align:left">重复前面命令2次</td>
-</tr>
-<tr>
-<td style="text-align:center">dd</td>
-<td style="text-align:left">向下删除一行</td>
-<td style="text-align:center">2dd</td>
-<td style="text-align:left">删除两行</td>
-</tr>
-<tr>
-<td style="text-align:center">dt\</td>
-<td style="text-align:left">删除行之后内容直到遇到“\”</td>
-</tr>
-<tr>
-<td style="text-align:center">ye或 yw</td>
-<td style="text-align:left">从当前位置拷贝到本单词的最后一个字符</td>
-<td style="text-align:center">gu(gU)</td>
-<td style="text-align:left">换成小写(大写)字母</td>
-</tr>
-</tbody>
-</table>
-<p><strong>如何移动</strong></p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">w</td>
-<td style="text-align:left">移动到单词开头</td>
-<td style="text-align:center">e</td>
-<td style="text-align:left">移动到单词结尾</td>
-</tr>
-<tr>
-<td style="text-align:center">gg</td>
-<td style="text-align:left">移动到的第一行</td>
-<td style="text-align:center">G</td>
-<td style="text-align:left">移动到最后一行</td>
-</tr>
-<tr>
-<td style="text-align:center">0</td>
-<td style="text-align:left">移动到行的开头</td>
-<td style="text-align:center">$</td>
-<td style="text-align:left">动到行的结尾</td>
-</tr>
-<tr>
-<td style="text-align:center">^</td>
-<td style="text-align:left">移动到行的开头非blank字符</td>
-<td style="text-align:center">g_</td>
-<td style="text-align:left">动到行的结尾非blank字符</td>
-</tr>
-<tr>
-<td style="text-align:center">fa</td>
-<td style="text-align:left">到下一个a出现的位置</td>
-<td style="text-align:center">3fa</td>
-<td style="text-align:left">第3次出现a的位置</td>
-</tr>
-<tr>
-<td style="text-align:center">2g</td>
-<td style="text-align:left">移动到第二行</td>
-<td style="text-align:center">%</td>
-<td style="text-align:left">匹配括号移动，包括 (, {, [. </td>
-</tr>
-<tr>
-<td style="text-align:center">*</td>
-<td style="text-align:left">匹配光标当前所在单词移到到下一个匹配到的单词</td>
-<td style="text-align:center">#</td>
-<td style="text-align:left">移动到上一个匹配到的单词</td>
-</tr>
-<tr>
-<td style="text-align:center">/patten</td>
-<td style="text-align:left">搜索，按n继续向下搜索</td>
-<td style="text-align:center">N</td>
-<td style="text-align:left">按N继续向上搜索</td>
-</tr>
-</tbody>
-</table>
-<p>ctrl + o 跳到上一次修改的地方</p>
-<p><img src="/images/word_moves.jpg" alt="word_moves"><img src="/images/line_moves.jpg" alt="line_moves"></p>
-<p><strong>以什么样的形式进入插入模式</strong></p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-<th style="text-align:center"></th>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">A</td>
-<td style="text-align:left">移动到行未并进入插入模式</td>
-<td style="text-align:center"></td>
-<td style="text-align:center">x</td>
-<td style="text-align:left">删除光标所在位置的字符</td>
-</tr>
-<tr>
-<td style="text-align:center">I</td>
-<td style="text-align:left">移到到行首并进入插入模式</td>
-<td style="text-align:center"></td>
-<td style="text-align:center">X</td>
-<td style="text-align:left">删除光标所在位置之前的字符</td>
-</tr>
-<tr>
-<td style="text-align:center">o</td>
-<td style="text-align:left">在当前行之后新建一行并进入插入模式</td>
-</tr>
-</tbody>
-</table>
-<p><strong>区域选择</strong></p>
-<p>其格式为 <code>&lt;action&gt;a&lt;object&gt;</code> 和 <code>&lt;action&gt;i&lt;object&gt;</code></p>
-<ul>
-<li>action可以是任何的命令，如 d (删除), y (拷贝), v (可以视模式选择)。</li>
-<li>object 可能是： w 一个单词， W 一个以空格为分隔的单词， s 一个句字， p 一个段落。也可以是一个特别的字符：”、 ‘、 )、 }、 ]。</li>
-</ul>
-<p>举例： <code>daw</code> 删除一个单词</p>
-<p><strong>块操作</strong></p>
-<p>命令模式下按 <strong>ctrl + v</strong> 移动光标选中需要修改的行（区域），<br>然后按<strong>x</strong> 或者 <strong>d</strong> 删除该内容</p>
-<p>批量在行首增加内容：<br> <code>ctrl + v</code> &gt;&gt; <code>0</code> &gt;&gt; <code>I</code> &gt;&gt; 写下想增加的内容 &gt;&gt;<code>Esc</code></p>
-<p><img src="/images/rectangular-blocks.gif" alt="rectangular-blocks"></p>
-<p>批量在行尾增加内容：</p>
-<p> <code>ctrl + v</code> &gt;&gt; <code>$</code> &gt;&gt; <code>A</code> &gt;&gt; 写下想增加的内容 &gt;&gt;<code>Esc</code></p>
-<p>块移动  <code>&lt;</code> , <code>&gt;</code> 左右缩进 。 <code>=</code> 自动给缩进。 </p>
-<p><strong>自动补全</strong></p>
-<p>vim 下在编辑模式下也有自动补全功能便不是tab键，而是 <code>ctrl + n</code>， <code>ctrl + p</code> 如果匹配到多个可以按多次来找到自己想要的单词</p>
-<p><strong>宏录制</strong></p>
-<p><code>qa</code>  开始录制宏，并把宏的名字取名为a<br><code>q</code>  停止录制宏<br><code>@a</code>  用@来调用宏并执行<br><code>@@</code>  快捷的执行最新操作的宏</p>
-<p><img src="/images/macros.gif" alt="macros"></p>
-<p><code>qa</code>  &gt;&gt;<code>Y</code> &gt;&gt; <code>p</code> &gt;&gt; <code>ctrl + a</code> &gt;&gt; <code>q</code> &gt;&gt; <code>@a</code> &gt;&gt; <code>100@@</code></p>
-<p>最后来一张图，基本的语法就完全OK了</p>
-<p><img src="/images/Vim-mindmap.png" alt="vim-midmap"></p>
-<p><strong>结语</strong>：不论什么命令都可以在前面加数字来表示重复n次该命令</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/inotify_rsync/" itemprop="url">
-                  rsync + inotify 实现实时同步
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            發表於
-            <time itemprop="dateCreated" datetime="2015-11-14T21:17:53+08:00" content="2015-11-14">
-              2015-11-14
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分類於
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/inotify_rsync/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="inotify_rsync/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="主机规划">主机规划</h1><table>
-<thead>
-<tr>
-<th style="text-align:left">服务器</th>
-<th style="text-align:left">外网IP</th>
-<th style="text-align:left"></th>
-<th style="text-align:left">内网IP</th>
-<th style="text-align:left">主机名称</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">A1-nginx 负载服务器</td>
-<td style="text-align:left">10.0.0.5/24</td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.5/24</td>
-<td style="text-align:left">lb01</td>
-</tr>
-<tr>
-<td style="text-align:left">A2-nginx 负载服务器</td>
-<td style="text-align:left">10.0.0.6/24</td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.6/24</td>
-<td style="text-align:left">lb02</td>
-</tr>
-<tr>
-<td style="text-align:left">B1-apache软件web服务器</td>
-<td style="text-align:left">10.0.0.7/24</td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.7/24</td>
-<td style="text-align:left">web02</td>
-</tr>
-<tr>
-<td style="text-align:left">B2-apache软件web服务器</td>
-<td style="text-align:left">10.0.0.8/24</td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.8/24</td>
-<td style="text-align:left">web01</td>
-</tr>
-<tr>
-<td style="text-align:left">C3-My Sql 数据库服务器</td>
-<td style="text-align:left"><code>10.0.0.51/24</code></td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.51/24</td>
-<td style="text-align:left">Db01</td>
-</tr>
-<tr>
-<td style="text-align:left">C1-NFS 存储服务器</td>
-<td style="text-align:left"><code>10.0.0.31/24</code></td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.31/24</td>
-<td style="text-align:left">NFS01</td>
-</tr>
-<tr>
-<td style="text-align:left">C2-rsync 数据库服务器</td>
-<td style="text-align:left"><code>10.0.0.41/24</code></td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.41/24</td>
-<td style="text-align:left">Backup</td>
-</tr>
-<tr>
-<td style="text-align:left">X-管理服务器</td>
-<td style="text-align:left"><code>10.0.0.61/24</code></td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.61/24</td>
-<td style="text-align:left">m01</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>红色仅为虚拟机中测试所用 <br><br>机房根据实际需求配置</p>
-</blockquote>
-<h2 id="克隆虚拟机并配置网卡">克隆虚拟机并配置网卡</h2><ol>
-<li>编辑eth0的配置文件：<code>vi /etc/sysconfig/network-scripts/ifcfg-eth0</code>，删除HWADDR地址那一行及UUID的行如下：</li>
-</ol>
-<pre><code>HWADDR=<span class="number">00</span>:<span class="number">0</span>c:<span class="number">29</span>:<span class="number">08</span>:<span class="number">28</span>:<span class="number">9f</span>     
-UUID=cee39dbb-<span class="number">6</span>a10-<span class="number">4425</span>-<span class="number">9</span>daf-<span class="number">768</span>b6e79a9c9
-</code></pre><ol>
-<li>清空 /etc/udev/rules.d/70-persistent-net.rules</li>
-<li>重启</li>
-</ol>
-<h2 id="RSYNC_数据库服务器">RSYNC 数据库服务器</h2><p>rsync, (remote synchronize) 是一个实现同步功能的软件，它在同步文件的同时，可以保持原来文件的权限，时间，软硬链接等附加信息。 rsync是用rsync 算法提供了一个客户机和远程文件服务器的文件同步的快速方法，而且可以通过ssh方式来传输文件，这样保密也非常好。主要用于远程数据备份与同步。 可以实现全备及增量备份，也可以本地数据同步。 在Centos5中rsync的版本是2.X，是把所有文件比对一遍后进行同步。在CentOs6中rsync的版本是3.0，是一边比对差异一边进行同步。而这里我们用的是3.0</p>
-<p>首先检查rsync看是否安装，及安装的版本</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ rpm -qa rsync</span><br><span class="line">rsync-<span class="number">3.0</span><span class="number">.6</span>-<span class="number">12.</span>el6.x86_64</span><br></pre></td></tr></table></figure>
-<p>rsync有三种模式，分别是本地，ssh远程同步，daemon模式</p>
-<ul>
-<li><p>Local:  <code>rsync [OPTION...] SRC... [DEST]</code></p>
-</li>
-<li><p>Access via remote shell:</p>
-<ul>
-<li>Pull: <code>rsync [OPTION...] [USER@]HOST:SRC... [DEST]</code></li>
-<li>Push: <code>rsync [OPTION...] SRC... [USER@]HOST:DEST</code></li>
-</ul>
-</li>
-<li><p>Access via rsync daemon:</p>
-<ul>
-<li>Pull: <code>rsync [OPTION...] [USER@]HOST::SRC... [DEST]</code>    <pre><code>`rsync <span class="string">[OPTION...]</span> rsync://<span class="string">[USER@]</span>HOST<span class="string">[:PORT]</span>/SRC... <span class="string">[DEST]</span>`
-</code></pre></li>
-<li>Push: <code>rsync [OPTION...] SRC... [USER@]HOST::DEST</code>    <pre><code>`rsync <span class="string">[OPTION...]</span> SRC... rsync://<span class="string">[USER@]</span>HOST<span class="string">[:PORT]</span>/DEST`
-</code></pre></li>
-</ul>
-</li>
-</ul>
-<p>都是把SRC的数据同步到DEST. 如果没有DEST，但会把SRC的文件列出来而不copy</p>
-<p>rsync 参数说明：</p>
-<ul>
-<li>–delete;     delete extraneous files from dest dirs 删除目标文件中多余的文件</li>
-<li>–exclude=PATTERN ;      exclude files matching PATTERN 排除特定文件 –exclude={a,b}</li>
-<li>–exclude-from=FILE;     read exclude patterns from FILE  ,–exclude-from=/tmp/exclude.txt</li>
-<li>-z, –compress    ;          compress file data during the transfer</li>
-<li>-v, –verbose               increase verbosity</li>
-<li>-a, –archive               archive mode; equals -rlptgoD (no -H,-A,-X)</li>
-<li>–bwlimit=KBPS          limit I/O bandwidth; KBytes per second </li>
-<li>–partial               keep partially transferred files 断点续传</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#排除单个文件：</span></span><br><span class="line">$ rsync -auvrtzopgP --progress --exclude=a /backup/ rsync_backup@<span class="number">172.16</span><span class="number">.1</span><span class="number">.41</span>::backup --password-file=/etc/rsync.password</span><br><span class="line"></span><br><span class="line"><span class="comment">#排除多个文件：</span></span><br><span class="line">$ rsync -avz --exclude=&#123;a,b&#125; /backup/ rsync_backup@<span class="number">172.16</span><span class="number">.1</span><span class="number">.41</span>::backup --password-file=/etc/rsync.password</span><br><span class="line"></span><br><span class="line">$ rsync -avz --exclude-<span class="keyword">from</span>=paichu.log /backup/ rsync_backup@<span class="number">172.16</span><span class="number">.1</span><span class="number">.41</span>::backup --password-file=/etc/rsync.password</span><br></pre></td></tr></table></figure>
-<h3 id="本地备份">本地备份</h3><p>本地 模式，相当于copy 或者rm<br>比如<code>$ rsync -auvrtzopgP /tmp/ /backup/</code> <br><br>此命令就会把tmp目录下的文件全部复制到backup目录下面， 如果加上<code>--delete</code>，此参数的意思是把目标目录与源目录同步，当目标目录里有多于源目录的文件就会删除，也就是源目录是啥样，目标目录就是啥样。如果源目录为空，目标目录也会被清空。我们一般都会在目录后面加<code>/</code>意思是目录下面，如果不加就直接把目录复制过去了，在远程的时候也是一样的。<br><br>保持属性： -avz  相当于 cp -rp<br><br><br></p>
-<h3 id="通过shell远程传输(remote)">通过shell远程传输(remote)</h3><p>远程拷贝；相当于ssh带的scp命令，但又优于scp命令的功能。scp每次都是全量拷贝。rsync可以增量拷贝。 当源路径，或目的路径后面包含一个卡号</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ rsync -avz -e 'ssh -p 22' root@172.16.1.41:/tmp/ /tmp/</span><br><span class="line">The authenticity of host '172.16.1.41 (172.16.1.41)' can't be established.</span><br><span class="line">RSA key fingerprint is 97:b9:1f:95:8b:7d:ae:59:27:4a:d4:b3:98:ae:c1:77.</span><br><span class="line">Are you sure you want to continue connecting (yes/no)? yes</span><br><span class="line">Warning: Permanently added '172.16.1.41' (RSA) to the list of known hosts.</span><br><span class="line">root@172.16.1.41's password: </span><br><span class="line">receiving incremental file list</span><br><span class="line">created directory /temp</span><br><span class="line">./</span><br><span class="line">hosts</span><br><span class="line">.ICE-unix/</span><br><span class="line"></span><br><span class="line">sent 37 bytes  received 184 bytes  9.02 bytes/sec</span><br><span class="line">total size is 220  speedup is 1.00</span><br></pre></td></tr></table></figure>
-<p><br><br>此命令便是把ip为172.16.1.41的主机里tmp目录下的文件传到本地的/tmp/下。这里 <code>ssh -p 22</code>命令用于指定端口，默认就是22，-e 这个参数可以不写直接 <code>rsync -avz root@172.16.1.41:/tmp/ /tmp/</code>便可以把41的文件复制过来。且这里是交互式，手动备份与推送，十分不方便。</p>
-<p>这里有个问题，如果我们用其它用户推或者拉，的时候需要共享文件的所属主与所属组都对该用户对应</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="variable">@NFS</span> tmp]<span class="variable">$ </span>rsync -avz /data/ sandow<span class="variable">@172</span>.<span class="number">16.1</span>.<span class="number">41</span><span class="symbol">:/data/</span></span><br></pre></td></tr></table></figure>
-<p>此命令是把本地data目录下的文件推到服务器IP为：41下的data目录下。这里两个data目录都要具有对应主机用户的读取执行写入权限，最好的办法就是把该目录的所属主，所属组改为对应的用户</p>
-<h3 id="daemon_模式，">daemon 模式，</h3><p>daemon模式需要配置文件，使用<code>rsync --daemon</code>启动进程，使用独立的进程方式传输文件，默认端口是873。</p>
-<p>这里需要两台服务器做测试环境，服务器端名为backup, ip为172.16.1.41主要用于存放数据. 客户端(NFS01)IP为172.16.1.31 主要用于向服务器推送（备份）拉回（还原）数据。然后结合crontab实现实时自动备份同步。 </p>
-<h4 id="服务端的配置">服务端的配置</h4><p>首先我们来配置rsync的主配置文件 rsyncd.conf，默认情况下该文件不存在需要创建，我们也可以使用<code>man rsyncd.conf</code>来查看主配置文件里的参数与说明。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">[root@backup ~]$ cat /etc/rsyncd.conf</span><br><span class="line"><span class="comment">#Rsync server</span></span><br><span class="line"><span class="comment">#created by sandow at 2015-11-05</span></span><br><span class="line"><span class="comment">#rsyncd.conf start#</span></span><br><span class="line">uid = rsync		//相当于nfsnobody 客户端连过来具备什么样的权限默认是不存在的</span><br><span class="line">gid = rsync		//相当于nfsnobody</span><br><span class="line">use chroot = no		//   程序出现问题就会开启 开启给个空目录就行</span><br><span class="line">max connections = <span class="number">200</span>		//客户端连接数 可以同时</span><br><span class="line">timeout = <span class="number">300</span>        //超时 这是服务端 客户端连过来最多多久后就断掉</span><br><span class="line">strict modes=yes</span><br><span class="line">port=<span class="number">873</span></span><br><span class="line">pid file = /var/run/rstbcd.pid	//PID就是进程号唯一标识进程,进程号放文件里面</span><br><span class="line">lock file = /var/run/rsync.lock		//锁文件</span><br><span class="line">log file = /var/log/rsyncd.log		//日志文件，出问题在这里看</span><br><span class="line">hosts allow = <span class="number">172.16</span><span class="number">.1</span><span class="number">.0</span>/<span class="number">24</span>		//允许ip</span><br><span class="line">hosts deny = <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>/<span class="number">32</span>		//拒绝</span><br><span class="line">secrets file = /etc/rsync.password		//存放用户和密码文件</span><br><span class="line"></span><br><span class="line">[backup]		//模块，调用下面服务</span><br><span class="line">comment=backup server by liuchunhao at <span class="number">2015</span>-<span class="number">11</span>-<span class="number">05</span>		//注释</span><br><span class="line">path = /backup		//共享目录</span><br><span class="line">read only = false		//可读写</span><br><span class="line">ignore errors		//忽略错误</span><br><span class="line">auth users = rsync_backup		//远程连接的用户，虚拟用户和系统用户没关系</span><br><span class="line">uid=rsync_backup</span><br><span class="line">gid=rsync_backup</span><br><span class="line">list = false		//不让远程列表，不让看服务端有什么</span><br><span class="line">secrets file=/etc/rsync.password</span><br></pre></td></tr></table></figure>
-<p>配置好rsyncd.conf后便接下来就可以创建对应用户、目录与密码文件</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="variable">@backup</span> ~]<span class="variable">$ </span>useradd rsync -s /sbin/nologin -<span class="constant">M</span></span><br><span class="line">[root<span class="variable">@backup</span> ~]<span class="variable">$ </span>id rsync</span><br><span class="line">uid=<span class="number">504</span>(rsync) gid=<span class="number">504</span>(rsync) groups=<span class="number">504</span>(rsync)</span><br><span class="line">[root<span class="variable">@backup</span> ~]<span class="variable">$ </span>mkdir -p /backup</span><br><span class="line">[root<span class="variable">@backup</span> ~]<span class="variable">$ </span>chown -<span class="constant">R</span> rsync.rsync /backup/</span><br><span class="line">[root<span class="variable">@backup</span> ~]<span class="variable">$ </span>ls -ld /backup/              </span><br><span class="line">drwxr-xr-t. <span class="number">3</span> rsync rsync <span class="number">4096</span> <span class="constant">Nov</span> <span class="number">12</span> <span class="number">06</span><span class="symbol">:</span><span class="number">53</span> /backup/</span><br></pre></td></tr></table></figure>
-<p>创建密码文件，并且修改属性为600</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="variable">@backup</span> ~]<span class="variable">$ </span>echo <span class="string">"rsync_backup:oldboy"</span> &gt;<span class="regexp">/etc/rsync</span>.password</span><br><span class="line">[root<span class="variable">@backup</span> ~]<span class="variable">$ </span>cat /etc/rsync.password</span><br><span class="line"><span class="symbol">rsync_backup:</span>oldboy</span><br><span class="line">[root<span class="variable">@backup</span> ~]<span class="variable">$ </span>chmod <span class="number">600</span> /etc/rsync.password</span><br><span class="line">[sandow<span class="variable">@backup</span> ~]<span class="variable">$ </span>ll /etc/rsync.password       </span><br><span class="line">-rw------- <span class="number">1</span> root root <span class="number">20</span> <span class="number">11</span>月  <span class="number">6</span> <span class="number">16</span><span class="symbol">:</span><span class="number">12</span> /etc/rsync.password</span><br></pre></td></tr></table></figure>
-<p>修改/etc/xinetd.d/rsync 文件，把disable 改为no,这应该是最新版本的linux才会有此文件。所以没有的可以不配置</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># default: off</span><br><span class="line"># description: The rsync server is a good addition to an ftp server, as it \</span><br><span class="line">#	allows crc checksumming etc.</span><br><span class="line">service rsync</span><br><span class="line">&#123;</span><br><span class="line">	disable	= no</span><br><span class="line">	flags		= IPv6</span><br><span class="line">	socket_type     = stream</span><br><span class="line">	wait            = no</span><br><span class="line">	user            = root</span><br><span class="line">	server          = /usr/bin/rsync</span><br><span class="line">	server_args     = --daemon</span><br><span class="line">	log_on_failure  += USERID</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>配置好后便可以启动rsync daemon守护进程了</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[sandow<span class="variable">@backup</span> tmp]<span class="variable">$ </span>rsync --daemon</span><br><span class="line"></span><br><span class="line">[sandow<span class="variable">@backup</span> tmp]<span class="variable">$ </span>ps -ef|grep rsync |grep -v grep</span><br><span class="line">root       <span class="number">2370</span>      <span class="number">1</span>  <span class="number">0</span> <span class="number">01</span><span class="symbol">:</span><span class="number">57</span> ?        <span class="number">00</span><span class="symbol">:</span><span class="number">00</span><span class="symbol">:</span><span class="number">00</span> rsync --daemon</span><br><span class="line"></span><br><span class="line">[sandow<span class="variable">@backup</span> tmp]<span class="variable">$ </span>netstat -lntup|grep rsync</span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span><span class="symbol">:</span><span class="number">873</span>                 <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span><span class="symbol">:*</span>                   <span class="constant">LISTEN</span>      <span class="number">2370</span>/rsync          </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="symbol">:</span><span class="symbol">:</span><span class="symbol">:</span><span class="number">873</span>                      <span class="symbol">:</span><span class="symbol">:</span><span class="symbol">:*</span>                        <span class="constant">LISTEN</span>      <span class="number">2370</span>/rsync</span><br></pre></td></tr></table></figure>
-<p>然后让rsync开机自动启动：</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo <span class="string">"/usr/bin/rsync --daemon"</span> <span class="prompt">&gt;&gt;</span>/etc/rc.local</span><br></pre></td></tr></table></figure>
-<p>这里需要注意的是要让端口873通过防火墙</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>iptables -<span class="constant">A</span> <span class="constant">INPUT</span> -p tcp -m state --state <span class="constant">NEW</span>  -m tcp --dport <span class="number">873</span> -j <span class="constant">ACCEPT</span></span><br><span class="line"><span class="variable">$ </span>iptables -<span class="constant">L</span>  查看一下防火墙是不是打开了 <span class="number">873</span>端口</span><br></pre></td></tr></table></figure>
-<h4 id="客户端的配置">客户端的配置</h4><p>客户端的配置很简单，仅需要增加一个密码文件并把权限改为600</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="variable">@NFS</span> tmp]<span class="variable">$ </span>echo <span class="string">"oldboy"</span> &gt;<span class="regexp">/etc/rsync</span>.password</span><br><span class="line">[root<span class="variable">@NFS</span> tmp]<span class="variable">$ </span>chmod <span class="number">600</span> /etc/rsync.password </span><br><span class="line">[root<span class="variable">@NFS</span> tmp]<span class="variable">$ </span>ll /etc/rsync.password </span><br><span class="line">-rw-------. <span class="number">1</span> root root <span class="number">7</span> <span class="constant">Nov</span> <span class="number">12</span> <span class="number">02</span><span class="symbol">:</span><span class="number">03</span> /etc/rsync.password</span><br><span class="line">[root<span class="variable">@NFS</span> tmp]<span class="variable">$ </span>cat /etc/rsync.password </span><br><span class="line">oldboy</span><br></pre></td></tr></table></figure>
-<h4 id="备份数据以及自动备份">备份数据以及自动备份</h4><p>向服务器推送数据：</p>
-<p><code>rsync -auvrtzopgP --progress  /backup/ rsync_backup@172.16.1.41::backup --password-file=/etc/rsync.password</code></p>
-<p>或者</p>
-<p><code>rsync -auvrtzopgP --progress  /backup/ rsync://rsync_backup@172.16.1.41/backup --password-file=/etc/rsync.password</code></p>
-<p>从服务器拉回数据</p>
-<p><code>rsync -avz   rsync_backup@172.16.1.41::backup /backup/ --password-file=/etc/rsync.password</code></p>
-<p>或者</p>
-<p><code>rsync -avz   rsync://rsync_backup@172.16.1.41/backup  /backup/ --password-file=/etc/rsync.password</code></p>
-<h3 id="小结">小结</h3><p>配置步骤回顾</p>
-<blockquote>
-<p>查看rsync 安装包&gt;&gt;  添加rsync用户 &gt;&gt;  生成配置文件 &gt;&gt;   配置账户，密码文件 &gt;&gt;  密码文件配置权限 600  &gt;&gt;  创建共享的目录并授权rsync &gt;&gt;启动rsync  <code>rsync --daemon</code> &gt;&gt; 开机启动<br>排错小结：查看推送或者拉取报错信息， 查看日志 <code>tail /var/log/rsyncd.log</code></p>
-</blockquote>
-<p>重启rsync就必须杀掉进程</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="variable">@backup</span> backup]<span class="variable">$ </span>kill <span class="string">`cat /var/run/rsyncd.pid`</span></span><br><span class="line">[root<span class="variable">@backup</span> backup]<span class="variable">$ </span>lsof -i <span class="symbol">:</span><span class="number">873</span></span><br><span class="line">[root<span class="variable">@backup</span> backup]<span class="variable">$ </span>pkill rsync</span><br><span class="line">[root<span class="variable">@backup</span> backup]<span class="variable">$ </span>killall rsync</span><br></pre></td></tr></table></figure>
-<p>rsync 优点</p>
-<ol>
-<li>增量备份， 支持socket 集中备份，（支持推拉，都是以客户端参照物）</li>
-<li>远程shell 通道模式还可以加密(ssh) 传输 。 socket 需要加密传输，可以利用vpn 服务或ipsec服务</li>
-</ol>
-<p>rsync 缺点</p>
-<ol>
-<li>大量小文件时候同步的时候，比对时间长，有的时候，rsync进程可能会停止</li>
-<li>同步大文件，10G 这样的大文件有时也会问题，中断。 未完整同步前，是隐藏文件</li>
-</ol>
-<p>实战作业：<br>5.1.4.2 备份全网服务器数据生产架构方案案例模型<br>企业案例：rsync上机实战考试题：<br>某公司里有一台Web服务器，里面的数据很重要，但是如果硬盘坏了，数据就会丢失，现在领导要求你把数据在其他机器上做一个周期性定时备份。要求如下：<br>每天晚上00点整在Web服务器A上打包备份网站程序目录并通过rsync命令推送到服务器B上备份保留（备份思路可以是先在本地按日期打包，然后再推到备份服务器上）。<br>具体要求如下：<br>1)Web服务器A和备份服务器B的备份目录必须都为/backup。<br>2)Web服务器站点目录假定为(/var/www/html)。<br>3)Web服务器本地仅保留7天内的备份。<br>4)备份服务器上检查备份结果是否正常，并将每天的备份结果发给管理员信箱（选做）。<br>5)备份服务器上每周六的数据都保留，其他备份仅保留180天备份（选做）。</p>
-<p>拔锚必备思想：<br>部署流程步骤熟练<br>rsync原理理解</p>
-<h2 id="crontab_+_rsync_定时推送">crontab + rsync 定时推送</h2><p>定时任务一般都新建一个目录专门用来存放定时任务的sh.我一般呢会存放在<strong>/server/scripts/</strong>目录下面。 新建一个sh 命名为rsync.dailyBackup.sh. 增加好下内容</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ cat rsync.dailyBackup.sh</span><br><span class="line">#! /bin/sh</span><br><span class="line"># backup /backup  to 172.16.1.41:/backup</span><br><span class="line">path=/backup</span><br><span class="line">hostn=$(hostname)</span><br><span class="line">dir=$&#123;hostn&#125;-172.16.1.31</span><br><span class="line">ldate=$(date +%F)</span><br><span class="line">mkdir  $&#123;path&#125;/$&#123;dir&#125; &amp;&amp;\</span><br><span class="line">/bin/cp /etc/rc.local $&#123;path&#125;/$&#123;dir&#125;/rc.local_$&#123;ldate&#125; &amp;&amp;\</span><br><span class="line">rsync -az $&#123;path&#125;/ rsync_backup@172.16.1.41::backup/ --password-file=/etc/rsync.password</span><br></pre></td></tr></table></figure>
-<p>首先测试是否成功执行任务，并推送到rsync服务器。然后便写入crontab </p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>crontab -l</span><br><span class="line"><span class="comment">#######time sync by lzy at 2015-11-02</span></span><br><span class="line">*<span class="regexp">/5 * * * * /usr</span><span class="regexp">/sbin/ntpdate</span> time.nist.gov &gt;<span class="regexp">/dev/null</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">####rsync by lzy at 2015-11-07</span></span><br><span class="line"><span class="number">00</span> <span class="number">01</span> * * * <span class="regexp">/bin/sh</span> /server/scripts/rsync.sh &gt;<span class="regexp">/dev/null</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br></pre></td></tr></table></figure>
-<h2 id="实时同步">实时同步</h2><p>inotify+rsync<br>inotify 是一种强大的细粒度的，异步的文件系统事件监控机制， linux内核从2.6.13起，加入了inotify支持。其本身没有推送的功能，只 有监控文件系统的任务. 我们可以用inotify + rsync 做到实时复制，但是<br>sersync 国人周洋编辑的<br>inotify + rsync 实时复制  osersync<br>每秒只能同步200张100K的图片  可以用drbd （备节点不可用）  双协</p>
-<p>查看系统是否支持inotify，如果没有下列文件便表示不支持</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>ll /proc/sys/fs/inotify/</span><br><span class="line">total <span class="number">0</span></span><br><span class="line">-rw-r--r-- <span class="number">1</span> root root <span class="number">0</span> <span class="constant">Nov</span>  <span class="number">9</span> <span class="number">17</span><span class="symbol">:</span><span class="number">39</span> max_queued_events</span><br><span class="line">-rw-r--r-- <span class="number">1</span> root root <span class="number">0</span> <span class="constant">Nov</span>  <span class="number">9</span> <span class="number">17</span><span class="symbol">:</span><span class="number">39</span> max_user_instances</span><br><span class="line">-rw-r--r-- <span class="number">1</span> root root <span class="number">0</span> <span class="constant">Nov</span>  <span class="number">9</span> <span class="number">17</span><span class="symbol">:</span><span class="number">39</span> max_user_watches</span><br></pre></td></tr></table></figure>
-<ul>
-<li>max_queued_events,表示调用inotify_init时分配给inotify instance中可排队的event的数目的最大值，超出这值的事件被丢弃，触发IN_Q_OVERFLOW事件</li>
-<li>max_user_instances 每一个user ID可创建的inotify instatnces的数量上限</li>
-<li>max_user_watches表示每个inotify instatnces可监控的最大目录数量。</li>
-</ul>
-<p>安装inotify-tools<br>方法一</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="variable">$ </span>rpm -ivh /apps/crm/soft_src/inotify-tools-<span class="number">3.14</span>-<span class="number">1</span>.el6.x86_64.rpm </span><br><span class="line"><span class="symbol">warning:</span> /apps/crm/soft_src/inotify-tools-<span class="number">3.14</span>-<span class="number">1</span>.el6.x86_64.<span class="symbol">rpm:</span> <span class="constant">Header</span> <span class="constant">V3</span> <span class="constant">DSA</span>/<span class="constant">SHA1</span> <span class="constant">Signature</span>, key <span class="constant">ID</span> <span class="number">4026433</span><span class="symbol">f:</span> <span class="constant">NOKEY</span></span><br><span class="line"><span class="constant">Preparing</span>...                <span class="comment">########################################### [100%]</span></span><br><span class="line">   <span class="number">1</span><span class="symbol">:inotify-tools</span>          <span class="comment">########################################### [100%]</span></span><br><span class="line"><span class="variable">$ </span>rpm -qa|grep inotify</span><br><span class="line">inotify-tools-<span class="number">3.14</span>-<span class="number">1</span>.el5.x86_64</span><br></pre></td></tr></table></figure>
-<p>方法二</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">wget http://github.com/downloads/rvoicilas/inotify-tools/inotify-tools-3.14.tar.gz</span><br><span class="line">tar zxvf inotify-tools-3.14.tar.gz</span><br><span class="line">cd inotify-tools-3.14</span><br><span class="line">./configure --prefix=/usr/local/inotify</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-<h3 id="inotifywait_介绍">inotifywait 介绍</h3><p>如果文件或者目录变更，那么就会调用inotify命令。是一个非常高效的工具。<br>其语法格式是</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inotifywait [-hcmrq] [-e &lt;event&gt; ] [-t &lt;seconds&gt; ] [--format &lt;fmt&gt; ] [--timefmt &lt;fmt&gt; ] &lt;file&gt; [ ... ]</span><br></pre></td></tr></table></figure>
-<p>参数：</p>
-<ul>
-<li>-m  监听</li>
-<li>-r, –recursive 递归监控</li>
-<li>-q, –quiet，不输出信息</li>
-<li>–exclude <pattern\></pattern\></li>
-<li>-e <event\>, –event <event\><ul>
-<li>delete ,create,close_write,modify </li>
-</ul>
-</event\></event\></li>
-<li>–timefmt <fmt> 设置一个时间样式</fmt></li>
-</ul>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">inotifywait -mrq --timefmt <span class="string">'%d/%m/%y %H:%M'</span> --format <span class="string">'%T %w %f'</span> -e create /backup  </span><br><span class="line">inotifywait -mrq --timefmt <span class="string">'%d/%m/%y %H:%M'</span> --format <span class="string">'%T %w %f'</span> -e create,delete,close_write /backup</span><br></pre></td></tr></table></figure>
-<p>执行第二个命令后的结果格式结果是</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ a</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ a</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ a.txt</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ a.txt</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ .test.txt.swp</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ .test.txt.swx</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ .test.txt.swx</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ .test.txt.swx</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ .test.txt.swp</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ .test.txt.swp</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ .test.txt.swp</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> /backup/ test.txt</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> /backup/ test.txt</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> /backup/ .test.txt.swp</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> /backup/ .test.txt.swp</span><br></pre></td></tr></table></figure>
-<p>刚才注意到 创建一个文件产生的临时文件也都会被记录下来。而且还有重复。为了同步时减少带宽与CPU消耗，就需要使用排除，来排除指定的文件。排除一般有两种方法：1，使用rsync排除; 2,使用inotify排除，同时加入rsync排除,我们一般使用第二种<br>inotifywati排队监控目录有 –exclude <pattern\> –formfile <file\> 前面可以用正则，后者只能是具体的目录或文件</file\></pattern\></p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vi inotify_exclude.lst</span><br><span class="line">/tmp/src/pdf</span><br><span class="line">@/tmp/src/<span class="number">2014</span></span><br></pre></td></tr></table></figure>
-<p>–formfile 的file只能使用绝对路径，@表示排除。<br>用正则排除 </p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--exclude <span class="string">'(.*/*\.log|.*/*\.swp)$|^/tmp/src/mail/(2014|201.*/cache.*)'</span></span><br></pre></td></tr></table></figure>
-<p>正则很明子了吧。 排除所有目录下以<strong>.log</strong>, <strong>.swp</strong> 结尾的文件，和所有在/tmp/src/mail下面2014这个目录和201*目录下的cache开头的文件或目录<br>在rsync里排除，这里指定file排除时用相对路径。</p>
-<p>写一个角本<strong>inotifywait.sh</strong>放到backup目录下面,执行便可以实时同步，以下是几个版本<br>粗糙版，每次都会让rsync比对所有文件然后再同步</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#! /bin/bash</span></span><br><span class="line">/usr/bin/inotifywait -mrq  --format <span class="string">'%w%f'</span> -e create,close_write,delete /backup | \</span><br><span class="line"><span class="keyword">while</span> read file</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">  	cd /backup &amp;&amp; \</span><br><span class="line">  	rsync -az ./ --delete rsync_backup<span class="variable">@172</span>.<span class="number">16.1</span>.<span class="number">41</span><span class="symbol">:</span><span class="symbol">:backup</span> --password-file=<span class="regexp">/etc/rsync</span>.password</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
-<p>精准版</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#! /bin/sh</span></span><br><span class="line"><span class="constant">FullPath</span>=<span class="string">"/usr/bin/inotifywait"</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$&#123;</span><span class="constant">FullPath</span>&#125; -mrq --format <span class="string">'%w%f'</span> -e create,close_write,delete /backup | \</span><br><span class="line">	<span class="keyword">while</span> read <span class="constant">Line</span></span><br><span class="line">	<span class="keyword">do</span></span><br><span class="line">  	[ ! -e  <span class="string">"$line"</span> ]  &amp;&amp;\</span><br><span class="line">  rsync -az --delete ./ rsync_backup<span class="variable">@172</span>.<span class="number">16.1</span>.<span class="number">41</span><span class="symbol">:</span><span class="symbol">:backup</span> --password-file=<span class="regexp">/etc/rsync</span>.password &amp;&amp; \</span><br><span class="line">	continue</span><br><span class="line">  rsync -az --delete <span class="variable">$&#123;</span><span class="constant">Line</span>&#125; rsync_backup<span class="variable">@172</span>.<span class="number">16.1</span>.<span class="number">41</span><span class="symbol">:</span><span class="symbol">:backup</span> --password-file=<span class="regexp">/etc/rsync</span>.password</span><br><span class="line">	done</span><br></pre></td></tr></table></figure>
-<p>上面的是不是很简单，那么再来一个更全面的客户端配置文件</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">#rsync auto sync script with inotify</span><br><span class="line">#2015-11-09 sandow</span><br><span class="line">#variables</span><br><span class="line">Current_date=$(date +%Y%m%d_%H%M%S)</span><br><span class="line">source_path=/backup/</span><br><span class="line">log_file=/var/log/rsync_client.log</span><br><span class="line">#rsync</span><br><span class="line">rsync_server=172.16.1.41</span><br><span class="line">rsync_user=rsync_backup</span><br><span class="line">rsync_pwd=/etc/rsync.password</span><br><span class="line">rsync_module=backup</span><br><span class="line">INOTIFY_EXCLUDE="(.*/*\.log|.*/*\.swp)$|^/tmp/src/mail/(2014|20.*/.*che.*)"</span><br><span class="line">RSYNC_EXCLUDE=/etc/rsyncd.d/rsync_exclude.lst</span><br><span class="line">#rsync client pwd check</span><br><span class="line">if [ ! -e $&#123;rsync_pwd&#125; ];then</span><br><span class="line">    echo -e "rsync client passwod file $&#123;rsync_pwd&#125; does not exist!"</span><br><span class="line">    exit 0</span><br><span class="line">fi</span><br><span class="line">#inotify_function</span><br><span class="line">inotify_fun()&#123;</span><br><span class="line">    /usr/bin/inotifywait -mrq --timefmt '%Y/%m/%d-%H:%M:%S' --format '%T %w %f' \</span><br><span class="line">          --exclude $&#123;INOTIFY_EXCLUDE&#125;  -e modify,delete,create,move,attrib $&#123;source_path&#125; | \</span><br><span class="line">      while read file</span><br><span class="line">      do</span><br><span class="line">          /usr/bin/rsync -auvrtzopgP --exclude-from=$&#123;RSYNC_EXCLUDE&#125; --progress --bwlimit=200 --password-file=$&#123;rsync_pwd&#125; $&#123;source_path&#125; $&#123;rsync_user&#125;@$&#123;rsync_server&#125;::$&#123;rsync_module&#125; </span><br><span class="line">      done</span><br><span class="line">&#125;</span><br><span class="line">#inotify log</span><br><span class="line">inotify_fun &gt;&gt; $&#123;log_file&#125; 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
-<p>来点链接，深入研究的话可以上去查看 <br></p>
-<blockquote>
-<p><a href="https://rsync.samba.org/how-rsync-works.html" target="_blank" rel="external">How Rsync Works A Practical Overview</a> <br><br><a href="https://www.ibm.com/developerworks/cn/linux/l-inotify/" target="_blank" rel="external">用 inotify 监控 Linux 文件系统事件</a> <br><br><a href="http://www.infoq.com/cn/articles/inotify-linux-file-system-event-monitoring" target="_blank" rel="external">inotify: 高效、实时的Linux文件系统事件监控框架</a> <br><br><a href="http://coolshell.cn/articles/7425.html" target="_blank" rel="external">rsync 的核心算法</a></p>
-</blockquote>
-<h2 id="sersync">sersync</h2><p>听同事说 sersync 这么个工具可以提高同步的性能，也解决了同步大文件时出现异常的问题，所以就尝试了一下。sersync是国内的一个开发者开源出来的，使用c++编写，采用多线程的方式进行同步，失败后还有重传机制，对临时文件过滤，自带crontab定时同步功能。网上看到有人说性能还不错，但是我觉得：</p>
-<p>国产开源，文档不是很全，在2011年之后就没更新了。采用xml配置文件的方式，可读性比较好，但是有些原生的有些功能没有实现就没法使用了。</p>
-<p>无法实现多目录同步，只能通过多个配置文件启动多个进程，文件排除功能太弱。</p>
-<p>虽然提供插件的功能，但很鸡肋，因为软件本身没有持续更新，也没有看到贡献有其它插件出现（可能是我知识面不够，还用不到里面的refreshCDN plugin）。虽然不懂c++，但大致看了下源码 FileSynchronize，拼接rsync命令大概在273行左右，最后一个函数就是排除选项，简单一点可以将–exclude=改成–eclude-from来灵活控制。有机会再改吧。</p>
-<p>另外，在作者的文章 Sersync服务器同步程序 项目简介与设计框架 评论中，说能解决上面 rsync + inotify中所描述的问题。阅读了下源码，这个应该是没有解决，因为在拼接rsync命令时，后面的目的地址始终是针对module的，只要执行rsync命令，就会对整个目录进行遍历，发送要比对的文件列表，然后再发送变化的文件。sersync只是减少了监听的事件，减少了rsync的次数——这已经是很大的改进，但每次rsync没办法改变。（如有其它看法可与我讨论）</p>
-<p>其实我们也不能要求每一个软件功能都十分健全，关键是看能否满足我们当下的特定的需求。所谓好的架构不是设计出来的，而是进化来的。目前使用sersync2没什么问题，而且看了它的设计思路应该是比较科学的，特别是过滤队列的设计。双向同步看起来也是可以实现。</p>
-<h2 id="rsync常见错误与问题">rsync常见错误与问题</h2><p>Q：如何通过ssh进行rsync，而且无须输入密码？    </p>
-<ul>
-<li><p>可以通过以下几个步骤        </p>
-<ol>
-<li>通过ssh-keygen在server A上建立SSH keys，不要指定密码，你会在~/.ssh下看到identity和identity.pub文件 </li>
-<li>在server B上的home目录建立子目录.ssh</li>
-<li>将A的identity.pub拷贝到server B上</li>
-<li>将identity.pub加到~[user b]/.ssh/authorized_keys</li>
-<li>于是server A上的A用户，可通过下面命令以用户B ssh到server B上了。e.g. ssh -l userB serverB。这样就使server A上的用户A就可以ssh以用户B的身份无需密码登陆到server B上了。</li>
-</ol>
-</li>
-</ul>
-<p>Q：如何通过在不危害安全的情况下通过防火墙使用rsync?</p>
-<ul>
-<li>解答如下：<br>这通常有两种情况，一种是服务器在防火墙内，一种是服务器在防火墙外。无论哪种情况，通常还是使用ssh，这时最好新建一个备份用户，并且配置sshd 仅允许这个用户通过RSA认证方式进入。如果服务器在防火墙内，则最好限定客户端的IP地址，拒绝其它所有连接。如果客户机在防火墙内，则可以简单允许防 火墙打开TCP端口22的ssh外发连接就ok了。</li>
-</ul>
-<p>Q：我能将更改过或者删除的文件也备份上来吗？</p>
-<ul>
-<li>当然可 以。你可以使用如：rsync -other -options -backupdir = ./backup-2000-2-13  …这样的命令来实现。这样如果源文件:/path/to/some/file.c改变了，那么旧的文件就会被移到./backup- 2000-2-13/path/to/some/file.c，这里这个目录需要自己手工建立起来</li>
-</ul>
-<p>Q：我需要在防火墙上开放哪些端口以适应rsync？</p>
-<ul>
-<li>视情况而定。rsync可以直接通过873端口的tcp连接传文件，也可以通过22端口的ssh来进行文件传递，但你也可以通过下列命令改变它的端口：</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ iptables -A INPUT -p tcp -m state --state NEW  -m tcp --dport <span class="number">873</span> -j ACCEPT</span><br></pre></td></tr></table></figure>
-<p><code>rsync --port 8730 otherhost::</code>或者<code>rsync -e &#39;ssh -p 2002&#39; otherhost:</code></p>
-<p>Q：我如何通过rsync只复制目录结构，忽略掉文件呢？    </p>
-<ul>
-<li><code>rsync -av --include &#39;*/&#39; --exclude &#39;*&#39; source-dir dest-dir</code></li>
-</ul>
-<p>Q：为什么我总会出现”Read-only file system”的错误呢？    </p>
-<ul>
-<li>看看是否忘了设”read only = no”了</li>
-</ul>
-<p>Q：为什么我会出现’@ERROR: invalid gid’的错误呢？</p>
-<ul>
-<li>rsync使用时默认是用uid=nobody;gid=nobody来运行的，如果你的系统不存在nobody组的话，就会出现这样的错误，可以试试gid = ogroup或者其它</li>
-</ul>
-<p>Q：绑定端口873失败是怎么回事？</p>
-<ul>
-<li>如果你不是以root权限运行这一守护进程的话，因为1024端口以下是特权端口，会出现这样的错误。你可以用–port参数来改变。</li>
-</ul>
-<p>Q：为什么我认证失败？    </p>
-<ul>
-<li>从你的命令行看来：你用的是</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bash$ rsync -a <span class="number">144.16</span><span class="number">.251</span><span class="number">.213</span>::test test</span><br><span class="line">Password:</span><br><span class="line"><span class="decorator">@ERROR: auth failed on module test</span></span><br></pre></td></tr></table></figure>
-<p>应该是没有以你的用户名登陆导致的问题，试试rsync -a max@144.16.251.213::test test</p>
-<p>Q: 出现以下这个讯息, 是怎么一回事?    </p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="decorator">@ERROR: auth failed on module xxxxx</span></span><br><span class="line">rsync: connection unexpectedly closed (<span class="number">90</span> bytes read so far)</span><br><span class="line">rsync error: error <span class="keyword">in</span> rsync protocol data stream (code <span class="number">12</span>) at io.c(<span class="number">150</span>)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>这是因为密码设错了, 无法登入成功, 请再检查一下 rsyncd.secrets 中的密码设定, 二端是否一致?</li>
-</ul>
-<p>Q: 出现以下这个讯息, 是怎么一回事?    </p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">password file must <span class="keyword">not</span> be other-accessible </span><br><span class="line">continuing without password file </span><br><span class="line">Password:</span><br></pre></td></tr></table></figure>
-<ul>
-<li>这表示 rsyncd.secrets 的档案权限属性不对, 应设为 600。请下 chmod 600 rsyncd.secrets</li>
-</ul>
-<p>Q: 出现以下这个讯息, 是怎么一回事?</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="decorator">@ERROR: chroot failed</span></span><br><span class="line">rsync: connection unexpectedly closed (<span class="number">75</span> bytes read so far)</span><br><span class="line">rsync error: error <span class="keyword">in</span> rsync protocol data stream (code <span class="number">12</span>) at io.c(<span class="number">150</span>)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>这通常是您的 rsyncd.conf 中的 path 路径所设的那个目录并不存在所致.请先用 mkdir开设好备份目录.</li>
-</ul>
-<p>高并发数据实时同步方案小结<br>1。inotify+rsync 文件级别<br>2。drbd 文件系统级别<br>3。 第三方软件的同步功能， mysql, oracle, mongodb<br>4.。 程序双写<br>5。业务逻辑解决。（读写分离，备读不到，读主）</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/regular-expressions/" itemprop="url">
-                  Regular Expressions
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            發表於
-            <time itemprop="dateCreated" datetime="2015-11-14T09:38:11+08:00" content="2015-11-14">
-              2015-11-14
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分類於
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/python/" itemprop="url" rel="index">
-                    <span itemprop="name">python</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/regular-expressions/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="regular-expressions/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <p> 正则表达式是为处理大量字符串而定义的方法。<br> 正则表达式分基本正则表达式（Basic Regular Expressions,BERs）和扩展正则表达式（Extended Regular Expressions,EREs）. EREs基本包含BERs，而且还包含更多功能. EREs现在已经被应用于 Apache, PERL, PHP, python. 以及VI，emac,grep awk和sed…ERES现在基本已成流行，也是本文主要关注的重点   </p>
-<h2 id="通用的定义">通用的定义</h2><p>  本文基本都会用下面几个概念：<strong>literal, metacharacter, target string, escape sequence, search expression</strong>. 下面来介绍下他们的定义</p>
-<ol>
-<li><p>literal:<br>literal 我们用来匹配或者用来搜索的可以是任意字符. 在表达式中写什么便会匹配到什么. 简单来说literal 便是你确切想要查找的内容</p>
-</li>
-<li><p>metacharacter:<br>metacharacter 便是一个或者多个不同于literal用法的拥有特殊意义的特殊字符. 例如 ^ (circumflex or caret) 便是一个metacharacter</p>
-</li>
-<li><p>target string:<br>target string 便是我们想要查找或者匹配到的内容</p>
-</li>
-<li><p>search expression:<br>也叫regular expression.  这是我们需要查到或者匹配内容的样式</p>
-</li>
-<li><p>escape sequence:<br>如果想把metacharacter当做literal来用便需要用到escape sequenc. 就是需要用 \ (backslash)把metacharacter 转义为普通的literal. 例如如果我们想要匹配 ^ 便要写成：<code>\^</code>  </p>
-<p>本文都会用正则表达式来在下面两个字符串中匹配   </p>
-</li>
-</ol>
-<blockquote>
-<p>字符串1   Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)<br>字符串2   Mozilla/4.75 [en](X11;U;Linux2.2.16-22 i586)   </p>
-</blockquote>
-<hr>
-<p> 一些简单的例子</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">表达式</th>
-<th style="text-align:left">匹配到的内容</th>
-<th style="text-align:center">注释</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">m</td>
-<td style="text-align:left">只有在字符串一中会在compatible里查找到m</td>
-<td style="text-align:center">literal</td>
-</tr>
-<tr>
-<td style="text-align:center">5 \[</td>
-<td style="text-align:left">只有在字符串二中从4.7<em>5 [</em>en 匹配到 <strong>5 [</strong></td>
-<td style="text-align:center">escape sequence</td>
-</tr>
-<tr>
-<td style="text-align:center">a/4</td>
-<td style="text-align:left">只会在字符串一中从Mozilla/4中匹配到<strong>a/4</strong></td>
-<td style="text-align:center">literal</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h3 id="metacharacters">metacharacters</h3><p>  在RE中经常会用到很多特殊字符，每个字符在不同的位置拥有不同的意思，下面简单介绍几个常用的metacharacters</p>
-<p>一些基本的元字符及各自的意思</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">元字符</th>
-<th style="text-align:left">特殊意义</th>
-<th style="text-align:left">例子</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center"><strong>[ ]</strong></td>
-<td style="text-align:left">匹配在方括号里面的任意1个字符</td>
-<td style="text-align:left"><code>[12]</code> 便只会匹配1或者2, [0-9] 便会匹配任意一个数字</td>
-</tr>
-<tr>
-<td style="text-align:center"><strong>-</strong></td>
-<td style="text-align:left">在方括号里面dash的意思是range separator</td>
-<td style="text-align:left">[0-9]` 相当于[0123456789]</td>
-</tr>
-<tr>
-<td style="text-align:center"><strong>^</strong></td>
-<td style="text-align:left">在放括號里caret是取反,不在中括号里是最开头</td>
-<td style="text-align:left"><code>[^Ff]</code> 匹配除了f(大写与小写)的任意字符。<code>^Moz</code> 以Woz开头字符会从 ‘Mozilla’ 中找到</td>
-</tr>
-<tr>
-<td style="text-align:center"><strong>$</strong></td>
-<td style="text-align:left">只匹配结尾是literal的字符</td>
-<td style="text-align:left"><code>fox$</code> 便会从 ‘silver fox’ 中找到</td>
-</tr>
-<tr>
-<td style="text-align:center"><strong>.</strong></td>
-<td style="text-align:left">在这个位置的任意字符</td>
-<td style="text-align:left"><code>ton.</code> 便会从 ‘tonneau’ 中找到<strong>tons</strong> , 但不会从’wanton’ 里找到</td>
-</tr>
-<tr>
-<td style="text-align:center"><strong>?</strong></td>
-<td style="text-align:left">匹配前面的一个字符出现0次或者1次</td>
-<td style="text-align:left"><code>colou?r</code> 便会找到<strong>color</strong>和<strong>colour</strong></td>
-</tr>
-<tr>
-<td style="text-align:center">*</td>
-<td style="text-align:left">匹配前面的一个字符出现0次或者多次</td>
-<td style="text-align:left"><code>tre\*</code> (请忽略\ )便会找到 <code>tr</code>, <code>tre</code>, <code>tree</code> 。</td>
-</tr>
-<tr>
-<td style="text-align:center"><strong>+</strong></td>
-<td style="text-align:left">匹配前面的一个字符出现1次或者多次</td>
-<td style="text-align:left"></td>
-</tr>
-<tr>
-<td style="text-align:center">{n}</td>
-<td style="text-align:left">匹配前面的字符或者出现n次</td>
-<td style="text-align:left"><code>[1-9]{3}-[0-9]{4}</code> 便用找到像123-4567形式的数字</td>
-</tr>
-<tr>
-<td style="text-align:center">{n,m}</td>
-<td style="text-align:left">匹配前面的字符至少出现n到m次</td>
-<td style="text-align:left"></td>
-</tr>
-<tr>
-<td style="text-align:center">{n,m}? ,+?, *?, ??</td>
-<td style="text-align:left">让{n,m}, *, +, ?非貪婪匹配(non-greed)</td>
-<td style="text-align:left">字符串’aaaaa’, a{3,4}将会匹配５个a，　而a{3,5}?便只会匹配３个a</td>
-</tr>
-<tr>
-<td style="text-align:center">()</td>
-<td style="text-align:left">子表达式</td>
-<td style="text-align:left">可以向后引用</td>
-</tr>
-<tr>
-<td style="text-align:center">竖线</td>
-<td style="text-align:left">可以匹配前面的字符或者后面的字符</td>
-</tr>
-</tbody>
-</table>
-<p>gr(a|e)y`可以找到 ‘gray’ 或 ‘grey’</p>
-<p> 举例  </p>
-<blockquote>
-<p>字符串1   Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)<br>字符串2   Mozilla/4.75 [en](X11;U;Linux2.2.16-22 i586)   </p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">表达式</th>
-<th style="text-align:left">字符串一</th>
-<th style="text-align:left">字符串二</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">[^A-M]in</td>
-<td style="text-align:left">会从Windows里找到 <strong>Win</strong></td>
-<td style="text-align:left">因为排队A－M所以不会匹配到Linux</td>
-</tr>
-<tr>
-<td style="text-align:center">[a-z])$</td>
-<td style="text-align:left">会从 DigiExt)里找到<strong>t）</strong></td>
-<td style="text-align:left">因为结尾是数字所以不会匹配到</td>
-</tr>
-<tr>
-<td style="text-align:center">.in</td>
-<td style="text-align:left">会从 Windows 里打到 <strong>Win</strong></td>
-<td style="text-align:left">会从Linux里找到<strong>Lin</strong></td>
-</tr>
-<tr>
-<td style="text-align:center">(.*l</td>
-<td style="text-align:left">会匹配到<strong>(compatibl</strong></td>
-<td style="text-align:left">“(“后面没有l所以不会匹配到</td>
-</tr>
-<tr>
-<td style="text-align:center">[Xx][0-9a-z]{2}</td>
-<td style="text-align:left">无匹配虽然有小x但是后面t并没有重复两次</td>
-<td style="text-align:left">会找到X11</td>
-</tr>
-<tr>
-<td style="text-align:center">^([L-Z]in)</td>
-<td style="text-align:left">没有以L-Z开头的字符所以无匹配</td>
-<td style="text-align:left">Lin不在字符串的开头无匹配</td>
-</tr>
-</tbody>
-</table>
-<p><code>((4\.[0-3])\|(2\.[0-3]))</code> 可以在字符串1中找到4.0，在字符串2中找到2.2</p>
-<h3 id="POSIX_Character_Class_Definitions">POSIX Character Class Definitions</h3><p>  POSIX 1003.2第2.8.3.2(6) 定义了一些字符集来表示特定的范围, 虽然看起来很奇怪但是呢也有一些优点的. 下面的内容引用LC_CTYPE POSIX定义</p>
-<ul>
-<li>[:digit:] 相当于[0-9]</li>
-<li>[:alnum:] 相当于[0-9a-zA-Z]</li>
-<li>[:alpha:] 相当于[a-zA-Z]</li>
-<li>[:blank:] 空格或者制表符</li>
-<li>[:xdigit:] 十六进制符相当于[0-9a-fA-F]</li>
-<li>[:punct:] 标点符号 . , “ ‘ ? ! ; : # $ % &amp; ( ) * + - / &lt; &gt; = @ [ ] \ ^ _ { } | ~</li>
-<li>[:print:] 任何可打印的字符</li>
-<li>[:space:] 任何空格(space, tab, NL, FF, VT, CR). 很多时候用 \s.</li>
-<li>[:graph:] 排除空格 (SPACE, TAB). Many system abbreviate as \W.</li>
-<li>[:upper:] 相当于[A-Z]</li>
-<li>[:lower:] 相当于[a-z]</li>
-<li>[:cntrl:] 控制字符 NL CR LF TAB VT FF NUL SOH STX EXT EOT ENQ ACK SO SI DLE DC1 DC2 DC3 DC4 NAK SYN ETB CAN EM SUB ESC IS1 IS2 IS3 IS4 DEL.</li>
-</ul>
-<h3 id="一些扩展和缩写">一些扩展和缩写</h3><p>  有些程序（ruby, python, js, php）支持扩展和缩写正则表达式, 这些扩展将在下面列出，一般来说这些扩展都是由PERL（perl compatible regular Expressions） 定义。</p>
-<ol>
-<li>Character Class Abbreviations</li>
-</ol>
-<ul>
-<li>\d 匹配数字，(equivalent of POSIX [:digit:])</li>
-<li>\D 匹配任意非数字字符(equivalent of POSIX [^[:digit:]])</li>
-<li>\s 匹配空格字符(space, tab etc.). (equivalent of POSIX [:space:] EXCEPT VT is not recognized)</li>
-<li>\S 匹配任何非空格字符(space, tab). (equivalent of POSIX [^[:space:]])</li>
-<li>\w 匹配任何数字与字母（大小）字符(equivalent of POSIX [:alnum:])</li>
-<li>\W 匹配任何非数字与字母（大小）字符 (equivalent of POSIX [^[:alnum:]])</li>
-</ul>
-<ol>
-<li>Positional Abbreviations</li>
-</ol>
-<ul>
-<li>\b 单词边界，<code>\bxx</code>匹配以xx开始的词，<code>xx\b</code>匹配以xx结束的词.  <code>\bton\b</code> 可以找到ton但是找不到tons, <code>\bton</code>就会找到 tons.</li>
-<li>\B 非单词边界，匹配任意不以xx开始或者结束的词. <code>\Bton\B</code>会找到wantons找不到tons, <code>ton\B</code>会找到 wantons 和 tons.</li>
-</ul>
-<p><img src="/images/regular-expression.png" alt="regular expression"></p>
-<hr>
-<h2 id="python_中的re包，">python 中的re包，</h2><p>　python里的re使用方法, 后面的语法是结合complie使用pos是position的缩写意思是从什么位置开始匹配，什么位置结束。</p>
-<ul>
-<li><strong>re.compile(pattern, flags=0)</strong>   先把pattern编译然后再用正则表达式的方法调用  </li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>prog = re.compile(pattern)</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>result = prog.match(string)</span><br></pre></td></tr></table></figure>
-<p>相当于</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>result = re.match(pattern, string)</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p><strong>re.search(pattern, string, flags=0) , regex.search(string[, pos[, endpos]])</strong><br>扫描整个字符串找到第一个regular expression pattern 匹配到的位置然后返回符合pattern的match object,　如果未找到便返回　None .</p>
-</li>
-<li><p><strong>re.match(pattern, string, flags=0)　　regex.match(string[, pos[, endpos]])</strong><br>如果在这个string的开始匹配到字符，那么就返回相应的match object,　匹配不到便会返回　None  </p>
-</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m=re.search(<span class="string">"a\w+"</span>,<span class="string">"bcdfa\na1b2c3"</span>)</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>n=re.match(<span class="string">"a\w+"</span>,<span class="string">"bcdfa\na1b2c3"</span>)</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group()</span><br><span class="line"><span class="string">'a1b2c3'</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>print(n)</span><br><span class="line"><span class="keyword">None</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>re.split(pattern, string, maxsplit=0, flags=0)，　regex.split(string, maxsplit=0)</strong><br>用能够匹配到的字符来分隔字符串，maxsplit默认是最大分隔，指定数字后为最大分隔数</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>re.split(<span class="string">'\W+'</span>, <span class="string">'Words, words, words.'</span>)</span><br><span class="line">[<span class="string">'Words'</span>, <span class="string">'words'</span>, <span class="string">'words'</span>, <span class="string">''</span>]</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>re.split(<span class="string">'(\W+)'</span>, <span class="string">'Words, words, words.'</span>)</span><br><span class="line">[<span class="string">'Words'</span>, <span class="string">', '</span>, <span class="string">'words'</span>, <span class="string">', '</span>, <span class="string">'words'</span>, <span class="string">'.'</span>, <span class="string">''</span>]</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>re.split(<span class="string">'\W+'</span>, <span class="string">'Words, words, words.'</span>, <span class="number">1</span>)</span><br><span class="line">[<span class="string">'Words'</span>, <span class="string">'words, words.'</span>]</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>re.split(<span class="string">'[a-f]+'</span>, <span class="string">'0a3B9'</span>, flags=re.IGNORECASE)</span><br><span class="line">[<span class="string">'0'</span>, <span class="string">'3'</span>, <span class="string">'9'</span>]</span><br></pre></td></tr></table></figure>
-<p>如果有字符串的形状找到一个或者多个分隔符，那么在结果中便会以一个空字符开始，结尾有字符也是一样的</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>re.split(<span class="string">'(\W+)'</span>, <span class="string">'...words, words...'</span>)</span><br><span class="line">[<span class="string">''</span>, <span class="string">'...'</span>, <span class="string">'words'</span>, <span class="string">', '</span>, <span class="string">'words'</span>, <span class="string">'...'</span>, <span class="string">''</span>]</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p><strong>re.findall(pattern, string, flags=0), regex.findall(string[, pos[, endpos]])</strong><br>用列表的方式返回匹配到的字符，</p>
-</li>
-<li><p><strong>re.finditer(pattern, string, flags=0), regex.finditer(string[, pos[, endpos]])</strong><br>用迭代的方式返回匹配到的字符，</p>
-</li>
-<li><p><strong>re.sub(pattern, repl, string, count=0, flags=0), regex.sub(repl, string, count=0)</strong><br>把用样式匹配到的字符换成repl。如果没有匹配到字符便返回原string。　repl可以是字符，也可以是函数，当repl是一个字符串时，可以使用\id或\g\<id\>、\g\<name\>引用分组，但不能使用编号0。 </name\></id\></p>
-</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dashrepl</span><span class="params">(matchobj)</span>:</span></span><br><span class="line">	<span class="keyword">if</span> matchobj.group(<span class="number">0</span>) == <span class="string">'-'</span>: </span><br><span class="line">		<span class="keyword">return</span> <span class="string">' '</span></span><br><span class="line">	<span class="keyword">else</span>: </span><br><span class="line">		<span class="keyword">return</span> <span class="string">'-'</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>re.sub(<span class="string">'-&#123;1,2&#125;'</span>, dashrepl, <span class="string">'pro----gram-files'</span>)</span><br><span class="line"><span class="string">'pro--gram files'</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>re.sub(<span class="string">r'\sAND\s'</span>, <span class="string">' &amp; '</span>, <span class="string">'Baked Beans And Spam'</span>, flags=re.IGNORECASE)</span><br><span class="line"><span class="string">'Baked Beans &amp; Spam'</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><p><strong>re.subn(pattern, repl, string, count=0, flags=0)</strong><br>与sub用法一亲但是返回一个数组(new_string, number_of_subs_made).</p>
-</li>
-<li><p><strong>re.escape(string)</strong><br>Escape all the characters in pattern except ASCII letters, numbers and ‘_’. This is useful if you want to match an arbitrary literal string that may have regular expression metacharacters in it.</p>
-</li>
-</ul>
-<h3 id="Match_Objects">Match Objects</h3><p>  match object提供了很多方法与属性</p>
-<ul>
-<li><strong>match.expand(template)</strong> 将匹配到的分组代入template中然后返回。template中可以使用\id或\g\<id\>、\g\<name\>引用分组，但不能使用编号0。\id与\g\<id\>是等价的；但\10将被认为是第10个分组，如果你想表达\1之后是字符’0’，只能使用\g\<1\>0。</1\></id\></name\></id\></li>
-</ul>
-<ul>
-<li><strong>match.group([group1, …])</strong> 获得一个或多个分组截获的字符串；指定多个参数时将以元组形式返回。如果里面无参数默认为０，返回所有匹配的子符串</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m = re.match(<span class="string">r"(\w+) (\w+)"</span>, <span class="string">"Isaac Newton, physicist"</span>)</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group(<span class="number">0</span>)       <span class="comment"># The entire match</span></span><br><span class="line"><span class="string">'Isaac Newton'</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group(<span class="number">1</span>)       <span class="comment"># The first parenthesized subgroup.</span></span><br><span class="line"><span class="string">'Isaac'</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group(<span class="number">2</span>)       <span class="comment"># The second parenthesized subgroup.</span></span><br><span class="line"><span class="string">'Newton'</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group(<span class="number">1</span>, <span class="number">2</span>)    <span class="comment"># Multiple arguments give us a tuple.</span></span><br><span class="line">(<span class="string">'Isaac'</span>, <span class="string">'Newton'</span>)</span><br></pre></td></tr></table></figure>
-<p>如果使用(?P\<name\>…)表达式，那么便会吧每个子组用name来命名，</name\></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m = re.match(<span class="string">r"(?P&lt;first_name&gt;\w+) (?P&lt;last_name&gt;\w+)"</span>, <span class="string">"Malcolm Reynolds"</span>)</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group(<span class="string">'first_name'</span>)</span><br><span class="line"><span class="string">'Malcolm'</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group(<span class="string">'last_name'</span>)</span><br><span class="line"><span class="string">'Reynolds'</span></span><br></pre></td></tr></table></figure>
-<p>这里也可以用数字来提取</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group(<span class="number">1</span>)</span><br><span class="line"><span class="string">'Malcolm'</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group(<span class="number">2</span>)</span><br><span class="line"><span class="string">'Reynolds'</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>match.groups(default=None)</strong> 将所有匹配到的子组用tuple 的方式返回，</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m = re.match(<span class="string">r"(\d+)\.(\d+)"</span>, <span class="string">"24.1632"</span>)</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.groups()</span><br><span class="line">(<span class="string">'24'</span>, <span class="string">'1632'</span>)</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>match.groupdict(default=None)</strong>  将所有匹配到的子组用dic　的方式返回，key 是子组的名字.</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m = re.match(<span class="string">r"(?P&lt;first_name&gt;\w+) (?P&lt;last_name&gt;\w+)"</span>, <span class="string">"Malcolm Reynolds"</span>)</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.groupdict()</span><br><span class="line">&#123;<span class="string">'first_name'</span>: <span class="string">'Malcolm'</span>, <span class="string">'last_name'</span>: <span class="string">'Reynolds'</span>&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="re_in_linux">re in linux</h2><p>在linux中使用re请参见另一篇文章 linux三剑客</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+  </nav>
+
 
 
         </div>
@@ -2281,7 +2165,7 @@ UUID=cee39dbb-<span class="number">6</span>a10-<span class="number">4425</span>-
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-count">13</span>
               <span class="site-state-item-name">文章</span>
             </a>
           </div>
@@ -2295,7 +2179,7 @@ UUID=cee39dbb-<span class="number">6</span>a10-<span class="number">4425</span>-
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">8</span>
+              <span class="site-state-item-count">12</span>
               <span class="site-state-item-name">標籤</span>
               </a>
           </div>
