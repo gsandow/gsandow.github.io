@@ -461,7 +461,8 @@ pre,
   font-size: 13px;
   color: #eaeaea;
   line-height: 1.6;
-  box-shadow: #000 0 0 10px;
+  box-shadow: #000 0 0 5px;
+  overflow-y: hidden;
 }
 .highlight .gutter pre,
 .gist .gist-file .gist-data .line-numbers {
