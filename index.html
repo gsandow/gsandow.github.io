@@ -267,6 +267,196 @@
             
               
                 
+                <a class="post-title-link" href="/redis-replication/" itemprop="url">
+                  redis 主从同步原理及参数
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            發表於
+            <time itemprop="dateCreated" datetime="2015-12-07T20:16:43+08:00" content="2015-12-07">
+              2015-12-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; 分類於
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/redis-replication/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="redis-replication/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody">
+            
+              <h2 id="redis的一些特征">redis的一些特征</h2><p>REmote dictionary server(redis)是基于key-value键值对待久化的数据库存储系统，redis支持的数据存储类型更丰富，包括string, list, set, zset. hashes, 而且这些类型都支持push/pop , add/remove.及交集并集差集。<br>redis，可以持久化存储数据，支持超过10万+每秒读写频率，所有的操作都是原子性的，支持对几个操作合并后原子性执行。</p>
+<p>redis 可以不用配置文件来启动程序，不过这种方法适合于开发与测试，合理的配置redis的方式是提供一个redis配置文件，这个文件通常叫做redis.conf, 这个配置文件的方式是用非常简单的格式例如：<br><code>keyword argument1 argument2 ... argumentN</code><br><strong>这里要注意的是如果一个参数中有空格可以使用双引号括起来</strong></p>
+<ol>
+<li><strong>通过命令传参</strong><br>从2.6 之后便可以用命令来直接传参进去，这是对于测试来说是非常有用的功能，下面有一个例子，以6380这个端品开启redis,例配置它为127.0.0.1:6379的redis实例的slave<br><code>./redis-server --port 6380 --slaveof 127.0.0.1 6379</code><br>传参的格式与配置redis.conf的参数一样，唯一不同的是需要在关键字之前加上前缀 <code>--</code>这里需要注意的是传参的过程会在内存中生成一个临时的配置文件，这些传递的参数也会转化成跟redis配置文件一样的格式。</li>
+<li><strong>redis启动后更改redis的配置</strong><br>redis允许在运行的过程中，在不重启服务器的情况下更改服务器的配置，同时支持使用特殊的命令 CONFIG SET, CONFIG GET 来查询并设置配置。有些配置并不支持这个功能，具体以后再讲，在运行的过程中修改的配置并不会在redis.conf文件中生效，所以最好同时也修改了redis.con方便重启redis后的配置与之前相同。也可以使用<code>CONFIG REWRITE</code> 可以自动的扫描redis.conf，然后更新与当前配置不匹配的选项，不存在的会增加，多于的会被注释。<code>Fields non existing but set to the default value are not added. Comments inside your configuration file are retained.</code> </li>
+<li><p><strong>把redis配置成为一个缓存</strong><br>如果仅需要把redis当做一个缓存来用的话，所有的key都有过期时间，可以考虑使用下面的配置（假设最大内存使用量为2M）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">maxmemory <span class="number">2</span>mb</span><br><span class="line">maxmemory-policy allkeys-lru</span><br></pre></td></tr></table></figure>
+<p>以上配置不需要使用<code>EXPIRE</code>（或者相似命令）命令来让key一直保留，当使用LRU算法接近内存最大限制时所有的key都会被释放</p>
+</li>
+</ol>
+<p>当redis当做缓存来使用就相当于memcached，也可以同时使用redis当成存储系统来使用，使用两个redis实例，一个是缓存，另一个是存储，根据应用持久化需求进行配置，并且只存储那些不需要被缓存的数据</p>
+<h2 id="redix-conf的配置参数详解">redix.conf的配置参数详解</h2><h3 id="general">general</h3><ul>
+<li><code>include</code> 把其它的配置文件也引到redis.conf里面来，这是一个非常有用的选项，可以灵活的配置include file, 而且这些配置不会被<code>CONFIG REWRITE</code> rewirte，所以redis会一直引用这些文件。 <code>include /path/to/local.conf</code></li>
+<li>GENERAL<ul>
+<li><code>daemonize no</code> 默认情况下不启用daemon进程启动使用<code>yes</code></li>
+<li><code>tcp-backlog 511</code> 在高的requests-per-second 环境上需要使用高的backlog来避免连接延迟，对应还需要了解的两个知识 <code>/proc/sys/net/core/somaxconn，tcp_max_syn_backlog</code></li>
+<li><code>bind 192.168.1.100 10.0.0.1</code> redis默认是监听网络上的所有连接，也可以使用bind指定</li>
+<li><code>timeout 0</code> 客户端连接超时时间单位为秒，超时后关闭连接</li>
+<li><code>loglevel notice</code> 四个值debug(非常多的信息用于开发使用), verbose(非常稀少的有用信息), notic(适当的信息适用于生产环境), warning(只列出非常重要的信息).</li>
+<li><code>logfile &quot;&quot;</code> 默认是打到终端上，也可以指定到文件或者定向到空</li>
+<li><code>databases 16</code> 要k用数据库数，可以用SELECT来切换数据库</li>
+</ul>
+</li>
+</ul>
+<h2 id="snapshots">snapshots</h2><ul>
+<li>设置redis进行数据库镜像频率，保存数据到disk的策略可以关闭持久化，注释掉或者写成<code>svae &quot;&quot;</code><ul>
+<li><code>save 900 1</code>  # 900秒呢发生1次keys变化</li>
+<li><code>save 300 10</code> # 300秒内发生10个keys变化</li>
+<li><code>save 60 1000</code> # 60 秒呢发生1000个keys变化 </li>
+</ul>
+</li>
+<li><code>rdbcompression yes</code> 保存时是进行压缩 为保持CPU和字进程可以改为no不会数据会很大</li>
+<li><code>rdbchecksum yes</code> 如果后台磁盘发生错误停止写操作</li>
+<li><code>dbfilename dump.rdb</code> 镜像备份文件的文件名。</li>
+<li><code>dir ./</code> 数据库镜像备份的文件放置路径，路径与文件名分开配置因为redis备份时，先会将当前数据库状态写放到一个临时文件等备份完成时再把临时文件替换为上面指定的文件，而临时文件与指定文件都会放到这个指定的路径。</li>
+</ul>
+<h2 id="replication_主从复制">replication 主从复制</h2><p><a href="http://redis.io/topics/replication" target="_blank" rel="external">官方文档replication</a><br>redis复制很简单，它通过配置 master-slvae 复制来让slvae redis server 精准拷贝master servers. redis复制的几个特性：</p>
+<ul>
+<li>一个master 可以有多个slaves</li>
+<li>redis 使用的是 异步复制(asynchronous replicatiom), 从redis 2.8开始，slave会周期性告知master复制数据流时的过程</li>
+<li>slaves 可以连接其它的slaves, 除了连接同一个master，也可以像同一个结构图中与其他slaves建立链接</li>
+<li>redis 从master复制是非阻塞的,这就意味着master在对一个或多个slave端同步时也可以查询</li>
+<li>同时在slaves端也是非阻塞的，假设在redis.conf里配置了redis, 当slave在执行同步时，可以接受查询旧的信息，否则就会发送一个错误到客户端。但是在同步完成后老的数据会被删除，新的数据会被载入进来</li>
+<li>replication也可以提高性能, 以达到多个slaves仅做只读查询(如果做一个heavy sort 操作，在数据冗余(date redundancy)后就变的相对简单)</li>
+<li>使用复制也可以避免master把所有的数据写到disk时的开销, 仅需要要在master里配置redis.conf来避免保存，使用slave通过链接来实时保存。这个配置必须保证master 不会自动重启。</li>
+</ul>
+<h3 id="replication_原理">replication 原理</h3><p><strong>当master持续关机时的安全复制</strong><br>当redis 复制在进行的时候，强烈建议master持续开机，如果实在没办法那么就需要配置<code>avoid restarting automatically</code>,<br>为了更好的理解为什么 master 持续关机后再重启是非常危险的，下面一个例子就是说明数据如何从master slaves里都清空</p>
+<ol>
+<li>我们设置 A为 master, 然后持续关机，然后 B C 会从A 上复制数据</li>
+<li>A crashes， 虽然A 有自动重启机制，重启进程，但是从持续关机到重启，这个节点是一个空的数据</li>
+<li>B C 会从A 上复制， 但A是空的，所以他们都会销毁copy过来的数据</li>
+</ol>
+<p>当redis 哨兵在高可用(high avaliability)的时候会使用到,但是关机master进程或者重启也是一个非常危险的动作。在高可用的时候redis进程可以非常快速的重启，redis哨兵都不会觉察到异常，所以上面的模型还是会发生</p>
+<p><strong>redis 复制怎么工作的</strong><br>如果设置好了slave,连接之后发送了一个SYNC 命令，不管他是第一次或者是重新链接，master 便开始后台保存，然后开始缓存所有新的命令来修改数据。 当后台成功保存到disk,然后再载入到内存，这时候master才会把缓存的命令发给slaves,这就像一个流命令，与redis protocol 类似<br>你可以试着通过远程登录，来连接redis port, 当服务器在做一些工作并发送同步命令时，你会看到大量数据传输，每一个命令都从master上承接下来然后显示到telnet 会话中<br>当master—-slaves 因某些原因中断后slaves 可以自动重新链接master 如果master接收到多个并发的slave 同步请求，它执行一个backgroud save 来响应这些请求<br>当master与slave重新建立链接，便会执行一个完整同步。从2.8开始，部分同步也是有可能的</p>
+<p><strong>部分同步</strong><br>从2.8开始，在master —slave重新链接后，在复制链接重新链接后，经常会继续复制 process而不需要做一次完整的同步，这主要是因为在master这边会创建一个 in-memory backlog of 复制 stream。 the master and all the slaves agree on a 复制 offset and a master run id, 所以当链接断开后slave会重新链接然后向master语法继续复制.如果master 的 run id 还是一样的，offset specified 同样也在复制 backlog里，那么将会从断开那点开始继续复制。 如果两个都不满足那么就会做一个完整的同步。如果一个链接到master 的run id 没有保存到磁盘，当slave重新后便会做一次完整的同步。</p>
+<p>部分同步(partial resynchronization ) 这个特殊将会使用<code>PSYNC</code> 命令，注意在2.8之后才支持<code>PSYNC</code>如果一个salve使用的是老的版本仅支持<code>SYNC</code>命令，那么将会用SYNC来同步</p>
+<p><strong>无磁盘的复制</strong><br>通常一个同步需要在磁盘上创建一个RDB文件，然后再重新加载这个文件来进行与slave数据同步<br>由于磁盘的读写是非常慢的，这对于redis master是一个非常有压力的操作，在2.8.18之后的第一个版来尝试使用无磁盘的复制，在这个设置里了进程直接把RDB 发送到slaves,而不需要使用磁盘来做中间的存储</p>
+<h3 id="replication配置">replication配置</h3><p>配置replication非常简单，仅需要在slave配置中增加一行就OK<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">slaveof <span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span> <span class="number">6379</span></span><br></pre></td></tr></table></figure></p>
+<p>第二个，第三个参数是master IP与port,可以根据自己需求更改，我们也可以在master上使用<code>SLAVEOFF</code>命令来对slave进行同步<br>在master上也有一些参数用来调整复制backlog 到内存的大小。用来进行部分复制。<br>如果使用无磁盘的复制，可以开启<code>repl-diskless-sync</code> 这个参数，<code>repl-diskless-sync-delay</code>开始传输后的延迟时间，为了等待更的slaves的请求，</p>
+<h3 id="slave只读">slave只读</h3><p>从redis2.6开始slaves可以支持只读模式，这个行为是用<code>slave-read-only</code>参数来控制，也可以使用命令<code>CONFIG SET</code> 来开启或关闭<br>只读模式将会拒绝所有写的命令，所以对slave进行写是不可能的。这并不意味着该功能的目录是揭露从实例到网络或者更一般的到客户端存在的网张。因为像<code>BDEUG, CONFIG</code> 管理命令可以运行的。(This does not mean that the feature is intended to expose a slave instance to the internet or more generally to a network where untrusted clients exist, because administrative commands like DEBUG or CONFIG are still enabled.) 不过出于安全的只读实例可以使用<code>rename-command</code> 让这些命令disabling </p>
+<p><strong>设置slave到master的认证</strong><br>如果master有是通过密码登陆<code>requirepass</code>，那么在slave下也需要使用密码来同步数据<br>运行一个redis-cli实例然后输放 <code>config set masterauth &lt;password&gt;</code> 如果需要设置永久的密码可以在配置文件中增加<code>masterauth &lt;password&gt;</code>  </p>
+<p><strong>一次写放多次复制</strong><br>从2.8开始，可以配置master用来接受多个请求假使有最少N个slaves一起连接到master. 因为redis使用的是异步复制，不能保证slave直正的接收到写请求。所以总会有一个窗口用来显示数据的丢失。</p>
+<ul>
+<li>slaves 会一直ping master (每秒)，用来告知复制流进程的总数</li>
+<li>master 会记住每个slave最后一次接收到的ping的信息</li>
+<li>用户配置slave的最小链接数以及最大延迟数</li>
+</ul>
+<p>如果有少于n个slave，和小于最大延迟数为m秒，那么写操作才会被接受。You may think at it as a relaxed version of the “C” in the CAP theorem, where consistency is not ensured for a given write, but at least the time window for data loss is restricted to a given number of seconds.<br>这里有两个参数</p>
+<ul>
+<li><code>min-slaves-to-write &lt;number of slaves&gt;</code></li>
+<li><code>min-slaves-max-lag &lt;number of seconds&gt;</code></li>
+</ul>
+<h3 id="replication_配置总结">replication 配置总结</h3><ul>
+<li><code>slaveof &lt;masterip&gt; &lt;masterport&gt;</code> 设置master ip 与端口</li>
+<li><code>masterauth &lt;master-password&gt;</code> 设置mstater 密码如果master是有密登录</li>
+<li><code>slave-serve-stale-data yes</code> 当复制正在进行时slave与master链接断掉，有两种方式 yes是slave会继续回应客户端的请求，可能有过时的数据，<code>no</code> slave就会对除了<code>INFO SLAVEOF</code>的其它命令回复一个eroor 给客户端<code>SYNC with master in progress</code> </li>
+<li><code>slave-read-only yes</code> slave只允许读取数据</li>
+<li><code>repl-diskless-sync no</code>不通过磁盘来同步（试验阶段）</li>
+<li><code>repl-diskless-sync-delay 5</code> 当无磁盘同步开启后需要配置一个延迟时间，以保证接受多个slave的同步请求，默认为5秒</li>
+<li><code>repl-ping-slave-period 10</code> 多少秒ping一次master</li>
+<li><code>repl-timeout 60</code> 复制的超时时间，这个时间一定要大于ping的时间</li>
+<li><code>repl-disable-tcp-nodelay no</code> TCP_NODELAY，yes表示使用非常小的TCP包数和非常小的宽带来发送数据。slave那边可以增加一个延迟时间</li>
+<li><code>repl-backlog-size 1mb</code>  backlog的大小，backlog是一个用来积累当slave没有链接后数据的缓存，重新链接后就不需要完整同步啦。backlog越大，slave断开的时间就越长，再次同步的便会越迟</li>
+<li><code>repl-backlog-ttl 3600</code> 断开链接多少秒后释放backlog，0表示永远不释放</li>
+<li><code>slave-priority 100</code> slave优先级是当master down了之后被redis哨兵拿来从slave中晋先新的master,数字越小优先级越高，0表示永远不晋选为master</li>
+<li><code>min-slaves-to-write 3</code> 最小slave链接数默认为0</li>
+<li><code>min-slaves-max-lag 10</code> 最小的slave，最大延迟数默认为10</li>
+</ul>
+
+            
+          </span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/shell/" itemprop="url">
                   shell 语法简单描述
                 </a>
@@ -1956,174 +2146,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/ssh-keygen/" itemprop="url">
-                  ssh-keygen及批量分发
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            發表於
-            <time itemprop="dateCreated" datetime="2015-11-15T21:08:53+08:00" content="2015-11-15">
-              2015-11-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp; 分類於
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/ssh-keygen/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="ssh-keygen/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody">
-            
-              <h1 id="ssh_无密登录">ssh 无密登录</h1><p>当使用terminal，  ssh远程主机，每次都都需要输密码，今天就介绍下如何使用ssh而不需要每次都输密码，并且还可以实现批量分发（结合rsync或者ssh本身自带的scp）费话少说，let’s go。</p>
-<h2 id="ssh_(sercure_shell_protocol)_是什么？">ssh (sercure shell protocol) 是什么？</h2><p>ssh 是专为远程登录会话和其他网络服务提供的安全协议，利用ssh协议可以有效的防止远程中信息的泄露。详情请参见<a href="www.baidu.com">百度</a>. </p>
-<p>远程连接有两种方式</p>
-<ol>
-<li>基于口令的安全验证， 只要知道远程主机的贴与口令，就可以登录远程主机，</li>
-<li>基于密匙的安全验证，使用密匙生成口令后每次登录目标主机都不需要再输密码，SSH密钥总是成双出现，一把公钥，一把私钥。公钥可以自由放在所需要连接的服务器上，而私钥必须稳妥保管好。在登录的时候，远程主机会向用户发送一段随机字符串（1024beytes) 用户用自己的私钥加密后，再发回来，远程主机用事先储存的公钥进行解密，如果成功，就证明用户是可信的。允许登录。这样做的好处就是不受中间人攻击。</li>
-</ol>
-<h2 id="ssh_keygen_密钥生成">ssh keygen 密钥生成</h2><p>我们使用<code>ssh-keygen</code>生成密匙。下面简单介绍下命令的语法</p>
-<p>命令描述：ssh-keygen主要用来生成rsa keys （ssh 1） 或者生成ecdsa /rsa keys（ssh2).第一次输入命令会在家目录里创建一个隐藏目录<strong>.ssh</strong>并且在下面生成密钥文件，一个公钥一个密钥。 私钥名为<strong>~/.ssh/identity, ~/.ssh/ecdsa, ~/.ssh/id_dsa, ~/.ssh/id_rsa</strong> 其中一种这取决于ssh的版本，也可以使用<code>-f</code>来指定生成的文件名。公钥的文件名会在密钥文件名后加<strong>.pub</strong></p>
-<p>参数：</p>
-<ul>
-<li>-b bits, 指定生成密钥的（768-2048）bite，默认是2048,</li>
-<li>-C comment 增加备注</li>
-<li>-f filename, 指定密钥文件名</li>
-<li>-t type, 指定密钥的类型 rsa1 (ssh1); dsa ecdsa rsa (ssh2)</li>
-</ul>
-<p>玩github的朋友可能已经注意到上传到github时可以选择ssh方式，而且官网还有一个专门的教程<a href="https://help.github.com/articles/generating-ssh-keys/" target="_blank" rel="external">Generating SSH keys</a>其讲解基本与下面内容相似。</p>
-<p>首先在客户端，生成密钥<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">[sandow@NFS01 ~]$ ssh-keygen</span><br><span class="line">Generating public/private rsa key pair.</span><br><span class="line">Enter file <span class="keyword">in</span> <span class="built_in">which</span> to save the key (/home/sandow/.ssh/id_rsa): </span><br><span class="line">Created directory <span class="string">'/home/sandow/.ssh'</span>.</span><br><span class="line">Enter passphrase (empty <span class="keyword">for</span> no passphrase): </span><br><span class="line">Enter same passphrase again: </span><br><span class="line">Your identification has been saved <span class="keyword">in</span> /home/sandow/.ssh/id_rsa.</span><br><span class="line">Your public key has been saved <span class="keyword">in</span> /home/sandow/.ssh/id_rsa.pub.</span><br><span class="line">The key fingerprint is:</span><br><span class="line"><span class="number">08</span>:<span class="number">48</span>:<span class="number">69</span>:<span class="number">77</span>:<span class="number">45</span>:<span class="number">14</span>:<span class="number">00</span>:<span class="number">29</span>:<span class="number">57</span>:a8:<span class="number">62</span>:<span class="number">3</span>e:<span class="number">39</span>:bd:<span class="number">57</span>:<span class="number">78</span> sandow@NFS01</span><br><span class="line">The key<span class="string">'s randomart image is:</span><br><span class="line">+--[ RSA 2048]----+</span><br><span class="line">|  ...=o==.       |</span><br><span class="line">| .+.= .          |</span><br><span class="line">| ..=..           |</span><br><span class="line">|...  . .         |</span><br><span class="line">|o.o   o S        |</span><br><span class="line">| = . . E         |</span><br><span class="line">|  o . o          |</span><br><span class="line">|   . .           |</span><br><span class="line">|    .            |</span><br><span class="line">+-----------------+</span></span><br></pre></td></tr></table></figure></p>
-<p>查看生成的文件,请记住这里每个文件的权限位，以后出问题很可能是这里的问题</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[sandow@NFS01 .ssh]$ ll</span><br><span class="line">total <span class="number">8</span></span><br><span class="line">-rw-------. <span class="number">1</span> sandow sandow <span class="number">1675</span> Nov <span class="number">11</span> <span class="number">11</span>:<span class="number">04</span> id_rsa</span><br><span class="line">-rw-r--r--. <span class="number">1</span> sandow sandow  <span class="number">394</span> Nov <span class="number">11</span> <span class="number">11</span>:<span class="number">04</span> id_rsa.pub</span><br></pre></td></tr></table></figure>
-<p>这两个文件里面都是密钥，没什么好看的，反正也看不懂。那么接下来就需要把公钥，也就是<strong>id_rsa.pub</strong> 分发到每台服务机上</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[sandow@NFS01 .ssh]$ ssh-copy-id -i <span class="string">" -p 52113 sandow@172.16.1.41"</span></span><br><span class="line">The authenticity of host <span class="string">'[172.16.1.41]:52113 ([172.16.1.41]:52113)'</span> can<span class="string">'t be established.</span><br><span class="line">RSA key fingerprint is a9:5e:34:5c:4c:33:91:39:45:cd:6e:e9:7b:de:7c:c6.</span><br><span class="line">Are you sure you want to continue connecting (yes/no)? yes</span><br><span class="line">Warning: Permanently added '</span>[<span class="number">172.16</span>.<span class="number">1.41</span>]:<span class="number">52113</span><span class="string">' (RSA) to the list of known hosts.</span><br><span class="line">sandow@172.16.1.41'</span>s password: </span><br><span class="line">Now try logging into the machine, with <span class="string">"ssh ' -p 52113 sandow@172.16.1.41'"</span>, and check <span class="keyword">in</span>:</span><br><span class="line"></span><br><span class="line">  .ssh/authorized_keys</span><br><span class="line"></span><br><span class="line">to make sure we haven<span class="string">'t added extra keys that you weren'</span>t expecting.</span><br></pre></td></tr></table></figure>
-<p>因为之前已经分发过一次所以这次就会提示已经存在。没分发过的不会出现这个提示的。接下来我们再使用<code>ssh -p 52113 172.16.1.41</code>时便不会再需要密码。注意这里那个用户生成的密钥便只能用那个用户来登录，登录对应的主机用户与当前客户端的用户一致，除非指定用户</p>
-<p>有时候我们不想连接到服务器仅想执行一个命令就退出，可以这样写<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[sandow@NFS01 .ssh]$ ssh -p52113 <span class="number">172.16</span>.<span class="number">1.41</span> /sbin/ifconfig eth1</span><br><span class="line">eth1      Link encap:Ethernet  HWaddr <span class="number">00</span>:<span class="number">0</span>C:<span class="number">29</span>:<span class="number">69</span>:<span class="number">77</span>:D7  </span><br><span class="line">          inet addr:<span class="number">172.16</span>.<span class="number">1.41</span>  Bcast:<span class="number">172.16</span>.<span class="number">1.255</span>  Mask:<span class="number">255.255</span>.<span class="number">255.0</span></span><br><span class="line">          inet6 addr: fe80::<span class="number">20</span>c:<span class="number">29</span>ff:fe69:<span class="number">77</span>d7/<span class="number">64</span> Scope:Link</span><br><span class="line">          UP BROADCAST RUNNING MULTICAST  MTU:<span class="number">1500</span>  Metric:<span class="number">1</span></span><br><span class="line">          RX packets:<span class="number">6289</span> errors:<span class="number">0</span> dropped:<span class="number">0</span> overruns:<span class="number">0</span> frame:<span class="number">0</span></span><br><span class="line">          TX packets:<span class="number">5443</span> errors:<span class="number">0</span> dropped:<span class="number">0</span> overruns:<span class="number">0</span> carrier:<span class="number">0</span></span><br><span class="line">          collisions:<span class="number">0</span> txqueuelen:<span class="number">1000</span> </span><br><span class="line">          RX bytes:<span class="number">627464</span> (<span class="number">612.7</span> KiB)  TX bytes:<span class="number">548720</span> (<span class="number">535.8</span> KiB)</span><br></pre></td></tr></table></figure></p>
-<p>因为远程连接执行命令风险很高，所以需要对远程连接加以一定的限制达到风险最低。下面有几种方案：</p>
-<ol>
-<li>sudo方案<br>在服务机上对远程用户授权（使用<code>visudo -e</code>) 然后再进行ssh 远程命令<br><code>ssh -t -p 52113 sandow@172.16.1.41 sudo /bin/cp hosts /etc/</code></li>
-<li>suid<br>对需要执行的命令设置suid让执行命令时拥有属主的权限。风险很高，</li>
-</ol>
-<p>我们返回<strong>~/.ssh</strong>发现多了一个文件<strong>~/.ssh/known_hosts</strong>密钥文件这里面便记录着连接的主机，如果把里面的内容删除后，再次连接服务器便会提示输入密码。</p>
-<p>这里补充一点小知识，我们现在已经知道了怎么去连接了，但是如果默认端口被改了后怎么能知道sshd服务的端口号是多少呢可以用下面命令来查看</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@backup ~]<span class="comment"># netstat -lntup|grep sshd</span></span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">0.0</span>.<span class="number">0.0</span>:<span class="number">52113</span>               <span class="number">0.0</span>.<span class="number">0.0</span>:*                   LISTEN      <span class="number">29649</span>/sshd          </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> :::<span class="number">52113</span>                    :::*                        LISTEN      <span class="number">29649</span>/sshd</span><br></pre></td></tr></table></figure>
-<p>可以看到这里的端口号是52113。如果我知道端口号怎么来查看对应的服务呢？</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ lsof -i :<span class="number">52113</span></span><br><span class="line">COMMAND   PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME</span><br><span class="line">sshd    <span class="number">29649</span> root    <span class="number">3</span>u  IPv4  <span class="number">51691</span>      <span class="number">0</span>t0  TCP *:<span class="number">52113</span> (LISTEN)</span><br><span class="line">sshd    <span class="number">29649</span> root    <span class="number">4</span>u  IPv6  <span class="number">51693</span>      <span class="number">0</span>t0  TCP *:<span class="number">52113</span> (LISTEN)</span><br></pre></td></tr></table></figure>
-<h3 id="错误与优化">错误与优化</h3><p>报错字符串对应的可能问题：</p>
-<ol>
-<li>no route to host可能为防火墙</li>
-<li>Connection refused可能为防火墙：Connection refused还可能是连接的对端服务没开<br>ssh -p 22 sandow@10.0.0.19 /sbin/ifconfig</li>
-</ol>
-<p>优化</p>
-<ol>
-<li>用密钥登录，不用密码登陆。</li>
-<li>防火墙封闭ssh指定源限制</li>
-<li>开启ssh只监听本地内网IP</li>
-</ol>
-<h2 id="scp">scp</h2><p>scp是一个远程的加密复制命令，用ssh加密传输，这个命令是全量copy，也有两种模式push， pull。 </p>
-<p>参数：</p>
-<ul>
-<li>-1 , ssh1, </li>
-<li>-2, ssh2</li>
-<li>-4, ipv4</li>
-<li>-6, ipv6</li>
-<li>-l limit , 限定宽带大小，基本单位为kbit/s</li>
-<li>-C, 使用压缩</li>
-<li>-P， 指定端口</li>
-<li>-p, 保留文件的最后修改时间，最后访问时间，权限模式</li>
-<li>-r, recurisively copy</li>
-</ul>
-<p>远程推送：`scp -P52113 -rp /etc/hosts 172.16.1.41:~<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[sandow@NFS01 .ssh]$ scp -P52113 -rp /etc/hosts <span class="number">172.16</span>.<span class="number">1.41</span>:~</span><br><span class="line">hosts                                                                                <span class="number">100</span>%  <span class="number">211</span>     <span class="number">0.2</span>KB/s   <span class="number">00</span>:<span class="number">00</span></span><br></pre></td></tr></table></figure></p>
-<p>远程拉取： 把两个文件换个位置这里就不讲了</p>
-<h2 id="批量分发">批量分发</h2><p>OK，接下来就可以写个shell来批量分发指定文件到指定目录啦。这里我在家目录下创建一个send.sh. 内容如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/sh</span></span><br><span class="line">. /etc/init.d/<span class="built_in">functions</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="variable">$#</span> <span class="operator">-lt</span> <span class="number">1</span> ];<span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"USAGE:/BIN/SH <span class="variable">$0</span> FILENAME"</span></span><br><span class="line">        <span class="built_in">exit</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> <span class="number">41</span> <span class="number">8</span> <span class="number">9</span> <span class="number">10</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">        scp -P52113 -rp <span class="variable">$1</span>  <span class="number">172.16</span>.<span class="number">1</span>.<span class="variable">$&#123;n&#125;</span>:<span class="variable">$2</span> &amp;&gt;/dev/null</span><br><span class="line"><span class="keyword">if</span> [ $? <span class="operator">-eq</span> <span class="number">0</span> ];<span class="keyword">then</span></span><br><span class="line">        action <span class="string">"dis  <span class="variable">$1</span> to 172.16.1.<span class="variable">$&#123;n&#125;</span>:<span class="variable">$2</span>"</span> /bin/<span class="literal">true</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">        action <span class="string">"dis  <span class="variable">$1</span> to 172.16.1.<span class="variable">$&#123;n&#125;</span>:<span class="variable">$2</span>"</span> /bin/<span class="literal">false</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-<p>然后咱们来执行一下看看效果</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[sandow@NFS01 ~]$ sh send.sh /etc/hosts ~</span><br><span class="line">dis  /etc/hosts to <span class="number">172.16</span>.<span class="number">1.41</span>:/home/sandow                [  OK  ]</span><br><span class="line">dis  /etc/hosts to <span class="number">172.16</span>.<span class="number">1.8</span>:/home/sandow                 [  OK  ]</span><br><span class="line">dis  /etc/hosts to <span class="number">172.16</span>.<span class="number">1.9</span>:/home/sandow                 [FAILED]</span><br><span class="line">dis  /etc/hosts to <span class="number">172.16</span>.<span class="number">1.10</span>:/home/sandow                [FAILED]</span><br></pre></td></tr></table></figure>
-<p>OK，如果是windows下的话可以安装<strong>lrzsz</strong>来实现与linux下的文件互传。下面是一些总结<br>windows客户端和linux服务器之间传输数据工具：<br>1）rz、sz（lrzsz）。&lt;==讲过的。<br>2）winscp WinSCP-v4.0.5 &lt;==基于SSH,sftp<br>3）SFX(xshell)<br>4）SFTP   &lt;==基于SSH,加密传输<br>5)samba,http,ftp,nfs<br>FTP工具：vsftp, proftpd,SFTP</p>
-<p>还有一些批量分发工具，改天我会介绍<strong>saltstack</strong> 与<strong>ansible</strong>. 其中<strong>stltstack</strong>是比较好用的高效的分发工具，有兴趣的同学可以先百度研究</p>
-
-            
-          </span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -2170,7 +2192,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-count">14</span>
               <span class="site-state-item-name">文章</span>
             </a>
           </div>
@@ -2184,7 +2206,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-count">13</span>
               <span class="site-state-item-name">標籤</span>
               </a>
           </div>
