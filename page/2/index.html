@@ -327,75 +327,15 @@
         
           <span itemprop="articleBody">
             
-              <h1 id="ssh_无密登录">ssh 无密登录</h1><p>当使用terminal，  ssh远程主机，每次都都需要输密码，今天就介绍下如何使用ssh而不需要每次都输密码，并且还可以实现批量分发（结合rsync或者ssh本身自带的scp）费话少说，let’s go。</p>
-<h2 id="ssh_(sercure_shell_protocol)_是什么？">ssh (sercure shell protocol) 是什么？</h2><p>ssh 是专为远程登录会话和其他网络服务提供的安全协议，利用ssh协议可以有效的防止远程中信息的泄露。详情请参见<a href="www.baidu.com">百度</a>. </p>
-<p>远程连接有两种方式</p>
-<ol>
-<li>基于口令的安全验证， 只要知道远程主机的贴与口令，就可以登录远程主机，</li>
-<li>基于密匙的安全验证，使用密匙生成口令后每次登录目标主机都不需要再输密码，SSH密钥总是成双出现，一把公钥，一把私钥。公钥可以自由放在所需要连接的服务器上，而私钥必须稳妥保管好。在登录的时候，远程主机会向用户发送一段随机字符串（1024beytes) 用户用自己的私钥加密后，再发回来，远程主机用事先储存的公钥进行解密，如果成功，就证明用户是可信的。允许登录。这样做的好处就是不受中间人攻击。</li>
-</ol>
-<h2 id="ssh_keygen_密钥生成">ssh keygen 密钥生成</h2><p>我们使用<code>ssh-keygen</code>生成密匙。下面简单介绍下命令的语法</p>
-<p>命令描述：ssh-keygen主要用来生成rsa keys （ssh 1） 或者生成ecdsa /rsa keys（ssh2).第一次输入命令会在家目录里创建一个隐藏目录<strong>.ssh</strong>并且在下面生成密钥文件，一个公钥一个密钥。 私钥名为<strong>~/.ssh/identity, ~/.ssh/ecdsa, ~/.ssh/id_dsa, ~/.ssh/id_rsa</strong> 其中一种这取决于ssh的版本，也可以使用<code>-f</code>来指定生成的文件名。公钥的文件名会在密钥文件名后加<strong>.pub</strong></p>
-<p>参数：</p>
-<ul>
-<li>-b bits, 指定生成密钥的（768-2048）bite，默认是2048,</li>
-<li>-C comment 增加备注</li>
-<li>-f filename, 指定密钥文件名</li>
-<li>-t type, 指定密钥的类型 rsa1 (ssh1); dsa ecdsa rsa (ssh2)</li>
-</ul>
-<p>玩github的朋友可能已经注意到上传到github时可以选择ssh方式，而且官网还有一个专门的教程<a href="https://help.github.com/articles/generating-ssh-keys/" target="_blank" rel="external">Generating SSH keys</a>其讲解基本与下面内容相似。</p>
-<p>首先在客户端，生成密钥<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">[sandow@NFS01 ~]$ ssh-keygen</span><br><span class="line">Generating public/private rsa key pair.</span><br><span class="line">Enter file <span class="keyword">in</span> <span class="built_in">which</span> to save the key (/home/sandow/.ssh/id_rsa): </span><br><span class="line">Created directory <span class="string">'/home/sandow/.ssh'</span>.</span><br><span class="line">Enter passphrase (empty <span class="keyword">for</span> no passphrase): </span><br><span class="line">Enter same passphrase again: </span><br><span class="line">Your identification has been saved <span class="keyword">in</span> /home/sandow/.ssh/id_rsa.</span><br><span class="line">Your public key has been saved <span class="keyword">in</span> /home/sandow/.ssh/id_rsa.pub.</span><br><span class="line">The key fingerprint is:</span><br><span class="line"><span class="number">08</span>:<span class="number">48</span>:<span class="number">69</span>:<span class="number">77</span>:<span class="number">45</span>:<span class="number">14</span>:<span class="number">00</span>:<span class="number">29</span>:<span class="number">57</span>:a8:<span class="number">62</span>:<span class="number">3</span>e:<span class="number">39</span>:bd:<span class="number">57</span>:<span class="number">78</span> sandow@NFS01</span><br><span class="line">The key<span class="string">'s randomart image is:</span><br><span class="line">+--[ RSA 2048]----+</span><br><span class="line">|  ...=o==.       |</span><br><span class="line">| .+.= .          |</span><br><span class="line">| ..=..           |</span><br><span class="line">|...  . .         |</span><br><span class="line">|o.o   o S        |</span><br><span class="line">| = . . E         |</span><br><span class="line">|  o . o          |</span><br><span class="line">|   . .           |</span><br><span class="line">|    .            |</span><br><span class="line">+-----------------+</span></span><br></pre></td></tr></table></figure></p>
-<p>查看生成的文件,请记住这里每个文件的权限位，以后出问题很可能是这里的问题</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[sandow@NFS01 .ssh]$ ll</span><br><span class="line">total <span class="number">8</span></span><br><span class="line">-rw-------. <span class="number">1</span> sandow sandow <span class="number">1675</span> Nov <span class="number">11</span> <span class="number">11</span>:<span class="number">04</span> id_rsa</span><br><span class="line">-rw-r--r--. <span class="number">1</span> sandow sandow  <span class="number">394</span> Nov <span class="number">11</span> <span class="number">11</span>:<span class="number">04</span> id_rsa.pub</span><br></pre></td></tr></table></figure>
-<p>这两个文件里面都是密钥，没什么好看的，反正也看不懂。那么接下来就需要把公钥，也就是<strong>id_rsa.pub</strong> 分发到每台服务机上</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[sandow@NFS01 .ssh]$ ssh-copy-id -i <span class="string">" -p 52113 sandow@172.16.1.41"</span></span><br><span class="line">The authenticity of host <span class="string">'[172.16.1.41]:52113 ([172.16.1.41]:52113)'</span> can<span class="string">'t be established.</span><br><span class="line">RSA key fingerprint is a9:5e:34:5c:4c:33:91:39:45:cd:6e:e9:7b:de:7c:c6.</span><br><span class="line">Are you sure you want to continue connecting (yes/no)? yes</span><br><span class="line">Warning: Permanently added '</span>[<span class="number">172.16</span>.<span class="number">1.41</span>]:<span class="number">52113</span><span class="string">' (RSA) to the list of known hosts.</span><br><span class="line">sandow@172.16.1.41'</span>s password: </span><br><span class="line">Now try logging into the machine, with <span class="string">"ssh ' -p 52113 sandow@172.16.1.41'"</span>, and check <span class="keyword">in</span>:</span><br><span class="line"></span><br><span class="line">  .ssh/authorized_keys</span><br><span class="line"></span><br><span class="line">to make sure we haven<span class="string">'t added extra keys that you weren'</span>t expecting.</span><br></pre></td></tr></table></figure>
-<p>因为之前已经分发过一次所以这次就会提示已经存在。没分发过的不会出现这个提示的。接下来我们再使用<code>ssh -p 52113 172.16.1.41</code>时便不会再需要密码。注意这里那个用户生成的密钥便只能用那个用户来登录，登录对应的主机用户与当前客户端的用户一致，除非指定用户</p>
-<p>有时候我们不想连接到服务器仅想执行一个命令就退出，可以这样写<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[sandow@NFS01 .ssh]$ ssh -p52113 <span class="number">172.16</span>.<span class="number">1.41</span> /sbin/ifconfig eth1</span><br><span class="line">eth1      Link encap:Ethernet  HWaddr <span class="number">00</span>:<span class="number">0</span>C:<span class="number">29</span>:<span class="number">69</span>:<span class="number">77</span>:D7  </span><br><span class="line">          inet addr:<span class="number">172.16</span>.<span class="number">1.41</span>  Bcast:<span class="number">172.16</span>.<span class="number">1.255</span>  Mask:<span class="number">255.255</span>.<span class="number">255.0</span></span><br><span class="line">          inet6 addr: fe80::<span class="number">20</span>c:<span class="number">29</span>ff:fe69:<span class="number">77</span>d7/<span class="number">64</span> Scope:Link</span><br><span class="line">          UP BROADCAST RUNNING MULTICAST  MTU:<span class="number">1500</span>  Metric:<span class="number">1</span></span><br><span class="line">          RX packets:<span class="number">6289</span> errors:<span class="number">0</span> dropped:<span class="number">0</span> overruns:<span class="number">0</span> frame:<span class="number">0</span></span><br><span class="line">          TX packets:<span class="number">5443</span> errors:<span class="number">0</span> dropped:<span class="number">0</span> overruns:<span class="number">0</span> carrier:<span class="number">0</span></span><br><span class="line">          collisions:<span class="number">0</span> txqueuelen:<span class="number">1000</span> </span><br><span class="line">          RX bytes:<span class="number">627464</span> (<span class="number">612.7</span> KiB)  TX bytes:<span class="number">548720</span> (<span class="number">535.8</span> KiB)</span><br></pre></td></tr></table></figure></p>
-<p>因为远程连接执行命令风险很高，所以需要对远程连接加以一定的限制达到风险最低。下面有几种方案：</p>
-<ol>
-<li>sudo方案<br>在服务机上对远程用户授权（使用<code>visudo -e</code>) 然后再进行ssh 远程命令<br><code>ssh -t -p 52113 sandow@172.16.1.41 sudo /bin/cp hosts /etc/</code></li>
-<li>suid<br>对需要执行的命令设置suid让执行命令时拥有属主的权限。风险很高，</li>
-</ol>
-<p>我们返回<strong>~/.ssh</strong>发现多了一个文件<strong>~/.ssh/known_hosts</strong>密钥文件这里面便记录着连接的主机，如果把里面的内容删除后，再次连接服务器便会提示输入密码。</p>
-<p>这里补充一点小知识，我们现在已经知道了怎么去连接了，但是如果默认端口被改了后怎么能知道sshd服务的端口号是多少呢可以用下面命令来查看</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@backup ~]<span class="comment"># netstat -lntup|grep sshd</span></span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">0.0</span>.<span class="number">0.0</span>:<span class="number">52113</span>               <span class="number">0.0</span>.<span class="number">0.0</span>:*                   LISTEN      <span class="number">29649</span>/sshd          </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> :::<span class="number">52113</span>                    :::*                        LISTEN      <span class="number">29649</span>/sshd</span><br></pre></td></tr></table></figure>
-<p>可以看到这里的端口号是52113。如果我知道端口号怎么来查看对应的服务呢？</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ lsof -i :<span class="number">52113</span></span><br><span class="line">COMMAND   PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME</span><br><span class="line">sshd    <span class="number">29649</span> root    <span class="number">3</span>u  IPv4  <span class="number">51691</span>      <span class="number">0</span>t0  TCP *:<span class="number">52113</span> (LISTEN)</span><br><span class="line">sshd    <span class="number">29649</span> root    <span class="number">4</span>u  IPv6  <span class="number">51693</span>      <span class="number">0</span>t0  TCP *:<span class="number">52113</span> (LISTEN)</span><br></pre></td></tr></table></figure>
-<h3 id="错误与优化">错误与优化</h3><p>报错字符串对应的可能问题：</p>
-<ol>
-<li>no route to host可能为防火墙</li>
-<li>Connection refused可能为防火墙：Connection refused还可能是连接的对端服务没开<br>ssh -p 22 sandow@10.0.0.19 /sbin/ifconfig</li>
-</ol>
-<p>优化</p>
-<ol>
-<li>用密钥登录，不用密码登陆。</li>
-<li>防火墙封闭ssh指定源限制</li>
-<li>开启ssh只监听本地内网IP</li>
-</ol>
-<h2 id="scp">scp</h2><p>scp是一个远程的加密复制命令，用ssh加密传输，这个命令是全量copy，也有两种模式push， pull。 </p>
-<p>参数：</p>
-<ul>
-<li>-1 , ssh1, </li>
-<li>-2, ssh2</li>
-<li>-4, ipv4</li>
-<li>-6, ipv6</li>
-<li>-l limit , 限定宽带大小，基本单位为kbit/s</li>
-<li>-C, 使用压缩</li>
-<li>-P， 指定端口</li>
-<li>-p, 保留文件的最后修改时间，最后访问时间，权限模式</li>
-<li>-r, recurisively copy</li>
-</ul>
-<p>远程推送：`scp -P52113 -rp /etc/hosts 172.16.1.41:~<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[sandow@NFS01 .ssh]$ scp -P52113 -rp /etc/hosts <span class="number">172.16</span>.<span class="number">1.41</span>:~</span><br><span class="line">hosts                                                                                <span class="number">100</span>%  <span class="number">211</span>     <span class="number">0.2</span>KB/s   <span class="number">00</span>:<span class="number">00</span></span><br></pre></td></tr></table></figure></p>
-<p>远程拉取： 把两个文件换个位置这里就不讲了</p>
-<h2 id="批量分发">批量分发</h2><p>OK，接下来就可以写个shell来批量分发指定文件到指定目录啦。这里我在家目录下创建一个send.sh. 内容如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/sh</span></span><br><span class="line">. /etc/init.d/<span class="built_in">functions</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="variable">$#</span> <span class="operator">-lt</span> <span class="number">1</span> ];<span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"USAGE:/BIN/SH <span class="variable">$0</span> FILENAME"</span></span><br><span class="line">        <span class="built_in">exit</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> <span class="number">41</span> <span class="number">8</span> <span class="number">9</span> <span class="number">10</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">        scp -P52113 -rp <span class="variable">$1</span>  <span class="number">172.16</span>.<span class="number">1</span>.<span class="variable">$&#123;n&#125;</span>:<span class="variable">$2</span> &amp;&gt;/dev/null</span><br><span class="line"><span class="keyword">if</span> [ $? <span class="operator">-eq</span> <span class="number">0</span> ];<span class="keyword">then</span></span><br><span class="line">        action <span class="string">"dis  <span class="variable">$1</span> to 172.16.1.<span class="variable">$&#123;n&#125;</span>:<span class="variable">$2</span>"</span> /bin/<span class="literal">true</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">        action <span class="string">"dis  <span class="variable">$1</span> to 172.16.1.<span class="variable">$&#123;n&#125;</span>:<span class="variable">$2</span>"</span> /bin/<span class="literal">false</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-<p>然后咱们来执行一下看看效果</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[sandow@NFS01 ~]$ sh send.sh /etc/hosts ~</span><br><span class="line">dis  /etc/hosts to <span class="number">172.16</span>.<span class="number">1.41</span>:/home/sandow                [  OK  ]</span><br><span class="line">dis  /etc/hosts to <span class="number">172.16</span>.<span class="number">1.8</span>:/home/sandow                 [  OK  ]</span><br><span class="line">dis  /etc/hosts to <span class="number">172.16</span>.<span class="number">1.9</span>:/home/sandow                 [FAILED]</span><br><span class="line">dis  /etc/hosts to <span class="number">172.16</span>.<span class="number">1.10</span>:/home/sandow                [FAILED]</span><br></pre></td></tr></table></figure>
-<p>OK，如果是windows下的话可以安装<strong>lrzsz</strong>来实现与linux下的文件互传。下面是一些总结<br>windows客户端和linux服务器之间传输数据工具：<br>1）rz、sz（lrzsz）。&lt;==讲过的。<br>2）winscp WinSCP-v4.0.5 &lt;==基于SSH,sftp<br>3）SFX(xshell)<br>4）SFTP   &lt;==基于SSH,加密传输<br>5)samba,http,ftp,nfs<br>FTP工具：vsftp, proftpd,SFTP</p>
-<p>还有一些批量分发工具，改天我会介绍<strong>saltstack</strong> 与<strong>ansible</strong>. 其中<strong>stltstack</strong>是比较好用的高效的分发工具，有兴趣的同学可以先百度研究</p>
-
-            
+            ssh 无密登录当使用terminal，  ssh远程主机，每次都都需要输密码，今天就介绍下如何使用ssh而不需要每次都输密码，并且还可以实现批量分发（结合rsync或者ssh本身自带的scp）费话少说，let’s go。
+ssh (sercure shell protocol) 是什么？ssh 是专为远程登录会话和其他网络服务提供的安全协议，利用ssh协议可以有效的防止远程中信息的泄露。详情请参
+            ...
           </span>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/ssh-keygen/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -495,181 +435,47 @@
         
           <span itemprop="articleBody">
             
-              <p>本文指在对VIM做简单的介绍，当你习惯之后，就会发现VIM是一个非常高效的文本编辑器而且不需要鼠標就可以完成任何操作，现在就让我们来见识VIM的强大</p>
-<h1 id="VIM语法总结">VIM语法总结</h1><p><strong>命令模式下的编辑</strong></p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">：wq!</td>
-<td style="text-align:left">强制保存</td>
-<td style="text-align:center">：q!</td>
-<td style="text-align:left">强制退出不保存</td>
-</tr>
-<tr>
-<td style="text-align:center">:set nu</td>
-<td style="text-align:left">显示行号</td>
-<td style="text-align:center">:set nonu</td>
-<td style="text-align:left">取消显示行号</td>
-</tr>
-<tr>
-<td style="text-align:center">u</td>
-<td style="text-align:left">undo</td>
-<td style="text-align:center">ctrl + r</td>
-<td style="text-align:left">redo</td>
-</tr>
-<tr>
-<td style="text-align:center">.</td>
-<td style="text-align:left">重复前面命令</td>
-<td style="text-align:center">2.</td>
-<td style="text-align:left">重复前面命令2次</td>
-</tr>
-<tr>
-<td style="text-align:center">dd</td>
-<td style="text-align:left">向下删除一行</td>
-<td style="text-align:center">2dd</td>
-<td style="text-align:left">删除两行</td>
-</tr>
-<tr>
-<td style="text-align:center">dt\</td>
-<td style="text-align:left">删除行之后内容直到遇到“\”</td>
-</tr>
-<tr>
-<td style="text-align:center">ye或 yw</td>
-<td style="text-align:left">从当前位置拷贝到本单词的最后一个字符</td>
-<td style="text-align:center">gu(gU)</td>
-<td style="text-align:left">换成小写(大写)字母</td>
-</tr>
-</tbody>
-</table>
-<p><strong>如何移动</strong></p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">w</td>
-<td style="text-align:left">移动到单词开头</td>
-<td style="text-align:center">e</td>
-<td style="text-align:left">移动到单词结尾</td>
-</tr>
-<tr>
-<td style="text-align:center">gg</td>
-<td style="text-align:left">移动到的第一行</td>
-<td style="text-align:center">G</td>
-<td style="text-align:left">移动到最后一行</td>
-</tr>
-<tr>
-<td style="text-align:center">0</td>
-<td style="text-align:left">移动到行的开头</td>
-<td style="text-align:center">$</td>
-<td style="text-align:left">动到行的结尾</td>
-</tr>
-<tr>
-<td style="text-align:center">^</td>
-<td style="text-align:left">移动到行的开头非blank字符</td>
-<td style="text-align:center">g_</td>
-<td style="text-align:left">动到行的结尾非blank字符</td>
-</tr>
-<tr>
-<td style="text-align:center">fa</td>
-<td style="text-align:left">到下一个a出现的位置</td>
-<td style="text-align:center">3fa</td>
-<td style="text-align:left">第3次出现a的位置</td>
-</tr>
-<tr>
-<td style="text-align:center">2g</td>
-<td style="text-align:left">移动到第二行</td>
-<td style="text-align:center">%</td>
-<td style="text-align:left">匹配括号移动，包括 (, {, [. </td>
-</tr>
-<tr>
-<td style="text-align:center">*</td>
-<td style="text-align:left">匹配光标当前所在单词移到到下一个匹配到的单词</td>
-<td style="text-align:center">#</td>
-<td style="text-align:left">移动到上一个匹配到的单词</td>
-</tr>
-<tr>
-<td style="text-align:center">/patten</td>
-<td style="text-align:left">搜索，按n继续向下搜索</td>
-<td style="text-align:center">N</td>
-<td style="text-align:left">按N继续向上搜索</td>
-</tr>
-</tbody>
-</table>
-<p>ctrl + o 跳到上一次修改的地方</p>
-<p><img src="/images/word_moves.jpg" alt="word_moves"><img src="/images/line_moves.jpg" alt="line_moves"></p>
-<p><strong>以什么样的形式进入插入模式</strong></p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-<th style="text-align:center"></th>
-<th style="text-align:center">语法</th>
-<th style="text-align:left">描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">A</td>
-<td style="text-align:left">移动到行未并进入插入模式</td>
-<td style="text-align:center"></td>
-<td style="text-align:center">x</td>
-<td style="text-align:left">删除光标所在位置的字符</td>
-</tr>
-<tr>
-<td style="text-align:center">I</td>
-<td style="text-align:left">移到到行首并进入插入模式</td>
-<td style="text-align:center"></td>
-<td style="text-align:center">X</td>
-<td style="text-align:left">删除光标所在位置之前的字符</td>
-</tr>
-<tr>
-<td style="text-align:center">o</td>
-<td style="text-align:left">在当前行之后新建一行并进入插入模式</td>
-</tr>
-</tbody>
-</table>
-<p><strong>区域选择</strong></p>
-<p>其格式为 <code>&lt;action&gt;a&lt;object&gt;</code> 和 <code>&lt;action&gt;i&lt;object&gt;</code></p>
-<ul>
-<li>action可以是任何的命令，如 d (删除), y (拷贝), v (可以视模式选择)。</li>
-<li>object 可能是： w 一个单词， W 一个以空格为分隔的单词， s 一个句字， p 一个段落。也可以是一个特别的字符：”、 ‘、 )、 }、 ]。</li>
-</ul>
-<p>举例： <code>daw</code> 删除一个单词</p>
-<p><strong>块操作</strong></p>
-<p>命令模式下按 <strong>ctrl + v</strong> 移动光标选中需要修改的行（区域），<br>然后按<strong>x</strong> 或者 <strong>d</strong> 删除该内容</p>
-<p>批量在行首增加内容：<br> <code>ctrl + v</code> &gt;&gt; <code>0</code> &gt;&gt; <code>I</code> &gt;&gt; 写下想增加的内容 &gt;&gt;<code>Esc</code></p>
-<p><img src="/images/rectangular-blocks.gif" alt="rectangular-blocks"></p>
-<p>批量在行尾增加内容：</p>
-<p> <code>ctrl + v</code> &gt;&gt; <code>$</code> &gt;&gt; <code>A</code> &gt;&gt; 写下想增加的内容 &gt;&gt;<code>Esc</code></p>
-<p>块移动  <code>&lt;</code> , <code>&gt;</code> 左右缩进 。 <code>=</code> 自动给缩进。 </p>
-<p><strong>自动补全</strong></p>
-<p>vim 下在编辑模式下也有自动补全功能便不是tab键，而是 <code>ctrl + n</code>， <code>ctrl + p</code> 如果匹配到多个可以按多次来找到自己想要的单词</p>
-<p><strong>宏录制</strong></p>
-<p><code>qa</code>  开始录制宏，并把宏的名字取名为a<br><code>q</code>  停止录制宏<br><code>@a</code>  用@来调用宏并执行<br><code>@@</code>  快捷的执行最新操作的宏</p>
-<p><img src="/images/macros.gif" alt="macros"></p>
-<p><code>qa</code>  &gt;&gt;<code>Y</code> &gt;&gt; <code>p</code> &gt;&gt; <code>ctrl + a</code> &gt;&gt; <code>q</code> &gt;&gt; <code>@a</code> &gt;&gt; <code>100@@</code></p>
-<p>最后来一张图，基本的语法就完全OK了</p>
-<p><img src="/images/Vim-mindmap.png" alt="vim-midmap"></p>
-<p><strong>结语</strong>：不论什么命令都可以在前面加数字来表示重复n次该命令</p>
+            本文指在对VIM做简单的介绍，当你习惯之后，就会发现VIM是一个非常高效的文本编辑器而且不需要鼠標就可以完成任何操作，现在就让我们来见识VIM的强大
+VIM语法总结命令模式下的编辑
 
-            
+
+
+语法
+描述
+语法
+描述
+
+
+
+
+：wq!
+强制保存
+：q!
+强制退出不保存
+
+
+:set nu
+显示行号
+:set nonu
+取消显示行号
+
+
+u
+undo
+ctrl + r
+redo
+
+
+.
+重复前面命令
+2.
+            ...
           </span>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/vim/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -769,294 +575,48 @@
         
           <span itemprop="articleBody">
             
-              <h1 id="主机规划">主机规划</h1><table>
-<thead>
-<tr>
-<th style="text-align:left">服务器</th>
-<th style="text-align:left">外网IP</th>
-<th style="text-align:left"></th>
-<th style="text-align:left">内网IP</th>
-<th style="text-align:left">主机名称</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">A1-nginx 负载服务器</td>
-<td style="text-align:left">10.0.0.5/24</td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.5/24</td>
-<td style="text-align:left">lb01</td>
-</tr>
-<tr>
-<td style="text-align:left">A2-nginx 负载服务器</td>
-<td style="text-align:left">10.0.0.6/24</td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.6/24</td>
-<td style="text-align:left">lb02</td>
-</tr>
-<tr>
-<td style="text-align:left">B1-apache软件web服务器</td>
-<td style="text-align:left">10.0.0.7/24</td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.7/24</td>
-<td style="text-align:left">web02</td>
-</tr>
-<tr>
-<td style="text-align:left">B2-apache软件web服务器</td>
-<td style="text-align:left">10.0.0.8/24</td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.8/24</td>
-<td style="text-align:left">web01</td>
-</tr>
-<tr>
-<td style="text-align:left">C3-My Sql 数据库服务器</td>
-<td style="text-align:left"><code>10.0.0.51/24</code></td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.51/24</td>
-<td style="text-align:left">Db01</td>
-</tr>
-<tr>
-<td style="text-align:left">C1-NFS 存储服务器</td>
-<td style="text-align:left"><code>10.0.0.31/24</code></td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.31/24</td>
-<td style="text-align:left">NFS01</td>
-</tr>
-<tr>
-<td style="text-align:left">C2-rsync 数据库服务器</td>
-<td style="text-align:left"><code>10.0.0.41/24</code></td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.41/24</td>
-<td style="text-align:left">Backup</td>
-</tr>
-<tr>
-<td style="text-align:left">X-管理服务器</td>
-<td style="text-align:left"><code>10.0.0.61/24</code></td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.61/24</td>
-<td style="text-align:left">m01</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>红色仅为虚拟机中测试所用 <br><br>机房根据实际需求配置</p>
-</blockquote>
-<h2 id="克隆虚拟机并配置网卡">克隆虚拟机并配置网卡</h2><ol>
-<li>编辑eth0的配置文件：<code>vi /etc/sysconfig/network-scripts/ifcfg-eth0</code>，删除HWADDR地址那一行及UUID的行如下：</li>
-</ol>
-<pre><code>HWADDR=<span class="number">00</span>:<span class="number">0</span>c:<span class="number">29</span>:<span class="number">08</span>:<span class="number">28</span>:<span class="number">9f</span>     
-UUID=cee39dbb-<span class="number">6</span>a10-<span class="number">4425</span>-<span class="number">9</span>daf-<span class="number">768</span>b6e79a9c9
-</code></pre><ol>
-<li>清空 /etc/udev/rules.d/70-persistent-net.rules</li>
-<li>重启</li>
-</ol>
-<h2 id="RSYNC_数据库服务器">RSYNC 数据库服务器</h2><p>rsync, (remote synchronize) 是一个实现同步功能的软件，它在同步文件的同时，可以保持原来文件的权限，时间，软硬链接等附加信息。 rsync是用rsync 算法提供了一个客户机和远程文件服务器的文件同步的快速方法，而且可以通过ssh方式来传输文件，这样保密也非常好。主要用于远程数据备份与同步。 可以实现全备及增量备份，也可以本地数据同步。 在Centos5中rsync的版本是2.X，是把所有文件比对一遍后进行同步。在CentOs6中rsync的版本是3.0，是一边比对差异一边进行同步。而这里我们用的是3.0</p>
-<p>首先检查rsync看是否安装，及安装的版本</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ rpm -qa rsync</span><br><span class="line">rsync-<span class="number">3.0</span><span class="number">.6</span>-<span class="number">12.</span>el6.x86_64</span><br></pre></td></tr></table></figure>
-<p>rsync有三种模式，分别是本地，ssh远程同步，daemon模式</p>
-<ul>
-<li><p>Local:  <code>rsync [OPTION...] SRC... [DEST]</code></p>
-</li>
-<li><p>Access via remote shell:</p>
-<ul>
-<li>Pull: <code>rsync [OPTION...] [USER@]HOST:SRC... [DEST]</code></li>
-<li>Push: <code>rsync [OPTION...] SRC... [USER@]HOST:DEST</code></li>
-</ul>
-</li>
-<li><p>Access via rsync daemon:</p>
-<ul>
-<li>Pull: <code>rsync [OPTION...] [USER@]HOST::SRC... [DEST]</code>    <pre><code>`rsync <span class="string">[OPTION...]</span> rsync://<span class="string">[USER@]</span>HOST<span class="string">[:PORT]</span>/SRC... <span class="string">[DEST]</span>`
-</code></pre></li>
-<li>Push: <code>rsync [OPTION...] SRC... [USER@]HOST::DEST</code>    <pre><code>`rsync <span class="string">[OPTION...]</span> SRC... rsync://<span class="string">[USER@]</span>HOST<span class="string">[:PORT]</span>/DEST`
-</code></pre></li>
-</ul>
-</li>
-</ul>
-<p>都是把SRC的数据同步到DEST. 如果没有DEST，但会把SRC的文件列出来而不copy</p>
-<p>rsync 参数说明：</p>
-<ul>
-<li>–delete;     delete extraneous files from dest dirs 删除目标文件中多余的文件</li>
-<li>–exclude=PATTERN ;      exclude files matching PATTERN 排除特定文件 –exclude={a,b}</li>
-<li>–exclude-from=FILE;     read exclude patterns from FILE  ,–exclude-from=/tmp/exclude.txt</li>
-<li>-z, –compress    ;          compress file data during the transfer</li>
-<li>-v, –verbose               increase verbosity</li>
-<li>-a, –archive               archive mode; equals -rlptgoD (no -H,-A,-X)</li>
-<li>–bwlimit=KBPS          limit I/O bandwidth; KBytes per second </li>
-<li>–partial               keep partially transferred files 断点续传</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#排除单个文件：</span></span><br><span class="line">$ rsync -auvrtzopgP --progress --exclude=a /backup/ rsync_backup@<span class="number">172.16</span><span class="number">.1</span><span class="number">.41</span>::backup --password-file=/etc/rsync.password</span><br><span class="line"></span><br><span class="line"><span class="comment">#排除多个文件：</span></span><br><span class="line">$ rsync -avz --exclude=&#123;a,b&#125; /backup/ rsync_backup@<span class="number">172.16</span><span class="number">.1</span><span class="number">.41</span>::backup --password-file=/etc/rsync.password</span><br><span class="line"></span><br><span class="line">$ rsync -avz --exclude-<span class="keyword">from</span>=paichu.log /backup/ rsync_backup@<span class="number">172.16</span><span class="number">.1</span><span class="number">.41</span>::backup --password-file=/etc/rsync.password</span><br></pre></td></tr></table></figure>
-<h3 id="本地备份">本地备份</h3><p>本地 模式，相当于copy 或者rm<br>比如<code>$ rsync -auvrtzopgP /tmp/ /backup/</code> <br><br>此命令就会把tmp目录下的文件全部复制到backup目录下面， 如果加上<code>--delete</code>，此参数的意思是把目标目录与源目录同步，当目标目录里有多于源目录的文件就会删除，也就是源目录是啥样，目标目录就是啥样。如果源目录为空，目标目录也会被清空。我们一般都会在目录后面加<code>/</code>意思是目录下面，如果不加就直接把目录复制过去了，在远程的时候也是一样的。<br><br>保持属性： -avz  相当于 cp -rp<br><br><br></p>
-<h3 id="通过shell远程传输(remote)">通过shell远程传输(remote)</h3><p>远程拷贝；相当于ssh带的scp命令，但又优于scp命令的功能。scp每次都是全量拷贝。rsync可以增量拷贝。 当源路径，或目的路径后面包含一个卡号</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ rsync -avz -e 'ssh -p 22' root@172.16.1.41:/tmp/ /tmp/</span><br><span class="line">The authenticity of host '172.16.1.41 (172.16.1.41)' can't be established.</span><br><span class="line">RSA key fingerprint is 97:b9:1f:95:8b:7d:ae:59:27:4a:d4:b3:98:ae:c1:77.</span><br><span class="line">Are you sure you want to continue connecting (yes/no)? yes</span><br><span class="line">Warning: Permanently added '172.16.1.41' (RSA) to the list of known hosts.</span><br><span class="line">root@172.16.1.41's password: </span><br><span class="line">receiving incremental file list</span><br><span class="line">created directory /temp</span><br><span class="line">./</span><br><span class="line">hosts</span><br><span class="line">.ICE-unix/</span><br><span class="line"></span><br><span class="line">sent 37 bytes  received 184 bytes  9.02 bytes/sec</span><br><span class="line">total size is 220  speedup is 1.00</span><br></pre></td></tr></table></figure>
-<p><br><br>此命令便是把ip为172.16.1.41的主机里tmp目录下的文件传到本地的/tmp/下。这里 <code>ssh -p 22</code>命令用于指定端口，默认就是22，-e 这个参数可以不写直接 <code>rsync -avz root@172.16.1.41:/tmp/ /tmp/</code>便可以把41的文件复制过来。且这里是交互式，手动备份与推送，十分不方便。</p>
-<p>这里有个问题，如果我们用其它用户推或者拉，的时候需要共享文件的所属主与所属组都对该用户对应</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="variable">@NFS</span> tmp]<span class="variable">$ </span>rsync -avz /data/ sandow<span class="variable">@172</span>.<span class="number">16.1</span>.<span class="number">41</span><span class="symbol">:/data/</span></span><br></pre></td></tr></table></figure>
-<p>此命令是把本地data目录下的文件推到服务器IP为：41下的data目录下。这里两个data目录都要具有对应主机用户的读取执行写入权限，最好的办法就是把该目录的所属主，所属组改为对应的用户</p>
-<h3 id="daemon_模式，">daemon 模式，</h3><p>daemon模式需要配置文件，使用<code>rsync --daemon</code>启动进程，使用独立的进程方式传输文件，默认端口是873。</p>
-<p>这里需要两台服务器做测试环境，服务器端名为backup, ip为172.16.1.41主要用于存放数据. 客户端(NFS01)IP为172.16.1.31 主要用于向服务器推送（备份）拉回（还原）数据。然后结合crontab实现实时自动备份同步。 </p>
-<h4 id="服务端的配置">服务端的配置</h4><p>首先我们来配置rsync的主配置文件 rsyncd.conf，默认情况下该文件不存在需要创建，我们也可以使用<code>man rsyncd.conf</code>来查看主配置文件里的参数与说明。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">[root@backup ~]$ cat /etc/rsyncd.conf</span><br><span class="line"><span class="comment">#Rsync server</span></span><br><span class="line"><span class="comment">#created by sandow at 2015-11-05</span></span><br><span class="line"><span class="comment">#rsyncd.conf start#</span></span><br><span class="line">uid = rsync		//相当于nfsnobody 客户端连过来具备什么样的权限默认是不存在的</span><br><span class="line">gid = rsync		//相当于nfsnobody</span><br><span class="line">use chroot = no		//   程序出现问题就会开启 开启给个空目录就行</span><br><span class="line">max connections = <span class="number">200</span>		//客户端连接数 可以同时</span><br><span class="line">timeout = <span class="number">300</span>        //超时 这是服务端 客户端连过来最多多久后就断掉</span><br><span class="line">strict modes=yes</span><br><span class="line">port=<span class="number">873</span></span><br><span class="line">pid file = /var/run/rstbcd.pid	//PID就是进程号唯一标识进程,进程号放文件里面</span><br><span class="line">lock file = /var/run/rsync.lock		//锁文件</span><br><span class="line">log file = /var/log/rsyncd.log		//日志文件，出问题在这里看</span><br><span class="line">hosts allow = <span class="number">172.16</span><span class="number">.1</span><span class="number">.0</span>/<span class="number">24</span>		//允许ip</span><br><span class="line">hosts deny = <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>/<span class="number">32</span>		//拒绝</span><br><span class="line">secrets file = /etc/rsync.password		//存放用户和密码文件</span><br><span class="line"></span><br><span class="line">[backup]		//模块，调用下面服务</span><br><span class="line">comment=backup server by liuchunhao at <span class="number">2015</span>-<span class="number">11</span>-<span class="number">05</span>		//注释</span><br><span class="line">path = /backup		//共享目录</span><br><span class="line">read only = false		//可读写</span><br><span class="line">ignore errors		//忽略错误</span><br><span class="line">auth users = rsync_backup		//远程连接的用户，虚拟用户和系统用户没关系</span><br><span class="line">uid=rsync_backup</span><br><span class="line">gid=rsync_backup</span><br><span class="line">list = false		//不让远程列表，不让看服务端有什么</span><br><span class="line">secrets file=/etc/rsync.password</span><br></pre></td></tr></table></figure>
-<p>配置好rsyncd.conf后便接下来就可以创建对应用户、目录与密码文件</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="variable">@backup</span> ~]<span class="variable">$ </span>useradd rsync -s /sbin/nologin -<span class="constant">M</span></span><br><span class="line">[root<span class="variable">@backup</span> ~]<span class="variable">$ </span>id rsync</span><br><span class="line">uid=<span class="number">504</span>(rsync) gid=<span class="number">504</span>(rsync) groups=<span class="number">504</span>(rsync)</span><br><span class="line">[root<span class="variable">@backup</span> ~]<span class="variable">$ </span>mkdir -p /backup</span><br><span class="line">[root<span class="variable">@backup</span> ~]<span class="variable">$ </span>chown -<span class="constant">R</span> rsync.rsync /backup/</span><br><span class="line">[root<span class="variable">@backup</span> ~]<span class="variable">$ </span>ls -ld /backup/              </span><br><span class="line">drwxr-xr-t. <span class="number">3</span> rsync rsync <span class="number">4096</span> <span class="constant">Nov</span> <span class="number">12</span> <span class="number">06</span><span class="symbol">:</span><span class="number">53</span> /backup/</span><br></pre></td></tr></table></figure>
-<p>创建密码文件，并且修改属性为600</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="variable">@backup</span> ~]<span class="variable">$ </span>echo <span class="string">"rsync_backup:oldboy"</span> &gt;<span class="regexp">/etc/rsync</span>.password</span><br><span class="line">[root<span class="variable">@backup</span> ~]<span class="variable">$ </span>cat /etc/rsync.password</span><br><span class="line"><span class="symbol">rsync_backup:</span>oldboy</span><br><span class="line">[root<span class="variable">@backup</span> ~]<span class="variable">$ </span>chmod <span class="number">600</span> /etc/rsync.password</span><br><span class="line">[sandow<span class="variable">@backup</span> ~]<span class="variable">$ </span>ll /etc/rsync.password       </span><br><span class="line">-rw------- <span class="number">1</span> root root <span class="number">20</span> <span class="number">11</span>月  <span class="number">6</span> <span class="number">16</span><span class="symbol">:</span><span class="number">12</span> /etc/rsync.password</span><br></pre></td></tr></table></figure>
-<p>修改/etc/xinetd.d/rsync 文件，把disable 改为no,这应该是最新版本的linux才会有此文件。所以没有的可以不配置</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># default: off</span><br><span class="line"># description: The rsync server is a good addition to an ftp server, as it \</span><br><span class="line">#	allows crc checksumming etc.</span><br><span class="line">service rsync</span><br><span class="line">&#123;</span><br><span class="line">	disable	= no</span><br><span class="line">	flags		= IPv6</span><br><span class="line">	socket_type     = stream</span><br><span class="line">	wait            = no</span><br><span class="line">	user            = root</span><br><span class="line">	server          = /usr/bin/rsync</span><br><span class="line">	server_args     = --daemon</span><br><span class="line">	log_on_failure  += USERID</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>配置好后便可以启动rsync daemon守护进程了</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[sandow<span class="variable">@backup</span> tmp]<span class="variable">$ </span>rsync --daemon</span><br><span class="line"></span><br><span class="line">[sandow<span class="variable">@backup</span> tmp]<span class="variable">$ </span>ps -ef|grep rsync |grep -v grep</span><br><span class="line">root       <span class="number">2370</span>      <span class="number">1</span>  <span class="number">0</span> <span class="number">01</span><span class="symbol">:</span><span class="number">57</span> ?        <span class="number">00</span><span class="symbol">:</span><span class="number">00</span><span class="symbol">:</span><span class="number">00</span> rsync --daemon</span><br><span class="line"></span><br><span class="line">[sandow<span class="variable">@backup</span> tmp]<span class="variable">$ </span>netstat -lntup|grep rsync</span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span><span class="symbol">:</span><span class="number">873</span>                 <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span><span class="symbol">:*</span>                   <span class="constant">LISTEN</span>      <span class="number">2370</span>/rsync          </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="symbol">:</span><span class="symbol">:</span><span class="symbol">:</span><span class="number">873</span>                      <span class="symbol">:</span><span class="symbol">:</span><span class="symbol">:*</span>                        <span class="constant">LISTEN</span>      <span class="number">2370</span>/rsync</span><br></pre></td></tr></table></figure>
-<p>然后让rsync开机自动启动：</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo <span class="string">"/usr/bin/rsync --daemon"</span> <span class="prompt">&gt;&gt;</span>/etc/rc.local</span><br></pre></td></tr></table></figure>
-<p>这里需要注意的是要让端口873通过防火墙</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>iptables -<span class="constant">A</span> <span class="constant">INPUT</span> -p tcp -m state --state <span class="constant">NEW</span>  -m tcp --dport <span class="number">873</span> -j <span class="constant">ACCEPT</span></span><br><span class="line"><span class="variable">$ </span>iptables -<span class="constant">L</span>  查看一下防火墙是不是打开了 <span class="number">873</span>端口</span><br></pre></td></tr></table></figure>
-<h4 id="客户端的配置">客户端的配置</h4><p>客户端的配置很简单，仅需要增加一个密码文件并把权限改为600</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="variable">@NFS</span> tmp]<span class="variable">$ </span>echo <span class="string">"oldboy"</span> &gt;<span class="regexp">/etc/rsync</span>.password</span><br><span class="line">[root<span class="variable">@NFS</span> tmp]<span class="variable">$ </span>chmod <span class="number">600</span> /etc/rsync.password </span><br><span class="line">[root<span class="variable">@NFS</span> tmp]<span class="variable">$ </span>ll /etc/rsync.password </span><br><span class="line">-rw-------. <span class="number">1</span> root root <span class="number">7</span> <span class="constant">Nov</span> <span class="number">12</span> <span class="number">02</span><span class="symbol">:</span><span class="number">03</span> /etc/rsync.password</span><br><span class="line">[root<span class="variable">@NFS</span> tmp]<span class="variable">$ </span>cat /etc/rsync.password </span><br><span class="line">oldboy</span><br></pre></td></tr></table></figure>
-<h4 id="备份数据以及自动备份">备份数据以及自动备份</h4><p>向服务器推送数据：</p>
-<p><code>rsync -auvrtzopgP --progress  /backup/ rsync_backup@172.16.1.41::backup --password-file=/etc/rsync.password</code></p>
-<p>或者</p>
-<p><code>rsync -auvrtzopgP --progress  /backup/ rsync://rsync_backup@172.16.1.41/backup --password-file=/etc/rsync.password</code></p>
-<p>从服务器拉回数据</p>
-<p><code>rsync -avz   rsync_backup@172.16.1.41::backup /backup/ --password-file=/etc/rsync.password</code></p>
-<p>或者</p>
-<p><code>rsync -avz   rsync://rsync_backup@172.16.1.41/backup  /backup/ --password-file=/etc/rsync.password</code></p>
-<h3 id="小结">小结</h3><p>配置步骤回顾</p>
-<blockquote>
-<p>查看rsync 安装包&gt;&gt;  添加rsync用户 &gt;&gt;  生成配置文件 &gt;&gt;   配置账户，密码文件 &gt;&gt;  密码文件配置权限 600  &gt;&gt;  创建共享的目录并授权rsync &gt;&gt;启动rsync  <code>rsync --daemon</code> &gt;&gt; 开机启动<br>排错小结：查看推送或者拉取报错信息， 查看日志 <code>tail /var/log/rsyncd.log</code></p>
-</blockquote>
-<p>重启rsync就必须杀掉进程</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="variable">@backup</span> backup]<span class="variable">$ </span>kill <span class="string">`cat /var/run/rsyncd.pid`</span></span><br><span class="line">[root<span class="variable">@backup</span> backup]<span class="variable">$ </span>lsof -i <span class="symbol">:</span><span class="number">873</span></span><br><span class="line">[root<span class="variable">@backup</span> backup]<span class="variable">$ </span>pkill rsync</span><br><span class="line">[root<span class="variable">@backup</span> backup]<span class="variable">$ </span>killall rsync</span><br></pre></td></tr></table></figure>
-<p>rsync 优点</p>
-<ol>
-<li>增量备份， 支持socket 集中备份，（支持推拉，都是以客户端参照物）</li>
-<li>远程shell 通道模式还可以加密(ssh) 传输 。 socket 需要加密传输，可以利用vpn 服务或ipsec服务</li>
-</ol>
-<p>rsync 缺点</p>
-<ol>
-<li>大量小文件时候同步的时候，比对时间长，有的时候，rsync进程可能会停止</li>
-<li>同步大文件，10G 这样的大文件有时也会问题，中断。 未完整同步前，是隐藏文件</li>
-</ol>
-<p>实战作业：<br>5.1.4.2 备份全网服务器数据生产架构方案案例模型<br>企业案例：rsync上机实战考试题：<br>某公司里有一台Web服务器，里面的数据很重要，但是如果硬盘坏了，数据就会丢失，现在领导要求你把数据在其他机器上做一个周期性定时备份。要求如下：<br>每天晚上00点整在Web服务器A上打包备份网站程序目录并通过rsync命令推送到服务器B上备份保留（备份思路可以是先在本地按日期打包，然后再推到备份服务器上）。<br>具体要求如下：<br>1)Web服务器A和备份服务器B的备份目录必须都为/backup。<br>2)Web服务器站点目录假定为(/var/www/html)。<br>3)Web服务器本地仅保留7天内的备份。<br>4)备份服务器上检查备份结果是否正常，并将每天的备份结果发给管理员信箱（选做）。<br>5)备份服务器上每周六的数据都保留，其他备份仅保留180天备份（选做）。</p>
-<p>拔锚必备思想：<br>部署流程步骤熟练<br>rsync原理理解</p>
-<h2 id="crontab_+_rsync_定时推送">crontab + rsync 定时推送</h2><p>定时任务一般都新建一个目录专门用来存放定时任务的sh.我一般呢会存放在<strong>/server/scripts/</strong>目录下面。 新建一个sh 命名为rsync.dailyBackup.sh. 增加好下内容</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ cat rsync.dailyBackup.sh</span><br><span class="line">#! /bin/sh</span><br><span class="line"># backup /backup  to 172.16.1.41:/backup</span><br><span class="line">path=/backup</span><br><span class="line">hostn=$(hostname)</span><br><span class="line">dir=$&#123;hostn&#125;-172.16.1.31</span><br><span class="line">ldate=$(date +%F)</span><br><span class="line">mkdir  $&#123;path&#125;/$&#123;dir&#125; &amp;&amp;\</span><br><span class="line">/bin/cp /etc/rc.local $&#123;path&#125;/$&#123;dir&#125;/rc.local_$&#123;ldate&#125; &amp;&amp;\</span><br><span class="line">rsync -az $&#123;path&#125;/ rsync_backup@172.16.1.41::backup/ --password-file=/etc/rsync.password</span><br></pre></td></tr></table></figure>
-<p>首先测试是否成功执行任务，并推送到rsync服务器。然后便写入crontab </p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>crontab -l</span><br><span class="line"><span class="comment">#######time sync by lzy at 2015-11-02</span></span><br><span class="line">*<span class="regexp">/5 * * * * /usr</span><span class="regexp">/sbin/ntpdate</span> time.nist.gov &gt;<span class="regexp">/dev/null</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">####rsync by lzy at 2015-11-07</span></span><br><span class="line"><span class="number">00</span> <span class="number">01</span> * * * <span class="regexp">/bin/sh</span> /server/scripts/rsync.sh &gt;<span class="regexp">/dev/null</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br></pre></td></tr></table></figure>
-<h2 id="实时同步">实时同步</h2><p>inotify+rsync<br>inotify 是一种强大的细粒度的，异步的文件系统事件监控机制， linux内核从2.6.13起，加入了inotify支持。其本身没有推送的功能，只 有监控文件系统的任务. 我们可以用inotify + rsync 做到实时复制，但是<br>sersync 国人周洋编辑的<br>inotify + rsync 实时复制  osersync<br>每秒只能同步200张100K的图片  可以用drbd （备节点不可用）  双协</p>
-<p>查看系统是否支持inotify，如果没有下列文件便表示不支持</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>ll /proc/sys/fs/inotify/</span><br><span class="line">total <span class="number">0</span></span><br><span class="line">-rw-r--r-- <span class="number">1</span> root root <span class="number">0</span> <span class="constant">Nov</span>  <span class="number">9</span> <span class="number">17</span><span class="symbol">:</span><span class="number">39</span> max_queued_events</span><br><span class="line">-rw-r--r-- <span class="number">1</span> root root <span class="number">0</span> <span class="constant">Nov</span>  <span class="number">9</span> <span class="number">17</span><span class="symbol">:</span><span class="number">39</span> max_user_instances</span><br><span class="line">-rw-r--r-- <span class="number">1</span> root root <span class="number">0</span> <span class="constant">Nov</span>  <span class="number">9</span> <span class="number">17</span><span class="symbol">:</span><span class="number">39</span> max_user_watches</span><br></pre></td></tr></table></figure>
-<ul>
-<li>max_queued_events,表示调用inotify_init时分配给inotify instance中可排队的event的数目的最大值，超出这值的事件被丢弃，触发IN_Q_OVERFLOW事件</li>
-<li>max_user_instances 每一个user ID可创建的inotify instatnces的数量上限</li>
-<li>max_user_watches表示每个inotify instatnces可监控的最大目录数量。</li>
-</ul>
-<p>安装inotify-tools<br>方法一</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="variable">$ </span>rpm -ivh /apps/crm/soft_src/inotify-tools-<span class="number">3.14</span>-<span class="number">1</span>.el6.x86_64.rpm </span><br><span class="line"><span class="symbol">warning:</span> /apps/crm/soft_src/inotify-tools-<span class="number">3.14</span>-<span class="number">1</span>.el6.x86_64.<span class="symbol">rpm:</span> <span class="constant">Header</span> <span class="constant">V3</span> <span class="constant">DSA</span>/<span class="constant">SHA1</span> <span class="constant">Signature</span>, key <span class="constant">ID</span> <span class="number">4026433</span><span class="symbol">f:</span> <span class="constant">NOKEY</span></span><br><span class="line"><span class="constant">Preparing</span>...                <span class="comment">########################################### [100%]</span></span><br><span class="line">   <span class="number">1</span><span class="symbol">:inotify-tools</span>          <span class="comment">########################################### [100%]</span></span><br><span class="line"><span class="variable">$ </span>rpm -qa|grep inotify</span><br><span class="line">inotify-tools-<span class="number">3.14</span>-<span class="number">1</span>.el5.x86_64</span><br></pre></td></tr></table></figure>
-<p>方法二</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">wget http://github.com/downloads/rvoicilas/inotify-tools/inotify-tools-3.14.tar.gz</span><br><span class="line">tar zxvf inotify-tools-3.14.tar.gz</span><br><span class="line">cd inotify-tools-3.14</span><br><span class="line">./configure --prefix=/usr/local/inotify</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-<h3 id="inotifywait_介绍">inotifywait 介绍</h3><p>如果文件或者目录变更，那么就会调用inotify命令。是一个非常高效的工具。<br>其语法格式是</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inotifywait [-hcmrq] [-e &lt;event&gt; ] [-t &lt;seconds&gt; ] [--format &lt;fmt&gt; ] [--timefmt &lt;fmt&gt; ] &lt;file&gt; [ ... ]</span><br></pre></td></tr></table></figure>
-<p>参数：</p>
-<ul>
-<li>-m  监听</li>
-<li>-r, –recursive 递归监控</li>
-<li>-q, –quiet，不输出信息</li>
-<li>–exclude <pattern\></pattern\></li>
-<li>-e <event\>, –event <event\><ul>
-<li>delete ,create,close_write,modify </li>
-</ul>
-</event\></event\></li>
-<li>–timefmt <fmt> 设置一个时间样式</fmt></li>
-</ul>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">inotifywait -mrq --timefmt <span class="string">'%d/%m/%y %H:%M'</span> --format <span class="string">'%T %w %f'</span> -e create /backup  </span><br><span class="line">inotifywait -mrq --timefmt <span class="string">'%d/%m/%y %H:%M'</span> --format <span class="string">'%T %w %f'</span> -e create,delete,close_write /backup</span><br></pre></td></tr></table></figure>
-<p>执行第二个命令后的结果格式结果是</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ a</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ a</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ a.txt</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ a.txt</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ .test.txt.swp</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ .test.txt.swx</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ .test.txt.swx</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ .test.txt.swx</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ .test.txt.swp</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ .test.txt.swp</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">47</span> /backup/ .test.txt.swp</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> /backup/ test.txt</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> /backup/ test.txt</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> /backup/ .test.txt.swp</span><br><span class="line">09/<span class="number">11</span>/<span class="number">15</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> /backup/ .test.txt.swp</span><br></pre></td></tr></table></figure>
-<p>刚才注意到 创建一个文件产生的临时文件也都会被记录下来。而且还有重复。为了同步时减少带宽与CPU消耗，就需要使用排除，来排除指定的文件。排除一般有两种方法：1，使用rsync排除; 2,使用inotify排除，同时加入rsync排除,我们一般使用第二种<br>inotifywati排队监控目录有 –exclude <pattern\> –formfile <file\> 前面可以用正则，后者只能是具体的目录或文件</file\></pattern\></p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vi inotify_exclude.lst</span><br><span class="line">/tmp/src/pdf</span><br><span class="line">@/tmp/src/<span class="number">2014</span></span><br></pre></td></tr></table></figure>
-<p>–formfile 的file只能使用绝对路径，@表示排除。<br>用正则排除 </p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--exclude <span class="string">'(.*/*\.log|.*/*\.swp)$|^/tmp/src/mail/(2014|201.*/cache.*)'</span></span><br></pre></td></tr></table></figure>
-<p>正则很明子了吧。 排除所有目录下以<strong>.log</strong>, <strong>.swp</strong> 结尾的文件，和所有在/tmp/src/mail下面2014这个目录和201*目录下的cache开头的文件或目录<br>在rsync里排除，这里指定file排除时用相对路径。</p>
-<p>写一个角本<strong>inotifywait.sh</strong>放到backup目录下面,执行便可以实时同步，以下是几个版本<br>粗糙版，每次都会让rsync比对所有文件然后再同步</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#! /bin/bash</span></span><br><span class="line">/usr/bin/inotifywait -mrq  --format <span class="string">'%w%f'</span> -e create,close_write,delete /backup | \</span><br><span class="line"><span class="keyword">while</span> read file</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">  	cd /backup &amp;&amp; \</span><br><span class="line">  	rsync -az ./ --delete rsync_backup<span class="variable">@172</span>.<span class="number">16.1</span>.<span class="number">41</span><span class="symbol">:</span><span class="symbol">:backup</span> --password-file=<span class="regexp">/etc/rsync</span>.password</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
-<p>精准版</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#! /bin/sh</span></span><br><span class="line"><span class="constant">FullPath</span>=<span class="string">"/usr/bin/inotifywait"</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$&#123;</span><span class="constant">FullPath</span>&#125; -mrq --format <span class="string">'%w%f'</span> -e create,close_write,delete /backup | \</span><br><span class="line">	<span class="keyword">while</span> read <span class="constant">Line</span></span><br><span class="line">	<span class="keyword">do</span></span><br><span class="line">  	[ ! -e  <span class="string">"$line"</span> ]  &amp;&amp;\</span><br><span class="line">  rsync -az --delete ./ rsync_backup<span class="variable">@172</span>.<span class="number">16.1</span>.<span class="number">41</span><span class="symbol">:</span><span class="symbol">:backup</span> --password-file=<span class="regexp">/etc/rsync</span>.password &amp;&amp; \</span><br><span class="line">	continue</span><br><span class="line">  rsync -az --delete <span class="variable">$&#123;</span><span class="constant">Line</span>&#125; rsync_backup<span class="variable">@172</span>.<span class="number">16.1</span>.<span class="number">41</span><span class="symbol">:</span><span class="symbol">:backup</span> --password-file=<span class="regexp">/etc/rsync</span>.password</span><br><span class="line">	done</span><br></pre></td></tr></table></figure>
-<p>上面的是不是很简单，那么再来一个更全面的客户端配置文件</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">#rsync auto sync script with inotify</span><br><span class="line">#2015-11-09 sandow</span><br><span class="line">#variables</span><br><span class="line">Current_date=$(date +%Y%m%d_%H%M%S)</span><br><span class="line">source_path=/backup/</span><br><span class="line">log_file=/var/log/rsync_client.log</span><br><span class="line">#rsync</span><br><span class="line">rsync_server=172.16.1.41</span><br><span class="line">rsync_user=rsync_backup</span><br><span class="line">rsync_pwd=/etc/rsync.password</span><br><span class="line">rsync_module=backup</span><br><span class="line">INOTIFY_EXCLUDE="(.*/*\.log|.*/*\.swp)$|^/tmp/src/mail/(2014|20.*/.*che.*)"</span><br><span class="line">RSYNC_EXCLUDE=/etc/rsyncd.d/rsync_exclude.lst</span><br><span class="line">#rsync client pwd check</span><br><span class="line">if [ ! -e $&#123;rsync_pwd&#125; ];then</span><br><span class="line">    echo -e "rsync client passwod file $&#123;rsync_pwd&#125; does not exist!"</span><br><span class="line">    exit 0</span><br><span class="line">fi</span><br><span class="line">#inotify_function</span><br><span class="line">inotify_fun()&#123;</span><br><span class="line">    /usr/bin/inotifywait -mrq --timefmt '%Y/%m/%d-%H:%M:%S' --format '%T %w %f' \</span><br><span class="line">          --exclude $&#123;INOTIFY_EXCLUDE&#125;  -e modify,delete,create,move,attrib $&#123;source_path&#125; | \</span><br><span class="line">      while read file</span><br><span class="line">      do</span><br><span class="line">          /usr/bin/rsync -auvrtzopgP --exclude-from=$&#123;RSYNC_EXCLUDE&#125; --progress --bwlimit=200 --password-file=$&#123;rsync_pwd&#125; $&#123;source_path&#125; $&#123;rsync_user&#125;@$&#123;rsync_server&#125;::$&#123;rsync_module&#125; </span><br><span class="line">      done</span><br><span class="line">&#125;</span><br><span class="line">#inotify log</span><br><span class="line">inotify_fun &gt;&gt; $&#123;log_file&#125; 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
-<p>来点链接，深入研究的话可以上去查看 <br></p>
-<blockquote>
-<p><a href="https://rsync.samba.org/how-rsync-works.html" target="_blank" rel="external">How Rsync Works A Practical Overview</a> <br><br><a href="https://www.ibm.com/developerworks/cn/linux/l-inotify/" target="_blank" rel="external">用 inotify 监控 Linux 文件系统事件</a> <br><br><a href="http://www.infoq.com/cn/articles/inotify-linux-file-system-event-monitoring" target="_blank" rel="external">inotify: 高效、实时的Linux文件系统事件监控框架</a> <br><br><a href="http://coolshell.cn/articles/7425.html" target="_blank" rel="external">rsync 的核心算法</a></p>
-</blockquote>
-<h2 id="sersync">sersync</h2><p>听同事说 sersync 这么个工具可以提高同步的性能，也解决了同步大文件时出现异常的问题，所以就尝试了一下。sersync是国内的一个开发者开源出来的，使用c++编写，采用多线程的方式进行同步，失败后还有重传机制，对临时文件过滤，自带crontab定时同步功能。网上看到有人说性能还不错，但是我觉得：</p>
-<p>国产开源，文档不是很全，在2011年之后就没更新了。采用xml配置文件的方式，可读性比较好，但是有些原生的有些功能没有实现就没法使用了。</p>
-<p>无法实现多目录同步，只能通过多个配置文件启动多个进程，文件排除功能太弱。</p>
-<p>虽然提供插件的功能，但很鸡肋，因为软件本身没有持续更新，也没有看到贡献有其它插件出现（可能是我知识面不够，还用不到里面的refreshCDN plugin）。虽然不懂c++，但大致看了下源码 FileSynchronize，拼接rsync命令大概在273行左右，最后一个函数就是排除选项，简单一点可以将–exclude=改成–eclude-from来灵活控制。有机会再改吧。</p>
-<p>另外，在作者的文章 Sersync服务器同步程序 项目简介与设计框架 评论中，说能解决上面 rsync + inotify中所描述的问题。阅读了下源码，这个应该是没有解决，因为在拼接rsync命令时，后面的目的地址始终是针对module的，只要执行rsync命令，就会对整个目录进行遍历，发送要比对的文件列表，然后再发送变化的文件。sersync只是减少了监听的事件，减少了rsync的次数——这已经是很大的改进，但每次rsync没办法改变。（如有其它看法可与我讨论）</p>
-<p>其实我们也不能要求每一个软件功能都十分健全，关键是看能否满足我们当下的特定的需求。所谓好的架构不是设计出来的，而是进化来的。目前使用sersync2没什么问题，而且看了它的设计思路应该是比较科学的，特别是过滤队列的设计。双向同步看起来也是可以实现。</p>
-<h2 id="rsync常见错误与问题">rsync常见错误与问题</h2><p>Q：如何通过ssh进行rsync，而且无须输入密码？    </p>
-<ul>
-<li><p>可以通过以下几个步骤        </p>
-<ol>
-<li>通过ssh-keygen在server A上建立SSH keys，不要指定密码，你会在~/.ssh下看到identity和identity.pub文件 </li>
-<li>在server B上的home目录建立子目录.ssh</li>
-<li>将A的identity.pub拷贝到server B上</li>
-<li>将identity.pub加到~[user b]/.ssh/authorized_keys</li>
-<li>于是server A上的A用户，可通过下面命令以用户B ssh到server B上了。e.g. ssh -l userB serverB。这样就使server A上的用户A就可以ssh以用户B的身份无需密码登陆到server B上了。</li>
-</ol>
-</li>
-</ul>
-<p>Q：如何通过在不危害安全的情况下通过防火墙使用rsync?</p>
-<ul>
-<li>解答如下：<br>这通常有两种情况，一种是服务器在防火墙内，一种是服务器在防火墙外。无论哪种情况，通常还是使用ssh，这时最好新建一个备份用户，并且配置sshd 仅允许这个用户通过RSA认证方式进入。如果服务器在防火墙内，则最好限定客户端的IP地址，拒绝其它所有连接。如果客户机在防火墙内，则可以简单允许防 火墙打开TCP端口22的ssh外发连接就ok了。</li>
-</ul>
-<p>Q：我能将更改过或者删除的文件也备份上来吗？</p>
-<ul>
-<li>当然可 以。你可以使用如：rsync -other -options -backupdir = ./backup-2000-2-13  …这样的命令来实现。这样如果源文件:/path/to/some/file.c改变了，那么旧的文件就会被移到./backup- 2000-2-13/path/to/some/file.c，这里这个目录需要自己手工建立起来</li>
-</ul>
-<p>Q：我需要在防火墙上开放哪些端口以适应rsync？</p>
-<ul>
-<li>视情况而定。rsync可以直接通过873端口的tcp连接传文件，也可以通过22端口的ssh来进行文件传递，但你也可以通过下列命令改变它的端口：</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ iptables -A INPUT -p tcp -m state --state NEW  -m tcp --dport <span class="number">873</span> -j ACCEPT</span><br></pre></td></tr></table></figure>
-<p><code>rsync --port 8730 otherhost::</code>或者<code>rsync -e &#39;ssh -p 2002&#39; otherhost:</code></p>
-<p>Q：我如何通过rsync只复制目录结构，忽略掉文件呢？    </p>
-<ul>
-<li><code>rsync -av --include &#39;*/&#39; --exclude &#39;*&#39; source-dir dest-dir</code></li>
-</ul>
-<p>Q：为什么我总会出现”Read-only file system”的错误呢？    </p>
-<ul>
-<li>看看是否忘了设”read only = no”了</li>
-</ul>
-<p>Q：为什么我会出现’@ERROR: invalid gid’的错误呢？</p>
-<ul>
-<li>rsync使用时默认是用uid=nobody;gid=nobody来运行的，如果你的系统不存在nobody组的话，就会出现这样的错误，可以试试gid = ogroup或者其它</li>
-</ul>
-<p>Q：绑定端口873失败是怎么回事？</p>
-<ul>
-<li>如果你不是以root权限运行这一守护进程的话，因为1024端口以下是特权端口，会出现这样的错误。你可以用–port参数来改变。</li>
-</ul>
-<p>Q：为什么我认证失败？    </p>
-<ul>
-<li>从你的命令行看来：你用的是</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bash$ rsync -a <span class="number">144.16</span><span class="number">.251</span><span class="number">.213</span>::test test</span><br><span class="line">Password:</span><br><span class="line"><span class="decorator">@ERROR: auth failed on module test</span></span><br></pre></td></tr></table></figure>
-<p>应该是没有以你的用户名登陆导致的问题，试试rsync -a max@144.16.251.213::test test</p>
-<p>Q: 出现以下这个讯息, 是怎么一回事?    </p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="decorator">@ERROR: auth failed on module xxxxx</span></span><br><span class="line">rsync: connection unexpectedly closed (<span class="number">90</span> bytes read so far)</span><br><span class="line">rsync error: error <span class="keyword">in</span> rsync protocol data stream (code <span class="number">12</span>) at io.c(<span class="number">150</span>)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>这是因为密码设错了, 无法登入成功, 请再检查一下 rsyncd.secrets 中的密码设定, 二端是否一致?</li>
-</ul>
-<p>Q: 出现以下这个讯息, 是怎么一回事?    </p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">password file must <span class="keyword">not</span> be other-accessible </span><br><span class="line">continuing without password file </span><br><span class="line">Password:</span><br></pre></td></tr></table></figure>
-<ul>
-<li>这表示 rsyncd.secrets 的档案权限属性不对, 应设为 600。请下 chmod 600 rsyncd.secrets</li>
-</ul>
-<p>Q: 出现以下这个讯息, 是怎么一回事?</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="decorator">@ERROR: chroot failed</span></span><br><span class="line">rsync: connection unexpectedly closed (<span class="number">75</span> bytes read so far)</span><br><span class="line">rsync error: error <span class="keyword">in</span> rsync protocol data stream (code <span class="number">12</span>) at io.c(<span class="number">150</span>)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>这通常是您的 rsyncd.conf 中的 path 路径所设的那个目录并不存在所致.请先用 mkdir开设好备份目录.</li>
-</ul>
-<p>高并发数据实时同步方案小结<br>1。inotify+rsync 文件级别<br>2。drbd 文件系统级别<br>3。 第三方软件的同步功能， mysql, oracle, mongodb<br>4.。 程序双写<br>5。业务逻辑解决。（读写分离，备读不到，读主）</p>
+            主机规划
 
-            
+
+服务器
+外网IP
+
+内网IP
+主机名称
+
+
+
+
+A1-nginx 负载服务器
+10.0.0.5/24
+
+127.16.1.5/24
+lb01
+
+
+A2-nginx 负载服务器
+10.0.0.6/24
+
+127.16.1.6/24
+lb02
+
+
+B1-apache软件web服务器
+10.0.0.7/24
+
+127.16.1.7/24
+web02
+
+
+B2-apache软件web服务器
+
+            ...
           </span>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/inotify_rsync/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -1156,272 +716,14 @@ UUID=cee39dbb-<span class="number">6</span>a10-<span class="number">4425</span>-
         
           <span itemprop="articleBody">
             
-              <p> 正则表达式是为处理大量字符串而定义的方法。<br> 正则表达式分基本正则表达式（Basic Regular Expressions,BERs）和扩展正则表达式（Extended Regular Expressions,EREs）. EREs基本包含BERs，而且还包含更多功能. EREs现在已经被应用于 Apache, PERL, PHP, python. 以及VI，emac,grep awk和sed…ERES现在基本已成流行，也是本文主要关注的重点   </p>
-<h2 id="通用的定义">通用的定义</h2><p>  本文基本都会用下面几个概念：<strong>literal, metacharacter, target string, escape sequence, search expression</strong>. 下面来介绍下他们的定义</p>
-<ol>
-<li><p>literal:<br>literal 我们用来匹配或者用来搜索的可以是任意字符. 在表达式中写什么便会匹配到什么. 简单来说literal 便是你确切想要查找的内容</p>
-</li>
-<li><p>metacharacter:<br>metacharacter 便是一个或者多个不同于literal用法的拥有特殊意义的特殊字符. 例如 ^ (circumflex or caret) 便是一个metacharacter</p>
-</li>
-<li><p>target string:<br>target string 便是我们想要查找或者匹配到的内容</p>
-</li>
-<li><p>search expression:<br>也叫regular expression.  这是我们需要查到或者匹配内容的样式</p>
-</li>
-<li><p>escape sequence:<br>如果想把metacharacter当做literal来用便需要用到escape sequenc. 就是需要用 \ (backslash)把metacharacter 转义为普通的literal. 例如如果我们想要匹配 ^ 便要写成：<code>\^</code>  </p>
-<p>本文都会用正则表达式来在下面两个字符串中匹配   </p>
-</li>
-</ol>
-<blockquote>
-<p>字符串1   Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)<br>字符串2   Mozilla/4.75 [en](X11;U;Linux2.2.16-22 i586)   </p>
-</blockquote>
-<hr>
-<p> 一些简单的例子</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">表达式</th>
-<th style="text-align:left">匹配到的内容</th>
-<th style="text-align:center">注释</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">m</td>
-<td style="text-align:left">只有在字符串一中会在compatible里查找到m</td>
-<td style="text-align:center">literal</td>
-</tr>
-<tr>
-<td style="text-align:center">5 \[</td>
-<td style="text-align:left">只有在字符串二中从4.7<em>5 [</em>en 匹配到 <strong>5 [</strong></td>
-<td style="text-align:center">escape sequence</td>
-</tr>
-<tr>
-<td style="text-align:center">a/4</td>
-<td style="text-align:left">只会在字符串一中从Mozilla/4中匹配到<strong>a/4</strong></td>
-<td style="text-align:center">literal</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h3 id="metacharacters">metacharacters</h3><p>  在RE中经常会用到很多特殊字符，每个字符在不同的位置拥有不同的意思，下面简单介绍几个常用的metacharacters</p>
-<p>一些基本的元字符及各自的意思</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">元字符</th>
-<th style="text-align:left">特殊意义</th>
-<th style="text-align:left">例子</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center"><strong>[ ]</strong></td>
-<td style="text-align:left">匹配在方括号里面的任意1个字符</td>
-<td style="text-align:left"><code>[12]</code> 便只会匹配1或者2, [0-9] 便会匹配任意一个数字</td>
-</tr>
-<tr>
-<td style="text-align:center"><strong>-</strong></td>
-<td style="text-align:left">在方括号里面dash的意思是range separator</td>
-<td style="text-align:left">[0-9]` 相当于[0123456789]</td>
-</tr>
-<tr>
-<td style="text-align:center"><strong>^</strong></td>
-<td style="text-align:left">在放括號里caret是取反,不在中括号里是最开头</td>
-<td style="text-align:left"><code>[^Ff]</code> 匹配除了f(大写与小写)的任意字符。<code>^Moz</code> 以Woz开头字符会从 ‘Mozilla’ 中找到</td>
-</tr>
-<tr>
-<td style="text-align:center"><strong>$</strong></td>
-<td style="text-align:left">只匹配结尾是literal的字符</td>
-<td style="text-align:left"><code>fox$</code> 便会从 ‘silver fox’ 中找到</td>
-</tr>
-<tr>
-<td style="text-align:center"><strong>.</strong></td>
-<td style="text-align:left">在这个位置的任意字符</td>
-<td style="text-align:left"><code>ton.</code> 便会从 ‘tonneau’ 中找到<strong>tons</strong> , 但不会从’wanton’ 里找到</td>
-</tr>
-<tr>
-<td style="text-align:center"><strong>?</strong></td>
-<td style="text-align:left">匹配前面的一个字符出现0次或者1次</td>
-<td style="text-align:left"><code>colou?r</code> 便会找到<strong>color</strong>和<strong>colour</strong></td>
-</tr>
-<tr>
-<td style="text-align:center">*</td>
-<td style="text-align:left">匹配前面的一个字符出现0次或者多次</td>
-<td style="text-align:left"><code>tre\*</code> (请忽略\ )便会找到 <code>tr</code>, <code>tre</code>, <code>tree</code> 。</td>
-</tr>
-<tr>
-<td style="text-align:center"><strong>+</strong></td>
-<td style="text-align:left">匹配前面的一个字符出现1次或者多次</td>
-<td style="text-align:left"></td>
-</tr>
-<tr>
-<td style="text-align:center">{n}</td>
-<td style="text-align:left">匹配前面的字符或者出现n次</td>
-<td style="text-align:left"><code>[1-9]{3}-[0-9]{4}</code> 便用找到像123-4567形式的数字</td>
-</tr>
-<tr>
-<td style="text-align:center">{n,m}</td>
-<td style="text-align:left">匹配前面的字符至少出现n到m次</td>
-<td style="text-align:left"></td>
-</tr>
-<tr>
-<td style="text-align:center">{n,m}? ,+?, *?, ??</td>
-<td style="text-align:left">让{n,m}, *, +, ?非貪婪匹配(non-greed)</td>
-<td style="text-align:left">字符串’aaaaa’, a{3,4}将会匹配５个a，　而a{3,5}?便只会匹配３个a</td>
-</tr>
-<tr>
-<td style="text-align:center">()</td>
-<td style="text-align:left">子表达式</td>
-<td style="text-align:left">可以向后引用</td>
-</tr>
-<tr>
-<td style="text-align:center">竖线</td>
-<td style="text-align:left">可以匹配前面的字符或者后面的字符</td>
-</tr>
-</tbody>
-</table>
-<p>gr(a|e)y`可以找到 ‘gray’ 或 ‘grey’</p>
-<p> 举例  </p>
-<blockquote>
-<p>字符串1   Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)<br>字符串2   Mozilla/4.75 [en](X11;U;Linux2.2.16-22 i586)   </p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">表达式</th>
-<th style="text-align:left">字符串一</th>
-<th style="text-align:left">字符串二</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">[^A-M]in</td>
-<td style="text-align:left">会从Windows里找到 <strong>Win</strong></td>
-<td style="text-align:left">因为排队A－M所以不会匹配到Linux</td>
-</tr>
-<tr>
-<td style="text-align:center">[a-z])$</td>
-<td style="text-align:left">会从 DigiExt)里找到<strong>t）</strong></td>
-<td style="text-align:left">因为结尾是数字所以不会匹配到</td>
-</tr>
-<tr>
-<td style="text-align:center">.in</td>
-<td style="text-align:left">会从 Windows 里打到 <strong>Win</strong></td>
-<td style="text-align:left">会从Linux里找到<strong>Lin</strong></td>
-</tr>
-<tr>
-<td style="text-align:center">(.*l</td>
-<td style="text-align:left">会匹配到<strong>(compatibl</strong></td>
-<td style="text-align:left">“(“后面没有l所以不会匹配到</td>
-</tr>
-<tr>
-<td style="text-align:center">[Xx][0-9a-z]{2}</td>
-<td style="text-align:left">无匹配虽然有小x但是后面t并没有重复两次</td>
-<td style="text-align:left">会找到X11</td>
-</tr>
-<tr>
-<td style="text-align:center">^([L-Z]in)</td>
-<td style="text-align:left">没有以L-Z开头的字符所以无匹配</td>
-<td style="text-align:left">Lin不在字符串的开头无匹配</td>
-</tr>
-</tbody>
-</table>
-<p><code>((4\.[0-3])\|(2\.[0-3]))</code> 可以在字符串1中找到4.0，在字符串2中找到2.2</p>
-<h3 id="POSIX_Character_Class_Definitions">POSIX Character Class Definitions</h3><p>  POSIX 1003.2第2.8.3.2(6) 定义了一些字符集来表示特定的范围, 虽然看起来很奇怪但是呢也有一些优点的. 下面的内容引用LC_CTYPE POSIX定义</p>
-<ul>
-<li>[:digit:] 相当于[0-9]</li>
-<li>[:alnum:] 相当于[0-9a-zA-Z]</li>
-<li>[:alpha:] 相当于[a-zA-Z]</li>
-<li>[:blank:] 空格或者制表符</li>
-<li>[:xdigit:] 十六进制符相当于[0-9a-fA-F]</li>
-<li>[:punct:] 标点符号 . , “ ‘ ? ! ; : # $ % &amp; ( ) * + - / &lt; &gt; = @ [ ] \ ^ _ { } | ~</li>
-<li>[:print:] 任何可打印的字符</li>
-<li>[:space:] 任何空格(space, tab, NL, FF, VT, CR). 很多时候用 \s.</li>
-<li>[:graph:] 排除空格 (SPACE, TAB). Many system abbreviate as \W.</li>
-<li>[:upper:] 相当于[A-Z]</li>
-<li>[:lower:] 相当于[a-z]</li>
-<li>[:cntrl:] 控制字符 NL CR LF TAB VT FF NUL SOH STX EXT EOT ENQ ACK SO SI DLE DC1 DC2 DC3 DC4 NAK SYN ETB CAN EM SUB ESC IS1 IS2 IS3 IS4 DEL.</li>
-</ul>
-<h3 id="一些扩展和缩写">一些扩展和缩写</h3><p>  有些程序（ruby, python, js, php）支持扩展和缩写正则表达式, 这些扩展将在下面列出，一般来说这些扩展都是由PERL（perl compatible regular Expressions） 定义。</p>
-<ol>
-<li>Character Class Abbreviations</li>
-</ol>
-<ul>
-<li>\d 匹配数字，(equivalent of POSIX [:digit:])</li>
-<li>\D 匹配任意非数字字符(equivalent of POSIX [^[:digit:]])</li>
-<li>\s 匹配空格字符(space, tab etc.). (equivalent of POSIX [:space:] EXCEPT VT is not recognized)</li>
-<li>\S 匹配任何非空格字符(space, tab). (equivalent of POSIX [^[:space:]])</li>
-<li>\w 匹配任何数字与字母（大小）字符(equivalent of POSIX [:alnum:])</li>
-<li>\W 匹配任何非数字与字母（大小）字符 (equivalent of POSIX [^[:alnum:]])</li>
-</ul>
-<ol>
-<li>Positional Abbreviations</li>
-</ol>
-<ul>
-<li>\b 单词边界，<code>\bxx</code>匹配以xx开始的词，<code>xx\b</code>匹配以xx结束的词.  <code>\bton\b</code> 可以找到ton但是找不到tons, <code>\bton</code>就会找到 tons.</li>
-<li>\B 非单词边界，匹配任意不以xx开始或者结束的词. <code>\Bton\B</code>会找到wantons找不到tons, <code>ton\B</code>会找到 wantons 和 tons.</li>
-</ul>
-<p><img src="/images/regular-expression.png" alt="regular expression"></p>
-<hr>
-<h2 id="python_中的re包，">python 中的re包，</h2><p>　python里的re使用方法, 后面的语法是结合complie使用pos是position的缩写意思是从什么位置开始匹配，什么位置结束。</p>
-<ul>
-<li><strong>re.compile(pattern, flags=0)</strong>   先把pattern编译然后再用正则表达式的方法调用  </li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>prog = re.compile(pattern)</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>result = prog.match(string)</span><br></pre></td></tr></table></figure>
-<p>相当于</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>result = re.match(pattern, string)</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p><strong>re.search(pattern, string, flags=0) , regex.search(string[, pos[, endpos]])</strong><br>扫描整个字符串找到第一个regular expression pattern 匹配到的位置然后返回符合pattern的match object,　如果未找到便返回　None .</p>
-</li>
-<li><p><strong>re.match(pattern, string, flags=0)　　regex.match(string[, pos[, endpos]])</strong><br>如果在这个string的开始匹配到字符，那么就返回相应的match object,　匹配不到便会返回　None  </p>
-</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m=re.search(<span class="string">"a\w+"</span>,<span class="string">"bcdfa\na1b2c3"</span>)</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>n=re.match(<span class="string">"a\w+"</span>,<span class="string">"bcdfa\na1b2c3"</span>)</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group()</span><br><span class="line"><span class="string">'a1b2c3'</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>print(n)</span><br><span class="line"><span class="keyword">None</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>re.split(pattern, string, maxsplit=0, flags=0)，　regex.split(string, maxsplit=0)</strong><br>用能够匹配到的字符来分隔字符串，maxsplit默认是最大分隔，指定数字后为最大分隔数</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>re.split(<span class="string">'\W+'</span>, <span class="string">'Words, words, words.'</span>)</span><br><span class="line">[<span class="string">'Words'</span>, <span class="string">'words'</span>, <span class="string">'words'</span>, <span class="string">''</span>]</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>re.split(<span class="string">'(\W+)'</span>, <span class="string">'Words, words, words.'</span>)</span><br><span class="line">[<span class="string">'Words'</span>, <span class="string">', '</span>, <span class="string">'words'</span>, <span class="string">', '</span>, <span class="string">'words'</span>, <span class="string">'.'</span>, <span class="string">''</span>]</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>re.split(<span class="string">'\W+'</span>, <span class="string">'Words, words, words.'</span>, <span class="number">1</span>)</span><br><span class="line">[<span class="string">'Words'</span>, <span class="string">'words, words.'</span>]</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>re.split(<span class="string">'[a-f]+'</span>, <span class="string">'0a3B9'</span>, flags=re.IGNORECASE)</span><br><span class="line">[<span class="string">'0'</span>, <span class="string">'3'</span>, <span class="string">'9'</span>]</span><br></pre></td></tr></table></figure>
-<p>如果有字符串的形状找到一个或者多个分隔符，那么在结果中便会以一个空字符开始，结尾有字符也是一样的</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>re.split(<span class="string">'(\W+)'</span>, <span class="string">'...words, words...'</span>)</span><br><span class="line">[<span class="string">''</span>, <span class="string">'...'</span>, <span class="string">'words'</span>, <span class="string">', '</span>, <span class="string">'words'</span>, <span class="string">'...'</span>, <span class="string">''</span>]</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p><strong>re.findall(pattern, string, flags=0), regex.findall(string[, pos[, endpos]])</strong><br>用列表的方式返回匹配到的字符，</p>
-</li>
-<li><p><strong>re.finditer(pattern, string, flags=0), regex.finditer(string[, pos[, endpos]])</strong><br>用迭代的方式返回匹配到的字符，</p>
-</li>
-<li><p><strong>re.sub(pattern, repl, string, count=0, flags=0), regex.sub(repl, string, count=0)</strong><br>把用样式匹配到的字符换成repl。如果没有匹配到字符便返回原string。　repl可以是字符，也可以是函数，当repl是一个字符串时，可以使用\id或\g\<id\>、\g\<name\>引用分组，但不能使用编号0。 </name\></id\></p>
-</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dashrepl</span><span class="params">(matchobj)</span>:</span></span><br><span class="line">	<span class="keyword">if</span> matchobj.group(<span class="number">0</span>) == <span class="string">'-'</span>: </span><br><span class="line">		<span class="keyword">return</span> <span class="string">' '</span></span><br><span class="line">	<span class="keyword">else</span>: </span><br><span class="line">		<span class="keyword">return</span> <span class="string">'-'</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>re.sub(<span class="string">'-&#123;1,2&#125;'</span>, dashrepl, <span class="string">'pro----gram-files'</span>)</span><br><span class="line"><span class="string">'pro--gram files'</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>re.sub(<span class="string">r'\sAND\s'</span>, <span class="string">' &amp; '</span>, <span class="string">'Baked Beans And Spam'</span>, flags=re.IGNORECASE)</span><br><span class="line"><span class="string">'Baked Beans &amp; Spam'</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><p><strong>re.subn(pattern, repl, string, count=0, flags=0)</strong><br>与sub用法一亲但是返回一个数组(new_string, number_of_subs_made).</p>
-</li>
-<li><p><strong>re.escape(string)</strong><br>Escape all the characters in pattern except ASCII letters, numbers and ‘_’. This is useful if you want to match an arbitrary literal string that may have regular expression metacharacters in it.</p>
-</li>
-</ul>
-<h3 id="Match_Objects">Match Objects</h3><p>  match object提供了很多方法与属性</p>
-<ul>
-<li><strong>match.expand(template)</strong> 将匹配到的分组代入template中然后返回。template中可以使用\id或\g\<id\>、\g\<name\>引用分组，但不能使用编号0。\id与\g\<id\>是等价的；但\10将被认为是第10个分组，如果你想表达\1之后是字符’0’，只能使用\g\<1\>0。</1\></id\></name\></id\></li>
-</ul>
-<ul>
-<li><strong>match.group([group1, …])</strong> 获得一个或多个分组截获的字符串；指定多个参数时将以元组形式返回。如果里面无参数默认为０，返回所有匹配的子符串</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m = re.match(<span class="string">r"(\w+) (\w+)"</span>, <span class="string">"Isaac Newton, physicist"</span>)</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group(<span class="number">0</span>)       <span class="comment"># The entire match</span></span><br><span class="line"><span class="string">'Isaac Newton'</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group(<span class="number">1</span>)       <span class="comment"># The first parenthesized subgroup.</span></span><br><span class="line"><span class="string">'Isaac'</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group(<span class="number">2</span>)       <span class="comment"># The second parenthesized subgroup.</span></span><br><span class="line"><span class="string">'Newton'</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group(<span class="number">1</span>, <span class="number">2</span>)    <span class="comment"># Multiple arguments give us a tuple.</span></span><br><span class="line">(<span class="string">'Isaac'</span>, <span class="string">'Newton'</span>)</span><br></pre></td></tr></table></figure>
-<p>如果使用(?P\<name\>…)表达式，那么便会吧每个子组用name来命名，</name\></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m = re.match(<span class="string">r"(?P&lt;first_name&gt;\w+) (?P&lt;last_name&gt;\w+)"</span>, <span class="string">"Malcolm Reynolds"</span>)</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group(<span class="string">'first_name'</span>)</span><br><span class="line"><span class="string">'Malcolm'</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group(<span class="string">'last_name'</span>)</span><br><span class="line"><span class="string">'Reynolds'</span></span><br></pre></td></tr></table></figure>
-<p>这里也可以用数字来提取</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group(<span class="number">1</span>)</span><br><span class="line"><span class="string">'Malcolm'</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.group(<span class="number">2</span>)</span><br><span class="line"><span class="string">'Reynolds'</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>match.groups(default=None)</strong> 将所有匹配到的子组用tuple 的方式返回，</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m = re.match(<span class="string">r"(\d+)\.(\d+)"</span>, <span class="string">"24.1632"</span>)</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.groups()</span><br><span class="line">(<span class="string">'24'</span>, <span class="string">'1632'</span>)</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>match.groupdict(default=None)</strong>  将所有匹配到的子组用dic　的方式返回，key 是子组的名字.</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m = re.match(<span class="string">r"(?P&lt;first_name&gt;\w+) (?P&lt;last_name&gt;\w+)"</span>, <span class="string">"Malcolm Reynolds"</span>)</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>m.groupdict()</span><br><span class="line">&#123;<span class="string">'first_name'</span>: <span class="string">'Malcolm'</span>, <span class="string">'last_name'</span>: <span class="string">'Reynolds'</span>&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="re_in_linux">re in linux</h2><p>在linux中使用re请参见另一篇文章 linux三剑客</p>
-
-            
+             正则表达式是为处理大量字符串而定义的方法。 正则表达式分基本正则表达式（Basic Regular Expressions,BERs）和扩展正则表达式（Extended Regular Expressions,EREs）. EREs基本包含BERs，而且还包含更多功能. EREs现在已经被应用于 Apache, PERL, PHP, python. 以及VI，emac,grep awk和sed…
+            ...
           </span>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/regular-expressions/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
         
       
     </div>

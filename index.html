@@ -327,97 +327,14 @@
         
           <span itemprop="articleBody">
             
-              <h2 id="redis的一些特征">redis的一些特征</h2><p>REmote dictionary server(redis)是基于key-value键值对待久化的数据库存储系统，redis支持的数据存储类型更丰富，包括string, list, set, zset. hashes, 而且这些类型都支持push/pop , add/remove.及交集并集差集。<br>redis，可以持久化存储数据，支持超过10万+每秒读写频率，所有的操作都是原子性的，支持对几个操作合并后原子性执行。</p>
-<p>redis 可以不用配置文件来启动程序，不过这种方法适合于开发与测试，合理的配置redis的方式是提供一个redis配置文件，这个文件通常叫做redis.conf, 这个配置文件的方式是用非常简单的格式例如：<br><code>keyword argument1 argument2 ... argumentN</code><br><strong>这里要注意的是如果一个参数中有空格可以使用双引号括起来</strong></p>
-<ol>
-<li><strong>通过命令传参</strong><br>从2.6 之后便可以用命令来直接传参进去，这是对于测试来说是非常有用的功能，下面有一个例子，以6380这个端品开启redis,例配置它为127.0.0.1:6379的redis实例的slave<br><code>./redis-server --port 6380 --slaveof 127.0.0.1 6379</code><br>传参的格式与配置redis.conf的参数一样，唯一不同的是需要在关键字之前加上前缀 <code>--</code>这里需要注意的是传参的过程会在内存中生成一个临时的配置文件，这些传递的参数也会转化成跟redis配置文件一样的格式。</li>
-<li><strong>redis启动后更改redis的配置</strong><br>redis允许在运行的过程中，在不重启服务器的情况下更改服务器的配置，同时支持使用特殊的命令 CONFIG SET, CONFIG GET 来查询并设置配置。有些配置并不支持这个功能，具体以后再讲，在运行的过程中修改的配置并不会在redis.conf文件中生效，所以最好同时也修改了redis.con方便重启redis后的配置与之前相同。也可以使用<code>CONFIG REWRITE</code> 可以自动的扫描redis.conf，然后更新与当前配置不匹配的选项，不存在的会增加，多于的会被注释。<code>Fields non existing but set to the default value are not added. Comments inside your configuration file are retained.</code> </li>
-<li><p><strong>把redis配置成为一个缓存</strong><br>如果仅需要把redis当做一个缓存来用的话，所有的key都有过期时间，可以考虑使用下面的配置（假设最大内存使用量为2M）</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">maxmemory <span class="number">2</span>mb</span><br><span class="line">maxmemory-policy allkeys-lru</span><br></pre></td></tr></table></figure>
-<p>以上配置不需要使用<code>EXPIRE</code>（或者相似命令）命令来让key一直保留，当使用LRU算法接近内存最大限制时所有的key都会被释放</p>
-</li>
-</ol>
-<p>当redis当做缓存来使用就相当于memcached，也可以同时使用redis当成存储系统来使用，使用两个redis实例，一个是缓存，另一个是存储，根据应用持久化需求进行配置，并且只存储那些不需要被缓存的数据</p>
-<h2 id="redix-conf的配置参数详解">redix.conf的配置参数详解</h2><h3 id="general">general</h3><ul>
-<li><code>include</code> 把其它的配置文件也引到redis.conf里面来，这是一个非常有用的选项，可以灵活的配置include file, 而且这些配置不会被<code>CONFIG REWRITE</code> rewirte，所以redis会一直引用这些文件。 <code>include /path/to/local.conf</code></li>
-<li>GENERAL<ul>
-<li><code>daemonize no</code> 默认情况下不启用daemon进程启动使用<code>yes</code></li>
-<li><code>tcp-backlog 511</code> 在高的requests-per-second 环境上需要使用高的backlog来避免连接延迟，对应还需要了解的两个知识 <code>/proc/sys/net/core/somaxconn，tcp_max_syn_backlog</code></li>
-<li><code>bind 192.168.1.100 10.0.0.1</code> redis默认是监听网络上的所有连接，也可以使用bind指定</li>
-<li><code>timeout 0</code> 客户端连接超时时间单位为秒，超时后关闭连接</li>
-<li><code>loglevel notice</code> 四个值debug(非常多的信息用于开发使用), verbose(非常稀少的有用信息), notic(适当的信息适用于生产环境), warning(只列出非常重要的信息).</li>
-<li><code>logfile &quot;&quot;</code> 默认是打到终端上，也可以指定到文件或者定向到空</li>
-<li><code>databases 16</code> 要k用数据库数，可以用SELECT来切换数据库</li>
-</ul>
-</li>
-</ul>
-<h2 id="snapshots">snapshots</h2><ul>
-<li>设置redis进行数据库镜像频率，保存数据到disk的策略可以关闭持久化，注释掉或者写成<code>svae &quot;&quot;</code><ul>
-<li><code>save 900 1</code>  # 900秒呢发生1次keys变化</li>
-<li><code>save 300 10</code> # 300秒内发生10个keys变化</li>
-<li><code>save 60 1000</code> # 60 秒呢发生1000个keys变化 </li>
-</ul>
-</li>
-<li><code>rdbcompression yes</code> 保存时是进行压缩 为保持CPU和字进程可以改为no不会数据会很大</li>
-<li><code>rdbchecksum yes</code> 如果后台磁盘发生错误停止写操作</li>
-<li><code>dbfilename dump.rdb</code> 镜像备份文件的文件名。</li>
-<li><code>dir ./</code> 数据库镜像备份的文件放置路径，路径与文件名分开配置因为redis备份时，先会将当前数据库状态写放到一个临时文件等备份完成时再把临时文件替换为上面指定的文件，而临时文件与指定文件都会放到这个指定的路径。</li>
-</ul>
-<h2 id="replication_主从复制">replication 主从复制</h2><p><a href="http://redis.io/topics/replication" target="_blank" rel="external">官方文档replication</a><br>redis复制很简单，它通过配置 master-slvae 复制来让slvae redis server 精准拷贝master servers. redis复制的几个特性：</p>
-<ul>
-<li>一个master 可以有多个slaves</li>
-<li>redis 使用的是 异步复制(asynchronous replicatiom), 从redis 2.8开始，slave会周期性告知master复制数据流时的过程</li>
-<li>slaves 可以连接其它的slaves, 除了连接同一个master，也可以像同一个结构图中与其他slaves建立链接</li>
-<li>redis 从master复制是非阻塞的,这就意味着master在对一个或多个slave端同步时也可以查询</li>
-<li>同时在slaves端也是非阻塞的，假设在redis.conf里配置了redis, 当slave在执行同步时，可以接受查询旧的信息，否则就会发送一个错误到客户端。但是在同步完成后老的数据会被删除，新的数据会被载入进来</li>
-<li>replication也可以提高性能, 以达到多个slaves仅做只读查询(如果做一个heavy sort 操作，在数据冗余(date redundancy)后就变的相对简单)</li>
-<li>使用复制也可以避免master把所有的数据写到disk时的开销, 仅需要要在master里配置redis.conf来避免保存，使用slave通过链接来实时保存。这个配置必须保证master 不会自动重启。</li>
-</ul>
-<h3 id="replication_原理">replication 原理</h3><p><strong>当master持续关机时的安全复制</strong><br>当redis 复制在进行的时候，强烈建议master持续开机，如果实在没办法那么就需要配置<code>avoid restarting automatically</code>,<br>为了更好的理解为什么 master 持续关机后再重启是非常危险的，下面一个例子就是说明数据如何从master slaves里都清空</p>
-<ol>
-<li>我们设置 A为 master, 然后持续关机，然后 B C 会从A 上复制数据</li>
-<li>A crashes， 虽然A 有自动重启机制，重启进程，但是从持续关机到重启，这个节点是一个空的数据</li>
-<li>B C 会从A 上复制， 但A是空的，所以他们都会销毁copy过来的数据</li>
-</ol>
-<p>当redis 哨兵在高可用(high avaliability)的时候会使用到,但是关机master进程或者重启也是一个非常危险的动作。在高可用的时候redis进程可以非常快速的重启，redis哨兵都不会觉察到异常，所以上面的模型还是会发生</p>
-<p><strong>redis 复制怎么工作的</strong><br>如果设置好了slave,连接之后发送了一个SYNC 命令，不管他是第一次或者是重新链接，master 便开始后台保存，然后开始缓存所有新的命令来修改数据。 当后台成功保存到disk,然后再载入到内存，这时候master才会把缓存的命令发给slaves,这就像一个流命令，与redis protocol 类似<br>你可以试着通过远程登录，来连接redis port, 当服务器在做一些工作并发送同步命令时，你会看到大量数据传输，每一个命令都从master上承接下来然后显示到telnet 会话中<br>当master—-slaves 因某些原因中断后slaves 可以自动重新链接master 如果master接收到多个并发的slave 同步请求，它执行一个backgroud save 来响应这些请求<br>当master与slave重新建立链接，便会执行一个完整同步。从2.8开始，部分同步也是有可能的</p>
-<p><strong>部分同步</strong><br>从2.8开始，在master —slave重新链接后，在复制链接重新链接后，经常会继续复制 process而不需要做一次完整的同步，这主要是因为在master这边会创建一个 in-memory backlog of 复制 stream。 the master and all the slaves agree on a 复制 offset and a master run id, 所以当链接断开后slave会重新链接然后向master语法继续复制.如果master 的 run id 还是一样的，offset specified 同样也在复制 backlog里，那么将会从断开那点开始继续复制。 如果两个都不满足那么就会做一个完整的同步。如果一个链接到master 的run id 没有保存到磁盘，当slave重新后便会做一次完整的同步。</p>
-<p>部分同步(partial resynchronization ) 这个特殊将会使用<code>PSYNC</code> 命令，注意在2.8之后才支持<code>PSYNC</code>如果一个salve使用的是老的版本仅支持<code>SYNC</code>命令，那么将会用SYNC来同步</p>
-<p><strong>无磁盘的复制</strong><br>通常一个同步需要在磁盘上创建一个RDB文件，然后再重新加载这个文件来进行与slave数据同步<br>由于磁盘的读写是非常慢的，这对于redis master是一个非常有压力的操作，在2.8.18之后的第一个版来尝试使用无磁盘的复制，在这个设置里了进程直接把RDB 发送到slaves,而不需要使用磁盘来做中间的存储</p>
-<h3 id="replication配置">replication配置</h3><p>配置replication非常简单，仅需要在slave配置中增加一行就OK<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">slaveof <span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span> <span class="number">6379</span></span><br></pre></td></tr></table></figure></p>
-<p>第二个，第三个参数是master IP与port,可以根据自己需求更改，我们也可以在master上使用<code>SLAVEOFF</code>命令来对slave进行同步<br>在master上也有一些参数用来调整复制backlog 到内存的大小。用来进行部分复制。<br>如果使用无磁盘的复制，可以开启<code>repl-diskless-sync</code> 这个参数，<code>repl-diskless-sync-delay</code>开始传输后的延迟时间，为了等待更的slaves的请求，</p>
-<h3 id="slave只读">slave只读</h3><p>从redis2.6开始slaves可以支持只读模式，这个行为是用<code>slave-read-only</code>参数来控制，也可以使用命令<code>CONFIG SET</code> 来开启或关闭<br>只读模式将会拒绝所有写的命令，所以对slave进行写是不可能的。这并不意味着该功能的目录是揭露从实例到网络或者更一般的到客户端存在的网张。因为像<code>BDEUG, CONFIG</code> 管理命令可以运行的。(This does not mean that the feature is intended to expose a slave instance to the internet or more generally to a network where untrusted clients exist, because administrative commands like DEBUG or CONFIG are still enabled.) 不过出于安全的只读实例可以使用<code>rename-command</code> 让这些命令disabling </p>
-<p><strong>设置slave到master的认证</strong><br>如果master有是通过密码登陆<code>requirepass</code>，那么在slave下也需要使用密码来同步数据<br>运行一个redis-cli实例然后输放 <code>config set masterauth &lt;password&gt;</code> 如果需要设置永久的密码可以在配置文件中增加<code>masterauth &lt;password&gt;</code>  </p>
-<p><strong>一次写放多次复制</strong><br>从2.8开始，可以配置master用来接受多个请求假使有最少N个slaves一起连接到master. 因为redis使用的是异步复制，不能保证slave直正的接收到写请求。所以总会有一个窗口用来显示数据的丢失。</p>
-<ul>
-<li>slaves 会一直ping master (每秒)，用来告知复制流进程的总数</li>
-<li>master 会记住每个slave最后一次接收到的ping的信息</li>
-<li>用户配置slave的最小链接数以及最大延迟数</li>
-</ul>
-<p>如果有少于n个slave，和小于最大延迟数为m秒，那么写操作才会被接受。You may think at it as a relaxed version of the “C” in the CAP theorem, where consistency is not ensured for a given write, but at least the time window for data loss is restricted to a given number of seconds.<br>这里有两个参数</p>
-<ul>
-<li><code>min-slaves-to-write &lt;number of slaves&gt;</code></li>
-<li><code>min-slaves-max-lag &lt;number of seconds&gt;</code></li>
-</ul>
-<h3 id="replication_配置总结">replication 配置总结</h3><ul>
-<li><code>slaveof &lt;masterip&gt; &lt;masterport&gt;</code> 设置master ip 与端口</li>
-<li><code>masterauth &lt;master-password&gt;</code> 设置mstater 密码如果master是有密登录</li>
-<li><code>slave-serve-stale-data yes</code> 当复制正在进行时slave与master链接断掉，有两种方式 yes是slave会继续回应客户端的请求，可能有过时的数据，<code>no</code> slave就会对除了<code>INFO SLAVEOF</code>的其它命令回复一个eroor 给客户端<code>SYNC with master in progress</code> </li>
-<li><code>slave-read-only yes</code> slave只允许读取数据</li>
-<li><code>repl-diskless-sync no</code>不通过磁盘来同步（试验阶段）</li>
-<li><code>repl-diskless-sync-delay 5</code> 当无磁盘同步开启后需要配置一个延迟时间，以保证接受多个slave的同步请求，默认为5秒</li>
-<li><code>repl-ping-slave-period 10</code> 多少秒ping一次master</li>
-<li><code>repl-timeout 60</code> 复制的超时时间，这个时间一定要大于ping的时间</li>
-<li><code>repl-disable-tcp-nodelay no</code> TCP_NODELAY，yes表示使用非常小的TCP包数和非常小的宽带来发送数据。slave那边可以增加一个延迟时间</li>
-<li><code>repl-backlog-size 1mb</code>  backlog的大小，backlog是一个用来积累当slave没有链接后数据的缓存，重新链接后就不需要完整同步啦。backlog越大，slave断开的时间就越长，再次同步的便会越迟</li>
-<li><code>repl-backlog-ttl 3600</code> 断开链接多少秒后释放backlog，0表示永远不释放</li>
-<li><code>slave-priority 100</code> slave优先级是当master down了之后被redis哨兵拿来从slave中晋先新的master,数字越小优先级越高，0表示永远不晋选为master</li>
-<li><code>min-slaves-to-write 3</code> 最小slave链接数默认为0</li>
-<li><code>min-slaves-max-lag 10</code> 最小的slave，最大延迟数默认为10</li>
-</ul>
-
-            
+            redis的一些特征REmote dictionary server(redis)是基于key-value键值对待久化的数据库存储系统，redis支持的数据存储类型更丰富，包括string, list, set, zset. hashes, 而且这些类型都支持push/pop , add/remove.及交集并集差集。redis，可以持久化存储数据，支持超过10万+每秒读写频率，所有的操作都是原子
+            ...
           </span>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/redis-replication/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -517,339 +434,18 @@
         
           <span itemprop="articleBody">
             
-              <h2 id="shell定义变量以及调用变量">shell定义变量以及调用变量</h2><p>运行shell 时会遇到三种变量</p>
-<ul>
-<li>局部变量, 在脚本或命令中定义，仅在当前shell实例中有效，其他shell启动的程序不能访问局部变量。</li>
-<li>环境变量, 所有的程序，包括shell启动的程序，都能访问环境变量，有些程序需要环境变量来保证其正常运行。必要的时候shell脚本也可以定义环境变量。</li>
-<li>shell变量, 是由shell程序设置的特殊变量。shell变量中有一部分是环境变量，有一部分是局部变量，这些变量保证了shell的正常运行</li>
-</ul>
-<p>定义变量时，变量名开始必须以[a-zA-Z]开始，中间不可以有空格或标点符号（可以用“_”)，变量名不可以使用bash的关键字。<br>调用变量，只需要在变量名前加”$”便可以了，考虑到解释器识别边界的问题，一般我们会在变量名外加大括号来确定变量名<br>删除变量可以用 <code>unset</code> 来取消变量的定义 .</p>
-<p>现在我们便创建一个test.sh文件并且给它执行权限在里面输入以下内容</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#! /bin/sh</span><br><span class="line"></span></span><br><span class="line"><span class="comment">#变量定义举例： </span></span><br><span class="line">myName=<span class="string">"sandow"</span></span><br><span class="line">myUrl=<span class="string">"gsandow.com"</span></span><br><span class="line">myAge=<span class="number">31</span>  </span><br><span class="line"><span class="comment">#调用变量</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"hell everyone my name is <span class="variable">$myName</span>, my blog site is <span class="variable">$myUrl</span>,"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Today, I'm <span class="variable">$&#123;myAge&#125;</span>years old"</span></span><br><span class="line"><span class="comment">#删除变量</span></span><br><span class="line"><span class="built_in">unset</span> myName</span><br></pre></td></tr></table></figure>
-<p>大括号（花括号）是为了让解释器识别变量名的边界，如果不加的话变量名就成了 $myAgeyears 这个变量名为空，输出来的便只有 <strong>Todey, I’m old</strong>  这样与期望值并不一样。</p>
-<h3 id="在shell中的特殊变量名">在shell中的特殊变量名</h3><table>
-<thead>
-<tr>
-<th style="text-align:center">变量</th>
-<th style="text-align:left">含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">$0</td>
-<td style="text-align:left">当前脚本的文件名</td>
-</tr>
-<tr>
-<td style="text-align:center">$n</td>
-<td style="text-align:left">传递给脚本或函数的参数。</td>
-</tr>
-<tr>
-<td style="text-align:center">$#</td>
-<td style="text-align:left">传递给脚本或函数的参数个数。</td>
-</tr>
-<tr>
-<td style="text-align:center">$*</td>
-<td style="text-align:left">传递给脚本或函数的所有参数。</td>
-</tr>
-<tr>
-<td style="text-align:center">\$@</td>
-<td style="text-align:left">传递给脚本或函数的所有参数。被双引号(“ “)包含时，与 \$* 稍有不同</td>
-</tr>
-<tr>
-<td style="text-align:center">\$?</td>
-<td style="text-align:left">上个命令的退出状态，或函数的返回值。</td>
-</tr>
-<tr>
-<td style="text-align:center">\$\$</td>
-<td style="text-align:left">当前Shell进程ID。对于 Shell 脚本，就是这些脚本所在的进程ID。</td>
-</tr>
-</tbody>
-</table>
-<p>转参的时候要注意加引号与不加引号的区别具体一个例子便可说明一切<br><code>sh tesh.sh &quot;a b c&quot; d</code><br>下面是tesh.sh的命令与结果<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/bash</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$1</span></span><br><span class="line"><span class="comment"># a b c</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$2</span></span><br><span class="line"><span class="comment"># d</span></span><br><span class="line"><span class="keyword">for</span> a <span class="keyword">in</span> $*</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">  <span class="built_in">echo</span> $*</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"><span class="comment"># $*与$@ 这样的输出都一样</span></span><br><span class="line"><span class="comment">#a</span></span><br><span class="line"><span class="comment">#b</span></span><br><span class="line"><span class="comment">#c</span></span><br><span class="line"><span class="comment">#d</span></span><br><span class="line"><span class="comment">#下面是区别</span></span><br><span class="line"><span class="keyword">for</span> a <span class="keyword">in</span> <span class="string">"<span class="variable">$@</span>"</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="variable">$a</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"><span class="comment">#结果是</span></span><br><span class="line"><span class="comment">#a b c</span></span><br><span class="line"><span class="comment">#d</span></span><br><span class="line"><span class="keyword">for</span> a <span class="keyword">in</span> <span class="string">"$*"</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="variable">$a</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"><span class="comment">#结果是</span></span><br><span class="line"><span class="comment">#a b c d</span></span><br></pre></td></tr></table></figure></p>
-<p>一句话来总结那就是\$*会把传进来的参数看做一个整体，\$@是把每一个参数看做一个独立的参数</p>
-<p><strong>$n</strong> n 是一个数字，表示第几个参数,例 <code>$1</code> 。 如果超过10便需要写成 <code>${10}</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/bash</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"File Name: <span class="variable">$0</span>"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"First Parameter : <span class="variable">$1</span>"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Second Parameter : <span class="variable">$2</span>"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Quoted Values: <span class="variable">$@</span>"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Quoted Values: $*"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"Total Number of Parameters : <span class="variable">$#</span>"</span></span><br></pre></td></tr></table></figure>
-<p>我们在命令行输入<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./<span class="keyword">test</span>.<span class="keyword">sh</span> hello world</span><br></pre></td></tr></table></figure></p>
-<p>便可以得到下面结果<br>./tesh.sh<br>hello<br>world<br>hello world<br>hello world<br>2</p>
-<h3 id="变量赋值与转换">变量赋值与转换</h3><table>
-<thead>
-<tr>
-<th style="text-align:left">形式</th>
-<th style="text-align:left">说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">\${var}</td>
-<td style="text-align:left">变量本来的值</td>
-</tr>
-<tr>
-<td style="text-align:left">\${var:-word}</td>
-<td style="text-align:left">如果变量 var 为空或已被删除(unset)，那么返回 word，但不改变 var 的值。</td>
-</tr>
-<tr>
-<td style="text-align:left">\${var:=word}</td>
-<td style="text-align:left">如果变量 var 为空或已被删除(unset)，那么返回 word，并将 var 的值设置为 word。</td>
-</tr>
-<tr>
-<td style="text-align:left">\${var:?message}</td>
-<td style="text-align:left">如果变量 var 为空或已被删除(unset)，那么将消息 message 送到标准错误输出，可以用来检测变量 var 是否可以被正常赋值。 若此替换出现在Shell脚本中，那么脚本将停止运行。</td>
-</tr>
-<tr>
-<td style="text-align:left">\${var:+word}</td>
-<td style="text-align:left">如果变量 var 被定义，那么返回 word，但不改变 var 的值。</td>
-</tr>
-</tbody>
-</table>
-<h3 id="字符串的处理">字符串的处理</h3><p>类似python中的<code>len</code> <code>[1:4]</code>，shell是也可以读取字符串的长度，以及对字符串切片，下面来看个例子<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">string=<span class="string">"sandow is a gentleman"</span></span><br><span class="line">a=<span class="variable">$&#123;#string&#125;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$a</span>   <span class="comment">#结果为20</span></span><br><span class="line">b=<span class="variable">$&#123;string:1:5&#125;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$b</span>  <span class="comment">#结果为andow</span></span><br></pre></td></tr></table></figure></p>
-<h3 id="shell中的数组">shell中的数组</h3><p>语法 <code>array_name=(value0 value1 value2 value3)</code><br>数组的定义是用小括号，里面的值用空格隔开下面来看个例子<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ip=(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span>)</span><br><span class="line"><span class="keyword">for</span> a <span class="keyword">in</span> `seq <span class="number">0</span> <span class="variable">$&#123;#ip[@]&#125;</span>`</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="variable">$&#123;ip[$a]&#125;</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"><span class="comment">#读取数组中某个值时可以用 $&#123;array_name[index]&#125; </span></span><br><span class="line"><span class="comment">#读取所有值可以用 “*” 或者 “@” </span></span><br><span class="line"><span class="comment">#计算长度仅需要要array_name前加 “#” 与之前一样</span></span><br></pre></td></tr></table></figure></p>
-<h2 id="shell里的运算">shell里的运算</h2><p>在原生bash中不支持简单的数学运算，但是可以通过其他命令来实现，例如 awk 和 expr，expr 最常用。<br>在使用expr时的格式为 <code>expr 1 + 2</code> </p>
-<p><code>a=10   b=20</code> 请记住这两个数据，下面很多地方会用到</p>
-<h3 id="算术运算符">算术运算符</h3><table>
-<thead>
-<tr>
-<th style="text-align:center">运算符</th>
-<th style="text-align:center">说明</th>
-<th style="text-align:left">举例</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">+</td>
-<td style="text-align:center">加法</td>
-<td style="text-align:left"><code>expr $a + $b</code> 结果为 30。</td>
-</tr>
-<tr>
-<td style="text-align:center">-</td>
-<td style="text-align:center">减法</td>
-<td style="text-align:left"><code>expr $a - $b</code> 结果为 10。</td>
-</tr>
-<tr>
-<td style="text-align:center">*</td>
-<td style="text-align:center">乘法</td>
-<td style="text-align:left"><code>expr $a \* $b</code> 结果为  200。</td>
-</tr>
-<tr>
-<td style="text-align:center">/</td>
-<td style="text-align:center">除法</td>
-<td style="text-align:left"><code>expr $b / $a</code> 结果为 2。</td>
-</tr>
-<tr>
-<td style="text-align:center">%</td>
-<td style="text-align:center">取余</td>
-<td style="text-align:left"><code>expr $b % $a</code> 结果为 0。</td>
-</tr>
-<tr>
-<td style="text-align:center">=</td>
-<td style="text-align:center">赋值</td>
-<td style="text-align:left">a=\$b 将把变量 b 的值赋给 a。</td>
-</tr>
-<tr>
-<td style="text-align:center">==</td>
-<td style="text-align:center">相等</td>
-<td style="text-align:left">用于比较两个数字，相同则返回 true。 [ $a == $b ] 返回 false。</td>
-</tr>
-<tr>
-<td style="text-align:center">!=</td>
-<td style="text-align:center">不相等</td>
-<td style="text-align:left">用于比较两个数字，不相同则返回 true。 [ $a != $b ] 返回 true。</td>
-</tr>
-</tbody>
-</table>
-<h3 id="关系运算">关系运算</h3><table>
-<thead>
-<tr>
-<th style="text-align:center">运算符</th>
-<th style="text-align:left">说明</th>
-<th style="text-align:left">举例</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">-eq</td>
-<td style="text-align:left">检测两个数是否相等,相等返回 true</td>
-<td style="text-align:left">[ \$a -eq \$b ] 返回 true</td>
-</tr>
-<tr>
-<td style="text-align:center">-ne</td>
-<td style="text-align:left">检测两个数是否相等，不相等返回 true</td>
-<td style="text-align:left">[ \$a -ne \$b ] 返回 true</td>
-</tr>
-<tr>
-<td style="text-align:center">-gt</td>
-<td style="text-align:left">检测左边的数是否大于右边的，如果是，则返回 true</td>
-<td style="text-align:left">[ \$a -gt \$b ] 返回 false</td>
-</tr>
-<tr>
-<td style="text-align:center">-lt</td>
-<td style="text-align:left">检测左边的数是否小于右边的，如果是，则返回 true</td>
-<td style="text-align:left">[ \$a -lt \$b ] 返回 true</td>
-</tr>
-<tr>
-<td style="text-align:center">-ge</td>
-<td style="text-align:left">检测左边的数是否大等于右边的，如果是，则返回 true</td>
-<td style="text-align:left">[ \$a -ge \$b ] 返回 false</td>
-</tr>
-<tr>
-<td style="text-align:center">-le</td>
-<td style="text-align:left">检测左边的数是否小于等于右边的，如果是，则返回 true</td>
-<td style="text-align:left">[ \$a -le \$b ] 返回 true。</td>
-</tr>
-</tbody>
-</table>
-<h3 id="逻辑运算">逻辑运算</h3><table>
-<thead>
-<tr>
-<th style="text-align:center">运算符</th>
-<th style="text-align:left">说明</th>
-<th style="text-align:left">举例</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">!</td>
-<td style="text-align:left">非运算,表达式为 true 则返回 false</td>
-<td style="text-align:left">[ ! false ] 返回 true</td>
-</tr>
-<tr>
-<td style="text-align:center">-o</td>
-<td style="text-align:left">或运算，有一个表达式为true则返回true</td>
-<td style="text-align:left">[ \$a -lt 20 -o \$b -gt 100 ] 返回 true</td>
-</tr>
-<tr>
-<td style="text-align:center">-a</td>
-<td style="text-align:left">与运算，两个表达式都为true才返回true</td>
-<td style="text-align:left">[ \$a -lt 20 -a \$b -gt 100 ] 返回 false</td>
-</tr>
-</tbody>
-</table>
-<p>###字符串运算符</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">运算符</th>
-<th style="text-align:left">说明</th>
-<th style="text-align:left">举例</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">=</td>
-<td style="text-align:left">检测两个字符串是否相等，相等返回 true</td>
-<td style="text-align:left">[ \$a = \$b ] 返回 false。</td>
-</tr>
-<tr>
-<td style="text-align:center">!=</td>
-<td style="text-align:left">检测两个字符串是否相等，不相等返回 true</td>
-<td style="text-align:left">[ \$a != \$b ] 返回 true</td>
-</tr>
-<tr>
-<td style="text-align:center">-z</td>
-<td style="text-align:left">检测字符串长度是否为0，为0返回 true</td>
-<td style="text-align:left">[ -z \$a ] 返回 false</td>
-</tr>
-<tr>
-<td style="text-align:center">-n</td>
-<td style="text-align:left">检测字符串长度是否为0，不为0返回 true</td>
-<td style="text-align:left">[ -n \$a ] 返回 true</td>
-</tr>
-<tr>
-<td style="text-align:center">str</td>
-<td style="text-align:left">检测字符串是否为空，不为空返回 true</td>
-<td style="text-align:left">[str \$a ] 返回 true</td>
-</tr>
-</tbody>
-</table>
-<h3 id="文件测试运算符">文件测试运算符</h3><p>file=”/var/www/tutorialspoint/unix/test.sh</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">操作符</th>
-<th style="text-align:left">说明</th>
-<th style="text-align:left">举例</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">-b file</td>
-<td style="text-align:left">检测文件是否是<strong>块设备</strong>文件，如果是，则返回 true</td>
-<td style="text-align:left">[ -b \$file ] 返回 false</td>
-</tr>
-<tr>
-<td style="text-align:center">-c file</td>
-<td style="text-align:left">检测文件是否是<strong>字符设备</strong>文件，如果是，则返回 true</td>
-<td style="text-align:left">[ -b \$file ] 返回 false</td>
-</tr>
-<tr>
-<td style="text-align:center">-d file</td>
-<td style="text-align:left">检测文件是否是<strong>目录</strong>，如果是，则返回 true</td>
-<td style="text-align:left">[ -d \$file ] 返回 false</td>
-</tr>
-<tr>
-<td style="text-align:center">-f file</td>
-<td style="text-align:left">检测文件是否是<strong>普通文件</strong>，如果是，则返回 true</td>
-<td style="text-align:left">[ -f \$file ] 返回 true。</td>
-</tr>
-<tr>
-<td style="text-align:center">-g file</td>
-<td style="text-align:left">检测文件是否<strong>设置了SGID位</strong>，如果是，则返回 true</td>
-<td style="text-align:left">[ -g \$file ] 返回 false</td>
-</tr>
-<tr>
-<td style="text-align:center">-k file</td>
-<td style="text-align:left">检测文件是否设置了<strong>粘着位(Sticky Bit)</strong>，如果是，则返回 true</td>
-<td style="text-align:left">[ -k \$file ] 返回 false</td>
-</tr>
-<tr>
-<td style="text-align:center">-p file</td>
-<td style="text-align:left">检测文件是否是具名<strong>管道</strong>，如果是，则返回 true</td>
-<td style="text-align:left">[ -p \$file ] 返回 false </td>
-</tr>
-<tr>
-<td style="text-align:center">-u file</td>
-<td style="text-align:left">检测文件是否设置了<strong>SUID位</strong>，如果是，则返回 true</td>
-<td style="text-align:left">[ -u \$file ] 返回 false。 </td>
-</tr>
-<tr>
-<td style="text-align:center">-r file</td>
-<td style="text-align:left">检测文件是否<strong>可读</strong>，如果是，则返回 true</td>
-<td style="text-align:left">[ -r \$file ] 返回 true</td>
-</tr>
-<tr>
-<td style="text-align:center">-w file</td>
-<td style="text-align:left">检测文件是否<strong>可写</strong>，如果是，则返回 true</td>
-<td style="text-align:left">[ -w \$file ] 返回 true</td>
-</tr>
-<tr>
-<td style="text-align:center">-x file</td>
-<td style="text-align:left">检测文件是否<strong>可执行</strong>，如果是，则返回 true</td>
-<td style="text-align:left">[ -x \$file ] 返回 true</td>
-</tr>
-<tr>
-<td style="text-align:center">-s file</td>
-<td style="text-align:left">检测文件是否<strong>为空</strong>（文件大小是否大于0），不为空返回 true</td>
-<td style="text-align:left">[ -s \$file ] 返回 true</td>
-</tr>
-<tr>
-<td style="text-align:center">-e file</td>
-<td style="text-align:left">检测文件（包括目录）<strong>是否存在</strong>，如果是，则返回 true</td>
-<td style="text-align:left">[ -e \$file ] 返回 true</td>
-</tr>
-</tbody>
-</table>
-<h2 id="shell_中的if_判断语法">shell 中的if 判断语法</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> [ expression <span class="number">1</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">   Statement(s) to be executed <span class="keyword">if</span> expression <span class="number">1</span> is <span class="literal">true</span></span><br><span class="line"><span class="keyword">elif</span> [ expression <span class="number">2</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">   Statement(s) to be executed <span class="keyword">if</span> expression <span class="number">2</span> is <span class="literal">true</span></span><br><span class="line"><span class="keyword">elif</span> [ expression <span class="number">3</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">   Statement(s) to be executed <span class="keyword">if</span> expression <span class="number">3</span> is <span class="literal">true</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">   Statement(s) to be executed <span class="keyword">if</span> no expression is <span class="literal">true</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
-<h2 id="case_语法">case 语法</h2><p>case 与excel里的case类似，取值先匹配每一个模式，模式匹配后，刚执行匹配模式相应命令，而不会继续其他模式。如果无一匹配模式，使用星号“*”<br>来捕获该值，再执行后面的命令。 case的值后面必须为 <code>关键字 in</code>，每一模式必须以左括号结束，取值可以为变量或常数。匹配发现聚会符合某一模式后，其间所有命令开始执行直至遇到<code>;;</code>，结束。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> var <span class="keyword">in</span></span><br><span class="line">pattern1)</span><br><span class="line">    <span class="built_in">command</span>1</span><br><span class="line">    <span class="built_in">command</span>2</span><br><span class="line">    <span class="built_in">command</span>3</span><br><span class="line">    ;;</span><br><span class="line">pattern2）</span><br><span class="line">    <span class="built_in">command</span>1</span><br><span class="line">    <span class="built_in">command</span>2</span><br><span class="line">    <span class="built_in">command</span>3</span><br><span class="line">    ;;</span><br><span class="line">*)</span><br><span class="line">    <span class="built_in">command</span>1</span><br><span class="line">    <span class="built_in">command</span>2</span><br><span class="line">    <span class="built_in">command</span>3</span><br><span class="line">    ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
-<h2 id="for_语法">for 语法</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> 变量 <span class="keyword">in</span> 列表</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    <span class="built_in">command</span>1</span><br><span class="line">    <span class="built_in">command</span>2</span><br><span class="line">    ...</span><br><span class="line">    <span class="built_in">command</span>N</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-<h2 id="while_语法">while 语法</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> <span class="built_in">command</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">   Statement(s) to be executed <span class="keyword">if</span> <span class="built_in">command</span> is <span class="literal">true</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-<h2 id="until_语法">until 语法</h2><p>until 为当command为flase的时候会一直执行下面的命令，直到command为真，这与while刚好相反</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">until <span class="built_in">command</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">   Statement(s) to be executed until <span class="built_in">command</span> is <span class="literal">true</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-<h2 id="函数语法">函数语法</h2><p>function函数用于把代码模块化，为以后方便灵活调用。</p>
-<figure class="highlight ceylon"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="keyword">function</span><span class="number">_n</span>ame () &#123;</span><br><span class="line">    list <span class="keyword">of</span> commands</span><br><span class="line">    [ <span class="keyword">return</span> <span class="keyword">value</span> ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>向函数内传递文件和上面一样 <code>function_name p1 p2 p3</code> 然后在函数内部用  <code>$n</code> 调用</p>
+            shell定义变量以及调用变量运行shell 时会遇到三种变量
 
-            
+局部变量, 在脚本或命令中定义，仅在当前shell实例中有效，其他shell启动的程序不能访问局部变量。
+环境变量, 所有的程序，包括shell启动的程序，都能访问环境变量，有些程序需要环境变量来保证其正常运行。必要的时候shell脚本也可以定义环境变量。
+shell变量, 是由shell程序设置的特殊变量。shell变量中有一部分
+            ...
           </span>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/shell/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -949,51 +545,15 @@
         
           <span itemprop="articleBody">
             
-              <p>##varnish squid 简单介绍</p>
-<p><strong>Varnish</strong>是一款高性能、开源的反向代理服务器和缓存服务器.其开发者Poul-Henning Kamp是FreeBSD核心的开发人员之一。Varnish采用全新的软件体系结构，和现在的硬件体系配合比较紧密。Varnish采用VCL的配置，而且具有强大的管理功能，如top、stat、admin、lis，管理方式比较灵活。Varnish的状态机设计不仅巧妙，结构也很清晰，利用二叉堆管理缓存文件，即可达到随时删除的目的。。目前Varnish3.0版本解决了服务器重启后Varnish缓存消失的问题，性能优化上有了更大的提升。<br><img src="http://7xndvx.com1.z0.glb.clouddn.com/nginx-squid-haproxy-varnish.jpg" alt="nginx-squid-varnish"><br><img src="http://7xndvx.com1.z0.glb.clouddn.com/nginx-squid-haproxy-varnish3.jpg" alt="nginx-squid-varnish"><br>Varnish与一般服务器软件类似，分为master（management）进程和child（worker，主要做cache的工作）进程。master进程读入命令，进行一些初始化，然后fork并监控child进程。child进程分配若干线程进行工作，主要包括一些管理线程和很多woker线程。<br><a href="https://www.varnish-cache.org/" target="_blank" rel="external">varnish主页</a></p>
-<p><strong>Varnish和Squid的对比</strong></p>
-<ul>
-<li>Varnish和Squid在完成相同负载的工作时，Squid服务器发生故障的几率要高于Varnish，因此Squid需要经常重启。</li>
-<li>Varnish访问速度更快,Varnish采用了 Visual Page Cache技术，所有缓存的数据都直接从内存读取，而Squid从硬盘读取缓存的数据，Varnish在访问速度方面会更快一些。</li>
-<li>Varnish可以支持更多的并发连接,因为Varnish的TCP连接与释放比Squid快，所以在高并发连接情况下可以支持更多的TCP连接。</li>
-<li>Varnish可以通过管理端口来管理缓存，使用正则表达式就可以批量清除部分缓存，而Squid做不到这一点。</li>
-</ul>
-<h2 id="安装与部署varnish">安装与部署varnish</h2><p>主机环境：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ uname -r</span><br><span class="line"><span class="number">2.6</span><span class="number">.32</span>-<span class="number">573.</span>el6.x86_64</span><br><span class="line">$ cat /etc/redhat-release </span><br><span class="line">CentOS release <span class="number">6.7</span> (Final)</span><br></pre></td></tr></table></figure></p>
-<p><a href="https://www.varnish-cache.org/installation/redhat" target="_blank" rel="external">varnish官网</a></p>
-<h2 id="安装varnish">安装varnish</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ rpm <span class="comment">--nosignature -i https://repo.varnish-cache.org/redhat/varnish-4.0.el6.rpm</span></span><br><span class="line">$ yum <span class="operator"><span class="keyword">install</span> varnish</span></span><br></pre></td></tr></table></figure>
-<p>对于是Ubuntu系统，可以执行以下命令来安装：<br>curl <a href="http://repo.varnish-cache.org/debian/GPG-key.txt" target="_blank" rel="external">http://repo.varnish-cache.org/debian/GPG-key.txt</a> | sudo apt-key add -echo “deb <a href="http://repo.varnish-cache.org/ubuntu/" target="_blank" rel="external">http://repo.varnish-cache.org/ubuntu/</a> precise varnish-3.0” | sudo tee -a /etc/apt/sources.listsudo apt-get updatesudo apt-get install varnish</p>
-<h2 id="开启varnish">开启varnish</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/varnish start</span><br><span class="line">[root@varnish ~]<span class="preprocessor"># netstat -tanp|grep varnish</span></span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:<span class="number">6081</span>                <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:*                   LISTEN      <span class="number">1640</span>/varnishd       </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6082</span>              <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:*                   LISTEN      <span class="number">1639</span>/varnishd       </span><br><span class="line">tcp        <span class="number">0</span>      <span class="number">0</span> :::<span class="number">6081</span>                     :::*                        LISTEN      <span class="number">1640</span>/varnishd</span><br></pre></td></tr></table></figure>
-<p>这里要注意一下，有可能会报错<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@nginx01 varnish]$ /etc/init.d/varnish <span class="operator"><span class="keyword">start</span></span><br><span class="line"><span class="keyword">Starting</span> Varnish <span class="keyword">Cache</span>:                                    [<span class="keyword">FAILED</span>]</span></span><br></pre></td></tr></table></figure></p>
-<p>那么就查看下日志吧<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@nginx01 lib]$ varnishlog </span><br><span class="line">Can<span class="string">'t open VSM file (Cannot open /var/lib/varnish/nginx01/_.vsm: No such file or directory</span><br><span class="line">)</span></span><br></pre></td></tr></table></figure></p>
-<p>什么情况，为什么没有这个目录，既然没有那么就手动创建一个呗然后再启动，发现还是不行，我擦<br>这是什么情况，好吧，那么手动执行一下试试。。。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@nginx01 varnish]$ varnishd <span class="operator">-d</span> <span class="operator">-f</span> /etc/varnish/default.vcl</span><br><span class="line">Platform: Linux,<span class="number">2.6</span>.<span class="number">32</span>-<span class="number">573</span>.el6.x86_64,x86_64,-smalloc,-smalloc,-hcritbit</span><br><span class="line"><span class="number">200</span> <span class="number">280</span>     </span><br><span class="line">-----------------------------</span><br><span class="line">Varnish Cache CLI <span class="number">1.0</span></span><br><span class="line">-----------------------------</span><br><span class="line">Linux,<span class="number">2.6</span>.<span class="number">32</span>-<span class="number">573</span>.el6.x86_64,x86_64,-smalloc,-smalloc,-hcritbit</span><br><span class="line">varnish-<span class="number">4.0</span>.<span class="number">3</span> revision b8c4a34</span><br><span class="line"></span><br><span class="line">Type <span class="string">'help'</span> <span class="keyword">for</span> <span class="built_in">command</span> list.</span><br><span class="line">Type <span class="string">'quit'</span> to close CLI session.</span><br><span class="line">Type <span class="string">'start'</span> to launch worker process.</span><br></pre></td></tr></table></figure>
-<p>我快崩溃不这是为什么呢。。。找了半天原因，原来是selinux没有关，我擦，看来不关的确会出很多问题啊，关闭后就没有出此问题啦。完美解决。这里介绍几个网址以后有问题了也可以上这里查看<br><a href="https://github.com/rackspace-cookbooks/varnish" target="_blank" rel="external">varnish 在github rackspace cookbook</a><br><a href="https://supermarket.chef.io/cookbooks/selinux" target="_blank" rel="external">selinux cookbook</a></p>
-<p>接下来要做的，就是修改apache的监听端口，将varnish监听端口指向80，将apache监听端口指向一个其他端口，再将varnish出口端口指向apache指向的端口。这样，client–&gt;端口80–&gt;varinsh检测cache–&gt;apache-&gt;client</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ vim /etc/sysconfig/varnish</span><br><span class="line">VARNISH_LISTEN_PORT=<span class="number">80</span></span><br><span class="line"></span><br><span class="line">$ vim /etc/varnish/default.vcl</span><br><span class="line">backend default &#123;</span><br><span class="line">.host = <span class="string">"127.0.0.1"</span>;</span><br><span class="line">.port = <span class="string">"8880"</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$ vim /etc/httpd/conf/httpd.conf</span><br><span class="line">Listen *:<span class="number">8880</span></span><br><span class="line">&lt;VirtualHost *:<span class="number">8880</span>&gt;</span><br><span class="line">ServerAdmin gsandow.com</span><br><span class="line">DocumentRoot /data/www/html/</span><br><span class="line">ErrorLog logs/sample-error.log</span><br><span class="line">CustomLog logs/sampleaccess_<span class="built_in">log</span> common</span><br><span class="line">&lt;/VirtualHost&gt;</span><br></pre></td></tr></table></figure>
-<h2 id="介绍下varnish配置信息">介绍下varnish配置信息</h2><p>查看varnish的各种命令</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@apache01 blog]$ ll /usr/bin/varnish*</span><br><span class="line">-rwxr-xr-x <span class="number">1</span> root root  <span class="number">23656</span> Feb <span class="number">18</span>  <span class="number">2015</span> /usr/bin/varnishadm</span><br><span class="line">-rwxr-xr-x <span class="number">1</span> root root  <span class="number">29824</span> Feb <span class="number">18</span>  <span class="number">2015</span> /usr/bin/varnishhist</span><br><span class="line">-rwxr-xr-x <span class="number">1</span> root root  <span class="number">32576</span> Feb <span class="number">18</span>  <span class="number">2015</span> /usr/bin/varnishlog</span><br><span class="line">-rwxr-xr-x <span class="number">1</span> root root  <span class="number">45344</span> Feb <span class="number">18</span>  <span class="number">2015</span> /usr/bin/varnishncsa</span><br><span class="line">-rwxr-xr-x <span class="number">1</span> root root  <span class="number">32224</span> Feb <span class="number">18</span>  <span class="number">2015</span> /usr/bin/varnishstat</span><br><span class="line">-rwxr-xr-x <span class="number">1</span> root root <span class="number">132544</span> Feb <span class="number">18</span>  <span class="number">2015</span> /usr/bin/varnishtest</span><br><span class="line">-rwxr-xr-x <span class="number">1</span> root root  <span class="number">41632</span> Feb <span class="number">18</span>  <span class="number">2015</span> /usr/bin/varnishtop</span><br></pre></td></tr></table></figure>
-<p><strong>varnish命令</strong>：</p>
-<ul>
-<li><code>varnishadm</code> 管理Varnish后端的工具 telnet也可以（下面详细介绍）</li>
-<li><code>varnishhist</code> 查看Varnish命中的工具 运行可以看到一张柱状描绘图，|表示缓存命中，#表示未命中，横向代表时间。 【非常有用】</li>
-<li><code>varnishlog</code> 实时显示varnish的请求日志</li>
-<li><code>varnishncsa</code> 以Apache标准的格式combined输出日志</li>
-<li><code>varnishstat</code> 查看状态、参数等，具体查阅百度。【非常有用】</li>
-<li><code>varnishtop</code> 类似top工具，查看varnish相关进程的资源、运行等状况。</li>
-</ul>
-<p><strong>文件位置</strong>：</p>
-<ul>
-<li>/etc/varnish/ 存放varnish VCL配置文件 </li>
-<li>/etc/sysconfig/varnish 【CentOS】 存放varnish服务器运行的参数 </li>
-<li>/etc/default/varnish 【Ubuntu】 存放varnish服务器运行的参数 </li>
-<li>/usr/sbin/varnishd varnish服务器执行文件 </li>
-<li>/etc/init.d/varnish 运行程序 </li>
-</ul>
-<p><a href="http://www.canonware.com/download/jemalloc/jemalloc-latest/doc/jemalloc.html" target="_blank" rel="external">http://www.canonware.com/download/jemalloc/jemalloc-latest/doc/jemalloc.html</a><br><a href="http://sharadchhetri.com/2013/09/25/how-to-install-and-configure-varnish-3-x-in-centos-and-red-hat/" target="_blank" rel="external">Install and configure Varnish Cache server on CentOS/RHEL 6.x</a></p>
-<p><img src="http://7xndvx.com1.z0.glb.clouddn.com/request1.png" alt="request"></p>
-
-            
+            ##varnish squid 简单介绍
+Varnish是一款高性能、开源的反向代理服务器和缓存服务器.其开发者Poul-Henning Kamp是FreeBSD核心的开发人员之一。Varnish采用全新的软件体系结构，和现在的硬件体系配合比较紧密。Varnish采用VCL的配置，而且具有强大的管理功能，如top、stat、admin、lis，管理方式比较灵活。Varnish的状态机设计不仅巧妙，
+            ...
           </span>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/varnish/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -1093,73 +653,15 @@
         
           <span itemprop="articleBody">
             
-              <h2 id="keepalived_介绍">keepalived 介绍</h2><p>Keepalived是一个基于VRRP协议来实现的服务高可用方案，可以利用其来避免IP单点故障，类似的工具还有heartbeat、corosync、pacemaker。但是它一般不会单独出现，而是与其它负载均衡技术（如lvs、haproxy、nginx）一起工作来达到集群的高可用。<br><img src="http://7xndvx.com1.z0.glb.clouddn.com/nginx-keepalived-vrrp.jpg" alt="keepalived"></p>
-<h3 id="VRRP协议">VRRP协议</h3><p>VRRP全称 Virtual Router Redundancy Protocol，即 <a href="http://en.wikipedia.org/wiki/VRRP" target="_blank" rel="external">虚拟路由冗余协议</a>。可以认为它是实现路由器高可用的容错协议，即将N台提供相同功能的路由器组成一个路由器组(Router Group)，这个组里面有一个master和多个backup，但在外界看来就像一台一样，构成虚拟路由器，拥有一个虚拟IP（vip，也就是路由器所在局域网内其他机器的默认路由），占有这个IP的master实际负责ARP相应和转发IP数据包，组中的其它路由器作为备份的角色处于待命状态。master会发组播消息，当backup在超时时间内收不到vrrp包时就认为master宕掉了，这时就需要根据VRRP的优先级来选举一个backup当master，保证路由器的高可用。</p>
-<p>  在VRRP协议实现里，虚拟路由器使用 00-00-5E-00-01-XX 作为虚拟MAC地址，XX就是唯一的 VRID （Virtual Router IDentifier），这个地址同一时间只有一个物理路由器占用。在虚拟路由器里面的物理路由器组里面通过多播IP地址 224.0.0.18 来定时发送通告消息。每个Router都有一个 1-255 之间的优先级别，级别最高的（highest priority）将成为主控（master）路由器。通过降低master的优先权可以让处于backup状态的路由器抢占（pro-empt）主路由器的状态，两个backup优先级相同的IP地址较大者为master，接管虚拟IP。</p>
-<p>来自freeloda对 heartbeat/corosync的比较</p>
-<blockquote>
-<p>Heartbeat、Corosync、Keepalived这三个集群组件我们到底选哪个好，首先我想说明的是，Heartbeat、Corosync是属于同一类型，Keepalived与Heartbeat、Corosync，根本不是同一类型的。Keepalived使用的vrrp协议方式，虚拟路由冗余协议 (Virtual Router Redundancy Protocol，简称VRRP)；Heartbeat或Corosync是基于主机或网络服务的高可用方式；简单的说就是，Keepalived的目的是模拟路由器的高可用，Heartbeat或Corosync的目的是实现Service的高可用。</p>
-<ul>
-<li>所以一般Keepalived是实现前端高可用，常用的前端高可用的组合有，就是我们常见的LVS+Keepalived、Nginx+Keepalived、HAproxy+Keepalived。而Heartbeat或Corosync是实现服务的高可用，常见的组合有Heartbeat v3(Corosync)+Pacemaker+NFS+Httpd 实现Web服务器的高可用、Heartbeat v3(Corosync)+Pacemaker+NFS+MySQL 实现MySQL服务器的高可用。总结一下，Keepalived中实现轻量级的高可用，一般用于前端高可用，且不需要共享存储，一般常用于两个节点的高可用。而Heartbeat(或Corosync)一般用于服务的高可用，且需要共享存储，一般用于多节点的高可用。这个问题我们说明白了。</li>
-<li>又有博友会问了，那heartbaet与corosync我们又应该选择哪个好啊，我想说我们一般用corosync，因为corosync的运行机制更优于heartbeat，就连从heartbeat分离出来的pacemaker都说在以后的开发当中更倾向于corosync，所以现在corosync+pacemaker是最佳组合</li>
-</ul>
-</blockquote>
-<h2 id="Keepalived_+_nginx">Keepalived + nginx</h2><p>keepalived可以认为是VRRP协议在Linux上的实现，主要有三个模块，分别是core、check和vrrp。core模块为keepalived的核心，负责主进程的启动、维护以及全局配置文件的加载和解析。check负责健康检查，包括常见的各种检查方式。vrrp模块是来实现VRRP协议的。</p>
-<h2 id="安装keepalived">安装keepalived</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ yum install -y keepalived</span><br></pre></td></tr></table></figure>
-<h2 id="nginx_监控脚本">nginx 监控脚本</h2><p>用于检测ngnix的运行状态，并在nginx进程不存在时尝试重新启动nginx，如果启动失败则停止keepalived,准备让其它机器接管</p>
-<p><code>/servser/scripts/check_nginx.sh</code> :</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/bash</span></span><br><span class="line">counter=$(ps -C nginx --no-heading|wc <span class="operator">-l</span>)</span><br><span class="line"><span class="keyword">if</span> [ <span class="string">"<span class="variable">$&#123;counter&#125;</span>"</span> = <span class="string">"0"</span> ]; <span class="keyword">then</span></span><br><span class="line">    /usr/<span class="built_in">local</span>/bin/nginx</span><br><span class="line">    sleep <span class="number">2</span></span><br><span class="line">    counter=$(ps -C nginx --no-heading|wc <span class="operator">-l</span>)</span><br><span class="line">    <span class="keyword">if</span> [ <span class="string">"<span class="variable">$&#123;counter&#125;</span>"</span> = <span class="string">"0"</span> ]; <span class="keyword">then</span></span><br><span class="line">        /etc/init.d/keepalived stop</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
-<h2 id="配置keepalived-conf">配置keepalived.conf</h2><p><code>/etc/keepalived/keepalived.conf</code> :</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">! Configuration File <span class="keyword">for</span> keepalived</span><br><span class="line">global_defs &#123;</span><br><span class="line">    notification_email &#123;</span><br><span class="line">        <span class="number">921070747</span>@example.com</span><br><span class="line">        gsandow@example.com</span><br><span class="line">    &#125;</span><br><span class="line">    notification_email_from itsection@example.com</span><br><span class="line">    smtp_server mail.example.com</span><br><span class="line">    smtp_connect_timeout <span class="number">30</span></span><br><span class="line">    router_id LVS_DEVEL</span><br><span class="line">&#125;</span><br><span class="line">vrrp_script chk_nginx &#123;</span><br><span class="line"><span class="comment">#    script "killall -0 nginx"</span></span><br><span class="line">    script <span class="string">"/server/scripts/check_nginx.sh"</span> </span><br><span class="line">    interval <span class="number">2</span> </span><br><span class="line">    weight -<span class="number">5</span> </span><br><span class="line">    fall <span class="number">3</span>  </span><br><span class="line">    rise <span class="number">2</span> </span><br><span class="line">&#125;</span><br><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    state MASTER</span><br><span class="line">    interface eth0</span><br><span class="line">    mcast_src_ip <span class="number">172.29</span>.<span class="number">88.224</span></span><br><span class="line">    virtual_router_id <span class="number">51</span></span><br><span class="line">    priority <span class="number">101</span></span><br><span class="line">    advert_int <span class="number">2</span></span><br><span class="line">    authentication &#123;</span><br><span class="line">        auth_<span class="built_in">type</span> PASS</span><br><span class="line">        auth_pass <span class="number">1111</span></span><br><span class="line">    &#125;</span><br><span class="line">    virtual_ipaddress &#123;</span><br><span class="line">        <span class="number">172.29</span>.<span class="number">88.222</span></span><br><span class="line">    &#125;</span><br><span class="line">    track_script &#123;</span><br><span class="line">       chk_nginx </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在其它备机BACKUP上，只需要改变 state MASTER -&gt; state BACKUP，priority 101 -&gt; priority 100，mcast_src_ip 172.29.88.224 -&gt; mcast_src_ip 172.29.88.225即可。</p>
-<p>然后启动keepalived<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ /etc/init.d/keepalived start</span><br></pre></td></tr></table></figure></p>
-<h2 id="配置选项说明">配置选项说明</h2><p><strong>global_defs</strong></p>
-<ul>
-<li><code>notification_email</code> ： keepalived在发生诸如切换操作时需要发送email通知地址，后面的 smtp_server 相比也都知道是邮件服务器地址。也可以通过其它方式报警，毕竟邮件不是实时通知的。</li>
-<li><code>router_id</code> ： 机器标识，通常可设为hostname。故障发生时，邮件通知会用到</li>
-</ul>
-<p><strong>vrrp_instance</strong></p>
-<ul>
-<li><code>state</code> ： 指定instance(Initial)的初始状态，就是说在配置好后，这台服务器的初始状态就是这里指定的，但这里指定的不算，还是得要通过竞选通过优先级来确定。如果这里设置为MASTER，但如若他的优先级不及另外一台，那么这台在发送通告时，会发送自己的优先级，另外一台发现优先级不如自己的高，那么他会就回抢占为MASTER</li>
-<li><code>interface</code> ： 实例绑定的网卡，因为在配置虚拟IP的时候必须是在已有的网卡上添加的</li>
-<li><code>mcast_src_ip</code> ： 发送多播数据包时的源IP地址，这里注意了，这里实际上就是在那个地址上发送VRRP通告，这个非常重要，一定要选择稳定的网卡端口来发送，这里相当于heartbeat的心跳端口，如果没有设置那么就用默认的绑定的网卡的IP，也就是interface指定的IP地址</li>
-<li><code>virtual_router_id</code> ： 这里设置VRID，这里非常重要，相同的VRID为一个组，他将决定多播的MAC地址</li>
-<li><code>priority</code> ： 设置本节点的优先级，优先级高的为master</li>
-<li><code>advert_int</code> ： 检查间隔，默认为1秒。这就是VRRP的定时器，MASTER每隔这样一个时间间隔，就会发送一个advertisement报文以通知组内其他路由器自己工作正常</li>
-<li><code>authentication</code> ： 定义认证方式和密码，主从必须一样</li>
-<li><code>virtual_ipaddress</code> ： 这里设置的就是VIP，也就是虚拟IP地址，他随着state的变化而增加删除，当state为master的时候就添加，当state为backup的时候删除，这里主要是有优先级来决定的，和state设置的值没有多大关系，这里可以设置多个IP地址</li>
-<li><code>track_script</code> ： 引用VRRP脚本，即在 vrrp_script 部分指定的名字。定期运行它们来改变优先级，并最终引发主备切换。</li>
-</ul>
-<p><strong>vrrp_script</strong><br>告诉 keepalived 在什么情况下切换，所以尤为重要。可以有多个 vrrp_script</p>
-<ul>
-<li><code>script</code> ： 自己写的检测脚本。也可以是一行命令如killall -0 nginx</li>
-<li><code>interval 2</code> ： 每2s检测一次</li>
-<li><code>weight -5</code> ： 检测失败（脚本返回非0）则优先级 -5</li>
-<li><code>fall 2</code>： 检测连续 2 次失败才算确定是真失败。会用weight减少优先级（1-255之间）</li>
-<li><code>rise 1</code>： 检测 1 次成功就算成功。但不修改优先级</li>
-</ul>
-<p>这里要提示一下script一般有2种写法：</p>
-<ol>
-<li>通过脚本执行的返回结果，改变优先级，keepalived继续发送通告消息，backup比较优先级再决定</li>
-<li>脚本里面检测到异常，直接关闭keepalived进程，backup机器接收不到advertisement会抢占IP</li>
-</ol>
-<p>上文 vrrp_script 配置部分，killall -0 nginx属于第1种情况，/etc/keepalived/check_nginx.sh属于第2种情况（脚本中关闭keepalived）。个人更倾向于通过shell脚本判断，但有异常时exit 1，正常退出exit 0，然后keepalived根据动态调整的 vrrp_instance 优先级选举决定是否抢占VIP：</p>
-<ul>
-<li>如果脚本执行结果为0，并且weight配置的值大于0，则优先级相应的增加</li>
-<li>如果脚本执行结果非0，并且weight配置的值小于0，则优先级相应的减少</li>
-</ul>
-<p>其他情况，原本配置的优先级不变，即配置文件中priority对应的值。<br>提示：</p>
-<ol>
-<li>优先级不会不断的提高或者降低</li>
-<li>可以编写多个检测脚本并为每个检测脚本设置不同的weight（在配置中列出就行）</li>
-<li>不管提高优先级还是降低优先级，最终优先级的范围是在[1,254]，不会出现优先级小于等于0或者优先级大于等于255的情况</li>
-<li>在MASTER节点的 vrrp_instance 中 配置 nopreempt ，当它异常恢复后，即使它 prio 更高也不会抢占，这样可以避免正常情况下做无谓的切换</li>
-</ol>
-<p>以上可以做到利用脚本检测业务进程的状态，并动态调整优先级从而实现主备切换。</p>
-<p>配置结束<br>在默认的keepalive.conf里面还有 virtual_server,real_server 这样的配置，我们这用不到，它是为lvs准备的。 notify 可以定义在切换成MASTER或BACKUP时执行的脚本，如有需求请自行google。</p>
-
-            
+            keepalived 介绍Keepalived是一个基于VRRP协议来实现的服务高可用方案，可以利用其来避免IP单点故障，类似的工具还有heartbeat、corosync、pacemaker。但是它一般不会单独出现，而是与其它负载均衡技术（如lvs、haproxy、nginx）一起工作来达到集群的高可用。
+VRRP协议VRRP全称 Virtual Router Redundancy Protoc
+            ...
           </span>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/keepalived/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -1259,76 +761,15 @@
         
           <span itemprop="articleBody">
             
-              <h2 id="实现同步软件小介绍">实现同步软件小介绍</h2><ol>
-<li><strong>lsyncd</strong>是luo语言封装了inotify和rsync工具，采用了linux2.6.13里的inotify触发机制，然后通过rsync去差异同步，达到实时的效果，它完美解决了 inotify + rsync 海量文件同步带来的文件频繁发送文件列表的问题—通过时间延迟或累计触发事件次数实现，另外，配置简单，lua本身就是一种配置语言，可读性强，而且lsyncd的工作模式可以选择本地目录cp,本地目录rsync， 远程目录rsyncssh。下面是 inotify + rsync 与 sersync 的区别</li>
-<li><strong>inotify + rsync</strong>，随着文件数量的增大到100W+，目录下的文件列表就达20M，在网络状况不佳或者限速的情况下，变更的文件可能10来个才几M，却因此要发送的文件列表就达20M，严重减低的带宽的使用效率以及同步效率；更为要紧的是，加入inotifywait在5s内监控到10个小文件发生变化，便会触发10个rsync同步操作，结果就是真正需要传输的才2-3M的文件，比对的文件列表就达200M。使用这两个组合的好处在于，它们都是最基本的软件，可以通过不同选项做到很精确的控制，比如排除同步的目录，同步多个模块或同步到多个主机。</li>
-<li><strong>sersync</strong> 这么个工具可以提高同步的性能，也解决了同步大文件时出现异常的问题。sersync是国内的一个开发者开源出来的，使用c++编写，采用多线程的方式进行同步，失败后还有重传机制，对临时文件过滤，自带crontab定时同步功能。性能不错，seync只是减少了监听事件，源码中都是在拼接rsync命令，后面的目的地址始终是针对module，只要执行rsync命令，就会对整个目遍历，发送要比对的文件列表，然后再发送变化的文件。<ul>
-<li>国产开源，文档不是很全，而且2011年后再没更新</li>
-<li>采用xml配置文件方式，可读性比较好，但有些原生功能没有实现就没法使用了</li>
-<li>无法实现多目录同步，只能通过多个配置文件启动多个进程</li>
-<li>文件排除功能太弱</li>
-<li>插件功能虽有，不过有些鸡肋</li>
-</ul>
-</li>
-</ol>
-<h2 id="安装lsyncd">安装lsyncd</h2><p>安装lsyncd极为简单，已经收录在ubuntu的官方镜像源里，直接通过apt-get install lsyncd就可以。<br>在Redhat系（我的环境是CentOS 6.2 x86_64 ），可以手动去下载 lsyncd-2.1.5-6.fc21.x86_64.rpm，但首先你得安装两个依赖yum install lua lua-devel。也可以通过在线安装，需要epel-release扩展包：</p>
-<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor"># rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm</span></span><br><span class="line"><span class="preprocessor"># yum install lsyncd</span></span><br></pre></td></tr></table></figure>
-<p>源码编译安装<br>从源码编译安装可以使用最新版的lsyncd程序，但必须要相应的依赖库文件和编译工具：yum install lua lua-devel asciidoc cmake。<br>从 googlecode lsyncd 上下载的lsyncd-2.1.5.tar.gz，直接./configure、make &amp;&amp; make install就可以了。<br>从github上下载lsyncd-master.zip 的2.1.5版本使用的是 cmake 编译工具，无法./configure：</p>
-<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor"># uzip lsyncd-master.zip</span></span><br><span class="line"><span class="preprocessor"># cd lsyncd-master</span></span><br><span class="line"><span class="preprocessor"># cmake -DCMAKE_INSTALL_PREFIX=/usr/local/lsyncd-2.1.5</span></span><br><span class="line"><span class="preprocessor"># make &amp;&amp; make install</span></span><br></pre></td></tr></table></figure>
-<p>我这个版本编译时有个小bug，如果按照INSTALL在build目录中make，会提示：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">100</span>%] Generating doc/lsyncd<span class="number">.1</span></span><br><span class="line">Updating the manpage</span><br><span class="line">a2x: failed: source file not found: doc/lsyncd<span class="number">.1</span>.txt</span><br><span class="line">make[<span class="number">2</span>]: *** [doc/lsyncd<span class="number">.1</span>] Error <span class="number">1</span></span><br><span class="line">make[<span class="number">1</span>]: *** [CMakeFiles/manpage.dir/all] Error <span class="number">2</span></span><br><span class="line">make: *** [all] Error <span class="number">2</span></span><br></pre></td></tr></table></figure></p>
-<p>解决办法是要么直接在解压目录下cmake，不要mkdir build，要么在CMakeList.txt中搜索doc字符串，在前面加上${PROJECT_SOURCE_DIR}</p>
-<h2 id="lsyncd-conf的配置参数">lsyncd.conf的配置参数</h2><h3 id="settings_模块">settings  模块</h3><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">settings &#123;</span><br><span class="line">    logfile      =<span class="string">"/var/logs/lsyncd.log"</span>,</span><br><span class="line">    statusFile   =<span class="string">"/var/logs/lsyncd.status"</span>,</span><br><span class="line">    inotifyMode  = <span class="string">"CloseWrite"</span>,</span><br><span class="line">    maxProcesses = <span class="number">7</span>,</span><br><span class="line">    <span class="comment">-- nodaemon =true,</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>里面是全局设置，–开头表示注释，下面是几个常用选项说明：</p>
-<ul>
-<li><code>logfile</code> 定义日志文件</li>
-<li><code>stausFile</code> 定义状态文件</li>
-<li><code>nodaemon=true</code> 表示不启用守护模式，默认</li>
-<li><code>statusInterval</code> 将lsyncd的状态写入上面的statusFile的间隔，默认10秒</li>
-<li><code>inotifyMode</code> 指定inotify监控的事件，默认是CloseWrite，还可以是Modify或CloseWrite or Modify</li>
-<li><code>maxProcesses</code> 同步进程的最大个数。假如同时有20个文件需要同步，而maxProcesses = 8，则最大能看到有8个rysnc进程</li>
-<li><code>maxDelays</code> 累计到多少所监控的事件激活一次同步，即使后面的delay延迟时间还未到</li>
-</ul>
-<h3 id="sync_模块">sync  模块</h3><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">sync &#123;</span><br><span class="line">    default.rsync,</span><br><span class="line">    source    = <span class="string">"/data/buffer"</span>,</span><br><span class="line">    target    = <span class="string">"rsync_backup@172.16.1.77::mysql"</span>,</span><br><span class="line">    delete=<span class="string">"running"</span>,</span><br><span class="line">    exclude = &#123; <span class="string">".tmp"</span>, <span class="string">".swap"</span> &#125;,</span><br><span class="line">    <span class="comment">-- excludeFrom = "/server/scripts/rsync_exclude.lst"</span></span><br><span class="line">    delay = <span class="number">30</span>,</span><br><span class="line">    <span class="comment">-- excludeFrom = "/etc/rsyncd.d/rsync_exclude.lst",</span></span><br><span class="line">    rsync     = &#123;</span><br><span class="line">        password_file = <span class="string">"/etc/rsync.password"</span></span><br><span class="line">        archive   = <span class="keyword">true</span>,</span><br><span class="line">        compress  = <span class="keyword">true</span>,</span><br><span class="line">        verbose   = <span class="keyword">true</span></span><br><span class="line">        _extra = &#123;<span class="string">"--bwlimit=200"</span>&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>lsyncd.conf可以有多个sync，各自的source，各自的target，各自的模式，互不影响。里面是定义同步参数，可以继续使用maxDelays来重写settings的全局变量。</p>
-<ul>
-<li>一般第一个参数指定lsyncd以什么模式运行：<strong>rsync、rsyncssh、direct</strong>三种模式：<ul>
-<li><code>default.rsync</code> ：本地目录间同步，使用rsync，也可以达到使用ssh形式的远程rsync效果，或daemon方式连接远程rsyncd进程；</li>
-<li><code>default.direct</code> ：本地目录间同步，使用cp、rm等命令完成差异文件备份；</li>
-<li><code>default.rsyncssh</code> ：同步到远程主机目录，rsync的ssh模式，需要使用key来认证</li>
-</ul>
-</li>
-<li><code>source</code> 同步的源目录，使用绝对路径。    </li>
-<li><code>target</code> 定义目的地址.对应不同的模式有几种写法：<ul>
-<li><code>/tmp/dest</code> ：本地目录同步，可用于direct和rsync模式</li>
-<li><code>172.29.88.223:/tmp/dest</code> ：同步到远程服务器目录，可用于rsync和rsyncssh模式，拼接的命令类似于<code>/usr/bin/rsync -ltsd --delete --include-from=- --exclude=* SOURCE TARGET</code>，剩下的就是rsync的内容了，比如指定username，免密码同步</li>
-<li><code>172.29.88.223::module</code> ：同步到远程服务器目录，用于rsync模式</li>
-</ul>
-</li>
-<li><code>init</code> 这是一个优化选项，当init = false，只同步进程启动以后发生改动事件的文件，原有的目录即使有差异也不会同步。默认是true</li>
-<li><code>delay</code> 累计事件，等待rsync同步延时时间，默认15秒（最大累计到1000个不可合并的事件）。也就是15s内监控目录下发生的改动，会累积到一次rsync同步，避免过于频繁的同步。（可合并的意思是，15s内两次修改了同一文件，最后只同步最新的文件）</li>
-<li><code>excludeFrom</code> 排除选项，后面指定排除的列表文件，如excludeFrom = “/etc/lsyncd.exclude”，如果是简单的排除，可以使用exclude = LIST。<br>这里的排除规则写法与原生rsync有点不同，更为简单：<ul>
-<li>监控路径里的任何部分匹配到一个文本，都会被排除，例如/bin/foo/bar可以匹配规则foo</li>
-<li>如果规则以斜线/开头，则从头开始要匹配全部</li>
-<li>如果规则以/结尾，则要匹配监控路径的末尾</li>
-<li>?匹配任何字符，但不包括/</li>
-<li>*匹配0或多个字符，但不包括/</li>
-<li>**匹配0或多个字符，可以是/</li>
-</ul>
-</li>
-<li><code>delete</code> 为了保持target与souce完全同步，Lsyncd默认会delete = true来允许同步删除。它除了false，还有startup、running值，请参考 Lsyncd 2.1.x ‖ Layer 4 Config ‖ Default Behavior。</li>
-</ul>
-<h3 id="rsync">rsync</h3><p>（提示一下，delete和exclude本来都是rsync的选项，上面是配置在sync中的，我想这样做的原因是为了减少rsync的开销）</p>
-<ul>
-<li>bwlimit 限速，单位kb/s，与rsync相同（这么重要的选项在文档里竟然没有标出）</li>
-<li>compress 压缩传输默认为true。在带宽与cpu负载之间权衡，本地目录同步可以考虑把它设为false</li>
-<li>perms 默认保留文件权限。</li>
-</ul>
-<p>其它rsync的选项<br>其它还有rsyncssh模式独有的配置项，如host、targetdir、rsync_path、password_file，见后文示例。rsyncOps={“-avz”,”–delete”}这样的写法在2.1.*版本已经不支持。</p>
-<p>再来一例</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line">settings &#123;</span><br><span class="line">    logfile =<span class="string">"/usr/local/lsyncd-2.1.5/var/lsyncd.log"</span>,</span><br><span class="line">    statusFile =<span class="string">"/usr/local/lsyncd-2.1.5/var/lsyncd.status"</span>,</span><br><span class="line">    inotifyMode = <span class="string">"CloseWrite"</span>,</span><br><span class="line">    maxProcesses = <span class="number">8</span>,</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">-- I. 本地目录同步，direct：cp/rm/mv。 适用：500+万文件，变动不大</span></span><br><span class="line">sync &#123;</span><br><span class="line">    default.direct,</span><br><span class="line">    source    = <span class="string">"/tmp/src"</span>,</span><br><span class="line">    target    = <span class="string">"/tmp/dest"</span>,</span><br><span class="line">    delay = <span class="number">1</span></span><br><span class="line">    maxProcesses = <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">-- II. 本地目录同步，rsync模式：rsync</span></span><br><span class="line">sync &#123;</span><br><span class="line">    default.rsync,</span><br><span class="line">    source    = <span class="string">"/tmp/src"</span>,</span><br><span class="line">    target    = <span class="string">"/tmp/dest1"</span>,</span><br><span class="line">    excludeFrom = <span class="string">"/etc/rsyncd.d/rsync_exclude.lst"</span>,</span><br><span class="line">    rsync     = &#123;</span><br><span class="line">        binary = <span class="string">"/usr/bin/rsync"</span>,</span><br><span class="line">        archive = <span class="keyword">true</span>,</span><br><span class="line">        compress = <span class="keyword">true</span>,</span><br><span class="line">        bwlimit   = <span class="number">2000</span></span><br><span class="line">        &#125; </span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">-- III. 远程目录同步，rsync模式 + rsyncd daemon</span></span><br><span class="line">sync &#123;</span><br><span class="line">    default.rsync,</span><br><span class="line">    source    = <span class="string">"/tmp/src"</span>,</span><br><span class="line">    target    = <span class="string">"syncuser@172.29.88.223::module1"</span>,</span><br><span class="line">    delete=<span class="string">"running"</span>,</span><br><span class="line">    exclude = &#123; <span class="string">".*"</span>, <span class="string">".tmp"</span> &#125;,</span><br><span class="line">    delay = <span class="number">30</span>,</span><br><span class="line">    init = <span class="keyword">false</span>,</span><br><span class="line">    rsync     = &#123;</span><br><span class="line">        binary = <span class="string">"/usr/bin/rsync"</span>,</span><br><span class="line">        archive = <span class="keyword">true</span>,</span><br><span class="line">        compress = <span class="keyword">true</span>,</span><br><span class="line">        verbose   = <span class="keyword">true</span>,</span><br><span class="line">        password_file = <span class="string">"/etc/rsyncd.d/rsync.pwd"</span>,</span><br><span class="line">        _extra    = &#123;<span class="string">"--bwlimit=200"</span>&#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">-- IV. 远程目录同步，rsync模式 + ssh shell</span></span><br><span class="line">sync &#123;</span><br><span class="line">    default.rsync,</span><br><span class="line">    source    = <span class="string">"/tmp/src"</span>,</span><br><span class="line">    target    = <span class="string">"172.29.88.223:/tmp/dest"</span>,</span><br><span class="line">    <span class="comment">-- target    = "root@172.29.88.223:/remote/dest",</span></span><br><span class="line">    <span class="comment">-- 上面target，注意如果是普通用户，必须拥有写权限</span></span><br><span class="line">    maxDelays = <span class="number">5</span>,</span><br><span class="line">    delay = <span class="number">30</span>,</span><br><span class="line">    <span class="comment">-- init = true,</span></span><br><span class="line">    rsync     = &#123;</span><br><span class="line">        binary = <span class="string">"/usr/bin/rsync"</span>,</span><br><span class="line">        archive = <span class="keyword">true</span>,</span><br><span class="line">        compress = <span class="keyword">true</span>,</span><br><span class="line">        bwlimit   = <span class="number">2000</span></span><br><span class="line">        <span class="comment">-- rsh = "/usr/bin/ssh -p 22 -o StrictHostKeyChecking=no"</span></span><br><span class="line">        <span class="comment">-- 如果要指定其它端口，请用上面的rsh</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">-- V. 远程目录同步，rsync模式 + rsyncssh，效果与上面相同</span></span><br><span class="line">sync &#123;</span><br><span class="line">    default.rsyncssh,</span><br><span class="line">    source    = <span class="string">"/tmp/src2"</span>,</span><br><span class="line">    host      = <span class="string">"172.29.88.223"</span>,</span><br><span class="line">    targetdir = <span class="string">"/remote/dir"</span>,</span><br><span class="line">    excludeFrom = <span class="string">"/etc/rsyncd.d/rsync_exclude.lst"</span>,</span><br><span class="line">    <span class="comment">-- maxDelays = 5,</span></span><br><span class="line">    delay = <span class="number">0</span>,</span><br><span class="line">    <span class="comment">-- init = false,</span></span><br><span class="line">    rsync    = &#123;</span><br><span class="line">        binary = <span class="string">"/usr/bin/rsync"</span>,</span><br><span class="line">        archive = <span class="keyword">true</span>,</span><br><span class="line">        compress = <span class="keyword">true</span>,</span><br><span class="line">        verbose   = <span class="keyword">true</span>,</span><br><span class="line">        _extra = &#123;<span class="string">"--bwlimit=2000"</span>&#125;,</span><br><span class="line">        &#125;,</span><br><span class="line">    ssh      = &#123;</span><br><span class="line">        port  =  <span class="number">1234</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-            
+            实现同步软件小介绍
+lsyncd是luo语言封装了inotify和rsync工具，采用了linux2.6.13里的inotify触发机制，然后通过rsync去差异同步，达到实时的效果，它完美解决了 inotify + rsync 海量文件同步带来的文件频繁发送文件列表的问题—通过时间延迟或累计触发事件次数实现，另外，配置简单，lua本身就是一种配置语言，可读性强，而且lsyncd的工作模式可以选择
+            ...
           </span>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/lsyncd/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -1428,29 +869,17 @@
         
           <span itemprop="articleBody">
             
-              <p><img src="/images/thegodfathe_1r.jpg" alt="父子"><br><img src="/images/thegodfathe_5.jpg" alt="迈克1"></p>
-<hr>
-<p>在别人看来即使你很坏，甚至是恶人，但是在家人看来，你永远是好丈夫，好父亲。不背叛家庭，你必须有义务，有责任去保护家里的每一个人不使之受伤，要知道这个世界并不是你一个人在奋斗，也不是为了自己奋斗，为了自己所爱的人，为了自己所爱的人能够幸福。现在也必须做事考虑后果，要对别人负责，对自己负责。</p>
-<h2 id="speak_softely_love">speak softely love</h2><p>是我最喜欢的一首歌，也许是因为自己在心情低落的时候看的这部电影，而其中的音乐每次听着都特别伤心，特别心痛。</p>
-<iframe src="http://www.tudou.com/programs/view/html5embed.action?type=0&code=7lqAMEScZS0&lcode=&resourceId=418557855_06_05_99" allowtransparency="true" allowfullscreen="true" allowfullscreeninteractive="true" scrolling="no" border="0" frameborder="0" style="width:100%;height:450px;"></iframe>
-
-<h2 id="一些经典语录">一些经典语录</h2><p>Behind every great fortune,there is a crime 财富背后都是罪恶</p>
-<p>Don’t hate your enemy, or you will make wrong judgment.不要恨你的敌人，那样会让你做错误的决定</p>
-<p>keep your friends close, but your enemies closer，与你的朋友保持亲近，但要与你的敌人更亲近</p>
-<p>Don’t let anybody know what you are thinking. 不要让别人知道你在想什么</p>
-<p>Never tell anybody outside the family what you are thinking again 不要让家庭以外的人知道你在想什么</p>
-<p>Great men are not born great,they grow great 伟大的人不是天生的，而是后天形成的</p>
-<p>You make the choice, and this is your price.你每做一个决定，就有代价</p>
-<p>Everything I do with my power, including something criminal, I just want to protect my family and my friends .<br>我用我的权力做的每一件事（包括犯罪），仅仅是想保护我的家庭和我的朋友</p>
-<p>I don’t care what you did is right or wrong, I want you know only me have the right to make decision, cause I am the godfather until my death.  我并不关心你做的对还是错，我只想要你知道只有我才有权做出决定，因为直到我死之前都是教父</p>
-<p>I will never do anything guilty. 我从来都没有感觉到愧疚</p>
-<p>Do you spend time with your family? Good. Because a man that doesn’t spend time with his family can never be a real man.  </p>
-<p>I spent my whole life trying not to be careless. Women and children can be careless. But not men.我试着不去精心，只有女人与小孩才可以精心。</p>
-<p>I’m gonna make him an offer he can’t refuse. 我出的价格他是无法拒绝的</p>
-<p>I never wanted this for you. I work my whole life — I don’t apologize — to take care of my family, and I refused to be a fool, dancing on the string held by all those big shots. I don’t apologize — that’s my life — but I thought that, that when it was your time, that you would be the one to hold the string. Senator </p>
-
             
+
+在别人看来即使你很坏，甚至是恶人，但是在家人看来，你永远是好丈夫，好父亲。不背叛家庭，你必须有义务，有责任去保护家里的每一个人不使之受伤，要知道这个世界并不是你一个人在奋斗，也不是为了自己奋斗，为了自己所爱的人，为了自己所爱的人能够幸福。现在也必须做事考虑后果，要对别人负责，对自己负责。
+speak softely love是我最喜欢的一首歌，也许是因为自己在心情低落的时候看的这部电影，而其中
+            ...
           </span>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/the-god-father/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -1550,11 +979,16 @@
         
           <span itemprop="articleBody">
             
-              <p>多少年之后才明白，那个转身究竟有多难</p>
-<iframe src="http://www.tudou.com/programs/view/html5embed.action?type=0&code=xPY8Oan1SDk&lcode=&resourceId=0_06_05_99" allowtransparency="true" allowfullscreen="true" allowfullscreeninteractive="true" scrolling="no" border="0" frameborder="0" style="width:100%;height:450px;"></iframe>
+            多少年之后才明白，那个转身究竟有多难
+
 
             
           </span>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/love_in_life/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -1654,14 +1088,16 @@
         
           <span itemprop="articleBody">
             
-              <p>看完此电影最终让我觉得做人一定要有原则，守诺言，虽然自己现在还做的不好，但我相信以后一定会做到。不失信于人，不做围背原则的事。</p>
-<p>论崇高：天之生人，不是要我们做卑鄙下流的動物，它带我们到生活中来，要我们做万物的观光者，所以它一开始便在我们心中种下一种热情-对一切伟大的比我们更神圣的事情的渴望。</p>
-<p>每次读到这句话都深有感觸，这使得自己不要忘记曾经拋棄甚至决裂的那一类人，那一类品行十分差的人，并且也提醒自己不要变成那种下流的人，变成品行不端的人。我心中永远没有任何齷齪之事，永远光明正大。</p>
-<p>永远不违背自己的原则永远要遵守诺言</p>
-<p><img src="http://7xndvx.com1.z0.glb.clouddn.com/in_bruges.jpg" alt="做人要有原则"><br><img src="http://7xndvx.com1.z0.glb.clouddn.com/in_bruges1.jpg" alt="为此可以死"></p>
-
-            
+            看完此电影最终让我觉得做人一定要有原则，守诺言，虽然自己现在还做的不好，但我相信以后一定会做到。不失信于人，不做围背原则的事。
+论崇高：天之生人，不是要我们做卑鄙下流的動物，它带我们到生活中来，要我们做万物的观光者，所以它一开始便在我们心中种下一种热情-对一切伟大的比我们更神圣的事情的渴望。
+每次读到这句话都深有感觸，这使得自己不要忘记曾经拋棄甚至决裂的那一类人，那一类品行十分差的人，并且也提醒自
+            ...
           </span>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/In_Bruges/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -1761,95 +1197,14 @@
         
           <span itemprop="articleBody">
             
-              <h1 id="NFS网络文件系统">NFS网络文件系统</h1><h2 id="NFS_系统介绍">NFS 系统介绍</h2><p>network file sysctem 是网络文件系统，它的主要功能是通过网络让i同的主机系统之间可以共享文件或目录，NFS客户端一般为应用服务器，RPC (remote procedure call) 是能使客户端执行其他系统中程序的一种机制。NFS本身是没有提供信息传输的协议和功能的，但NFS却能让我们通过网络进行资料的分享，这是因为NFS使用了一些其它的传输协议。而这些传输协议用到这个RPC功能的。。所以只要用到NFS的地方都要启动RPC服务，不论是NFS SERVER或者NFS CLIENT。这样SERVER和CLIENT才能通过RPC来实现PROGRAM PORT的对应。可以这么理解RPC和NFS的关系：NFS是一个文件系统，而RPC是负责负责信息的传输。大企业： MFS, FASTDFS , GLUSTERFS, CEPH</p>
-<p>在客户端与服务端都需要安装NFS与RPC<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sed -i <span class="string">'s/keepcache=0/keepcache=1/g'</span> /etc/yum.conf</span><br><span class="line">$ sed -n  <span class="string">'1,4p'</span> /etc/yum.conf</span><br><span class="line">$ yum install nfs-utils rpcbind -y</span><br></pre></td></tr></table></figure></p>
-<p>在服务端启动<code>rpcbind</code> 与<code>nfs</code>, 在客户端启动<code>rpcbind</code></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ /etc/init.d/nfs <span class="operator"><span class="keyword">start</span></span><br><span class="line">$ /etc/init.<span class="keyword">d</span>/rpcbind <span class="keyword">start</span></span></span><br></pre></td></tr></table></figure>
-<h2 id="NFS_服务端配置">NFS 服务端配置</h2><p>NFS的常用目录</p>
-<ul>
-<li>/etc/exports    NFS服务的主要配置文件</li>
-<li>/usr/sbin/exportfs    NFS服务的管理命令</li>
-<li>/usr/sbin/shownmount 客户端的查看命令</li>
-<li>/var/lib/nfs/etab     NFS分享出来的目录的完整权限设定值</li>
-<li>/var/lib/nfs/xtab  记录曾经登录过的客户端信息</li>
-</ul>
-<h3 id="配置/etc/exprots">配置/etc/exprots</h3><p>&lt;输出目录&gt; [客户端1 选项（访问权限,用户映射,其他）] [客户端2 选项（访问权限,用户映射,其他）]</p>
-<blockquote>
-<p>目录： NFS系统中需要共享给客户机使用的目录<br>客户端：其中客户端可以指定IP或者指定网段，也可以指定载名中的主机。 （*）表示所有主机<br>选项用来设置输出目录的访问权限，用户映射</p>
-<ol>
-<li>选项： ro 只读， rw 读写</li>
-<li>用户映射：<ul>
-<li>all_squash: 将远程访问的所有普通用户及所属组映射为匿名用户或组(nfsnobody)</li>
-<li>no_all_squash: </li>
-<li>root_squash: 将root用户及所属组都映射为匿名用户或组（默认设置）</li>
-<li>no_root_squash</li>
-<li>anonuid=xxx: 将远程访问的所有用户都映射为匿名用户，并指定该用户为本地用户</li>
-<li>anongid=xxx</li>
-</ul>
-</li>
-<li>其它选项：<ul>
-<li>secure: 限制客户端只能从小于1024的tcp/ip端连接nfs服务器（默认设置）</li>
-<li>insecure： 大于1024</li>
-<li>sync: 将数据同步写放内存缓存区与磁盘中，效率低。但保证数据一致性</li>
-<li>async:先保存到内存缓存中，必要时写入磁盘</li>
-<li>wdelay: 检查是否有相关的写操作，如果有则将这些写操作一起执行，（默认设置）</li>
-<li>no_wdelay: 若有写操作则立即执行，与sync配合使用</li>
-<li>subtree: 若输出目录是一个子目录，则nfs服务器将检查其父目录的权限（默认设置）</li>
-<li>nosubtree: 不检查父目录的权限。这样可以提高效率</li>
-</ul>
-</li>
-</ol>
-</blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cat /etc/exports</span><br><span class="line">/data <span class="number">172.16</span>.<span class="number">1.0</span>/<span class="number">24</span>(rw, sync)</span><br></pre></td></tr></table></figure>
-<p>创建文件修改权限</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /data</span><br><span class="line">chown -R nfsnobody,nfsnobody /data</span><br></pre></td></tr></table></figure>
-<p>然后平滑重启， </p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ /etc/init.d/rpcbind reload</span><br><span class="line">$ /etc/init.d/nfs reload</span><br><span class="line">$ exportfs</span><br><span class="line">/data		<span class="number">172.16</span>.<span class="number">1.0</span>/<span class="number">24</span></span><br><span class="line"></span><br><span class="line">$ cat /var/lib/nfs/etab</span><br><span class="line">/data	<span class="number">172.16</span>.<span class="number">1.0</span>/<span class="number">24</span>(rw,sync,wdelay,hide,nocrossmnt,secure,root_squash,no_all_squash,no_subtree_check,secure_locks,acl,anonuid=<span class="number">65534</span>,anongid=<span class="number">65534</span>,sec=sys,rw,root_squash,no_all_squash)</span><br><span class="line"></span><br><span class="line">$ service rpcbind status</span><br><span class="line">rpcbind (pid  <span class="number">1376</span>) is running...</span><br><span class="line"></span><br><span class="line">$ service nfs status</span><br><span class="line">rpc.svcgssd is stopped</span><br><span class="line">rpc.mountd (pid <span class="number">1583</span>) is running...</span><br><span class="line">nfsd (pid <span class="number">1599</span> <span class="number">1598</span> <span class="number">1597</span> <span class="number">1596</span> <span class="number">1595</span> <span class="number">1594</span> <span class="number">1593</span> <span class="number">1592</span>) is running...</span><br><span class="line">rpc.rquotad (pid <span class="number">1578</span>) is running...</span><br></pre></td></tr></table></figure>
-<p>然后可以用showmount 来时候NFS的共享状态<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ showmount <span class="operator">-e</span> <span class="comment">#默认查看自己共享服务</span></span><br><span class="line">Export list <span class="keyword">for</span> NFS01:</span><br><span class="line">/data <span class="number">172.16</span>.<span class="number">1.0</span>/<span class="number">24</span></span><br><span class="line"></span><br><span class="line">$ showmount <span class="operator">-a</span>  <span class="comment">#查看已经与客户端连接上的目录信息</span></span><br><span class="line">All mount points on NFS01:</span><br></pre></td></tr></table></figure></p>
-<h2 id="NFS客户端">NFS客户端</h2><p>客户端仅需要启动rpcbind，然后可以用showmount来查询nfs的共享状态</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ showmount <span class="operator">-e</span> <span class="number">172.16</span>.<span class="number">1.31</span>  </span><br><span class="line">Export list <span class="keyword">for</span> <span class="number">172.16</span>.<span class="number">1.31</span>:</span><br><span class="line">/data <span class="number">172.16</span>.<span class="number">1.0</span>/<span class="number">24</span></span><br></pre></td></tr></table></figure>
-<p>mount 语法<code>mount NFS服务器IP:共享目录 本地挂载点目录</code><br>现在我们把客户端的/mnt挂载到服务器的/data/test/上<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ mount -t <span class="number">172.16</span>.<span class="number">1.31</span>:/data/<span class="built_in">test</span>/ /mnt/</span><br><span class="line">$ mount |grep nfs</span><br><span class="line">sunrpc on /var/lib/nfs/rpc_pipefs <span class="built_in">type</span> rpc_pipefs (rw)</span><br><span class="line"><span class="number">172.16</span>.<span class="number">1.31</span>:/data/<span class="built_in">test</span>/ on /mnt <span class="built_in">type</span> nfs (rw,vers=<span class="number">4</span>,addr=<span class="number">172.16</span>.<span class="number">1.31</span>,clientaddr=<span class="number">172.16</span>.<span class="number">1.8</span>)</span><br></pre></td></tr></table></figure></p>
-<p>这里我要说一下，如果客户端需要使用普通用户在共享目录写文件，可以在服务器里的共享目录下一个字目录给777权限，普通用户创建的文件的属主与组与该普通用户相同<br>设定权限可以这样<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount -t nfs -o noatime,nodiratime,nosuid,noexec,nodev,rsize=<span class="number">131072</span>,wsize=<span class="number">131072</span>  <span class="number">10.0</span>.<span class="number">0.7</span>:/data  /mnt</span><br></pre></td></tr></table></figure></p>
-<p>查看挂载信息<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ df -h</span><br><span class="line">Filesystem          Size  Used Avail Use% Mounted on</span><br><span class="line">/dev/sda2           <span class="number">6.9</span>G  <span class="number">1.5</span>G  <span class="number">5.1</span>G  <span class="number">23</span>% /</span><br><span class="line">tmpfs               <span class="number">238</span>M     <span class="number">0</span>  <span class="number">238</span>M   <span class="number">0</span>% /dev/shm</span><br><span class="line">/dev/sda1           <span class="number">190</span>M   <span class="number">36</span>M  <span class="number">145</span>M  <span class="number">20</span>% /boot</span><br><span class="line"><span class="number">172.16</span>.<span class="number">1.31</span>:/data/  <span class="number">6.9</span>G  <span class="number">3.7</span>G  <span class="number">2.9</span>G  <span class="number">57</span>% /data/upload</span><br></pre></td></tr></table></figure></p>
-<h2 id="内核性能相关优化">内核性能相关优化</h2><p>1、/proc/sys/net/core/rmem_default<br>   该文件指定了接收套接字缓冲区大小的缺省值（以字节为单位），缺省设置：124928<br>2、/proc/sys/net/core/rmem_max<br>   该文件指定了接收套接字缓冲区大小的最大值（以字节为单位），缺省设置：124928<br>3、/proc/sys/net/core/wmem_default<br>   该文件指定了发送套接字缓冲区大小的缺省值（以字节为单位），缺省设置：124928<br>4、/proc/sys/net/core/wmem_max<br>   该文件指定了发送套接字缓冲区大小的最大值（以字节为单位），缺省设置：124928<br>对上述文件的具体内核优化：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ cat &gt;&gt;/etc/sysctl.conf&lt;&lt;EOF</span><br><span class="line">net.core.wmem_default = <span class="number">8388608</span></span><br><span class="line">net.core.rmem_default = <span class="number">8388608</span></span><br><span class="line">net.core.wmem_max = <span class="number">16777216</span></span><br><span class="line">net.core.rmem_max = <span class="number">16777216</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">$ sysctl -p</span><br></pre></td></tr></table></figure>
-<h2 id="相关命令">相关命令</h2><blockquote>
-<ol>
-<li>exportfs<br>在启动NFS后，如果修改了/etc/exports，就需要重启nfs，这时候可以用exportfs命令来使之立刻生效 <code>exportfs -rv</code> 相当于 `/etc/init.d/nfs reload<ul>
-<li>-a 全部挂找或卸载</li>
-<li>-r 重新读取/etc/exports中的信息，并同步更新/etc/exports, /var/lib/nfs/xtab</li>
-<li>-u 卸载单一目录（和a一起使用为卸载所有/etc/exports文件中的目录)</li>
-<li>-v 在export的时候， 将详细的信息输出到屏幕上 </li>
-</ul>
-</li>
-<li>nfsstat  查看NFS的运行状态，</li>
-<li>rpcinfo  查看RPC执行信息，可以用于检测RPC运行情况的工具</li>
-<li>showmount<ul>
-<li>-a 显示已经于客户端连接上的目录信息</li>
-<li>-e IP或hostname显示此IP地址分享出来的目录</li>
-</ul>
-</li>
-<li>netstat</li>
-<li>mount 客户端挂载NFS共享目录可选参数 <code>man -a mount</code><ul>
-<li>soft 当服务端没回应时，会在timeout后重新连接，会回错误信息</li>
-<li>hard 当服务端没回应时持续在后台尝试连接</li>
-<li>intr 正在进行NFS请求时，允许用键盘中断</li>
-<li>nointr  不允许键盘中断</li>
-<li>timeo 请求过期时间 单位为秒</li>
-<li>bg 第一次请求不成功，第二次的mount将放到后台执行</li>
-<li>fg 一直在前台发送请求</li>
-<li>proto=tcp|udp 修改使用TCP协议还是UDP协议来传输NFS的数据</li>
-<li>default   ， hard nointr</li>
-<li>rsize  设置块大小(bytes) </li>
-<li>wsize 写操作的大小，这两个操作会影响服务器客户端NFS缓存大小</li>
-</ul>
-</li>
-</ol>
-</blockquote>
-<p>NFS优点<br>1简单，容易上手，容易掌握。<br>2NFS文件系统内数据是在文件系统之上的，即数据是能看得见的。<br>3部署快速，维护简单方便，且可控，满足需求就是最好的。<br>4可靠从软件层面上看，数据可靠性高，经久耐用。数据是在文件系统之上的。<br>5服务非常稳定<br>NFS局限：<br>1、 局限性是存在单点故障，如果nfs server宕机了所有客户端都不能访问共享目录，这个在后期通过负载均衡及高可用方案弥补<br>2、 在大数据高并发的场合，NFS效率/性能有限<br>3、 客户端认证时基于ip和主机名、权限时，根据id识别，安全性一般（用于内网问题不大）<br>4、 NFS数据时明文的，NFS本身对数据完整性不作验证<br>5、 多台客户机器挂载一个NFS服务器时，连接管理维护麻烦（耦合度高），尤其是NFS服务端出问题后，所有NFS客户端都挂掉状态</p>
-
-            
+            NFS网络文件系统NFS 系统介绍network file sysctem 是网络文件系统，它的主要功能是通过网络让i同的主机系统之间可以共享文件或目录，NFS客户端一般为应用服务器，RPC (remote procedure call) 是能使客户端执行其他系统中程序的一种机制。NFS本身是没有提供信息传输的协议和功能的，但NFS却能让我们通过网络进行资料的分享，这是因为NFS使用了一些其它的传
+            ...
           </span>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/NFS/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -1949,185 +1304,19 @@
         
           <span itemprop="articleBody">
             
-              <h1 id="Linux_the_three_musketeers">Linux the three musketeers</h1><p>linux中三剑客分别是grep, sed, awk. 他们都支持正则表达式，在文本处理上非常高效。现在就此三个命令做简单介绍</p>
-<p>[toc]</p>
-<h2 id="grep,_egrep,_fgrep">grep, egrep, fgrep</h2><p>egrep, fgrep 是grep的扩展，其主要功能便是打印符合样式的行</p>
-<p>其控制打印的行数的参数有</p>
-<ul>
-<li>-A NUM, –after-context=NUM    Print NUM lines of trailing context after matching lines.</li>
-<li>-B NUM, –before-context=NUM    Print NUM lines of leading context before matching lines.</li>
-<li>-C NUM, –context=NUM    Print NUM lines of output context.</li>
-</ul>
-<p>也就是说A 打印匹配到样式及其后几行，B 打印匹配到样式及其前几行，C 便是匹配到样式的上下文下面仅以A举例，BC，同理</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ grep -A2 <span class="string">"sandow"</span> /etc/passwd</span><br><span class="line">sandow:x:<span class="number">500</span>:<span class="number">500</span>::/home/sandow:/bin/bash</span><br><span class="line">oldboy:x:<span class="number">501</span>:<span class="number">501</span>::/home/oldboy:/bin/bash</span><br><span class="line">oldgirl:x:<span class="number">502</span>:<span class="number">502</span>::/home/oldgirl:/bin/bash</span><br></pre></td></tr></table></figure>
-<p>控制匹配结果的参数有：</p>
-<ul>
-<li>-i ,–ignore-case.  Ignore case distinctions 顾名思义，便是忽略大小写</li>
-<li>-v, –inver-match.  Invert the sense of matching, to select non-matching lines 反向匹配</li>
-<li>-E, –extended-regexp. 扩展正则表达式，相当于egrep</li>
-<li>-F, –fixed-strings, –fixed-regexp, 把范本样式视为固定字符串的列表，相当于fgrep</li>
-<li>-o, –only-matching 只显示匹配到的那部分</li>
-</ul>
-<p>控制输出结果的参数：</p>
-<ul>
-<li>-c, –count， 仅统计匹配到的结果，匹配到两个就会返回2</li>
-<li>-n, –line-number ,  显示匹配到行的行数</li>
-<li>–color=auto 把匹配到的显示高亮显示</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ ifconfig eth0</span><br><span class="line">eth0      Link encap:Ethernet  HWaddr <span class="number">00</span>:<span class="number">0</span>C:<span class="number">29</span>:<span class="number">1</span>E:<span class="number">00</span>:<span class="number">6</span>F  </span><br><span class="line">          inet addr:<span class="number">10.0</span>.<span class="number">0.17</span>  Bcast:<span class="number">10.0</span>.<span class="number">0.255</span>  Mask:<span class="number">255.255</span>.<span class="number">255.0</span></span><br><span class="line">          inet6 addr: fe80::<span class="number">20</span>c:<span class="number">29</span>ff:fe1e:<span class="number">6</span>f/<span class="number">64</span> Scope:Link</span><br><span class="line">          UP BROADCAST RUNNING MULTICAST  MTU:<span class="number">1500</span>  Metric:<span class="number">1</span></span><br><span class="line">          RX packets:<span class="number">2410</span> errors:<span class="number">0</span> dropped:<span class="number">0</span> overruns:<span class="number">0</span> frame:<span class="number">0</span></span><br><span class="line">          TX packets:<span class="number">649</span> errors:<span class="number">0</span> dropped:<span class="number">0</span> overruns:<span class="number">0</span> carrier:<span class="number">0</span></span><br><span class="line">          collisions:<span class="number">0</span> txqueuelen:<span class="number">1000</span> </span><br><span class="line">          RX bytes:<span class="number">229147</span> (<span class="number">223.7</span> KiB)  TX bytes:<span class="number">135613</span> (<span class="number">132.4</span> KiB)</span><br><span class="line"></span><br><span class="line">$ ifconfig eth0|grep Bcast|egrep -o <span class="string">"[0-9.]*"</span></span><br><span class="line"><span class="number">10.0</span>.<span class="number">0.17</span></span><br><span class="line"><span class="number">10.0</span>.<span class="number">0.255</span></span><br><span class="line"><span class="number">255.255</span>.<span class="number">255.0</span></span><br></pre></td></tr></table></figure>
-<p>grep 也可以指定目录，它会搜索目录下所有文件里的内容并输出匹配符合样式的行</p>
-<h2 id="sed_stream_editor_for_filtering_and_transforming_text">sed stream editor for filtering and transforming text</h2><p>sed 批量的编辑文本，sed 擅长处理行。sed 可以删除(delete), 改变（change）, 添加(insert), 合并，交换文件中的数据行，或读入其它文件的数据到文件中，也可以替换(substuite) 它他其中的字符串。是一个非交互式的效率非常高的命令</p>
-<p>###sed 参数</p>
-<ul>
-<li>-n, –quiet, –silent 只打印匹配到的行</li>
-<li>-e script, 执行后面的命令</li>
-<li>-f script-file, 执行后面文件中的命令</li>
-</ul>
-<p>语法<code>sed -e &#39;command1&#39; -e &#39;command2&#39; filename</code> 注意这个单引号并不是一成不变的，当在shell里需要引用变量时便可以用双引号</p>
-<p>例如，删除sed.txt文件中第1到10行并且把magdre改为sandow 便可以这样</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sed <span class="operator">-e</span> <span class="string">'1,10d'</span> <span class="operator">-e</span> <span class="string">'s/magdre/sandow/g'</span>  sed.txt</span><br></pre></td></tr></table></figure>
-<h3 id="位址">位址</h3><p>sed 的编辑指令分为位址(address)和指令 。 位址负责定位需要编辑的内容，指令负责编辑。其语法格式为 <code>[address1 [,address2]][function[argument]]</code></p>
-<p>当没有位址时便会对所有文本处理，一个位址时位会处理该位置定位到的行，两个位址时便会处理从位址1到位址2的行数。当然如果使用正则表达式便是匹配字符的行咯。</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">位址中的指令</th>
-<th style="text-align:left">描述</th>
-<th></th>
-<th style="text-align:center">位址中的指令</th>
-<th style="text-align:left">描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">$</td>
-<td style="text-align:left">最后一行</td>
-<td></td>
-<td style="text-align:center">first~step</td>
-<td style="text-align:left">从first开始步长为setp的行</td>
-</tr>
-<tr>
-<td style="text-align:center">/regexp/</td>
-<td style="text-align:left">用正则来匹配行</td>
-<td></td>
-<td style="text-align:center">0,addr2</td>
-<td style="text-align:left">匹配到前addr2行</td>
-</tr>
-<tr>
-<td style="text-align:center">addr1,+n</td>
-<td style="text-align:left">从addr1开始后n行</td>
-<td></td>
-<td style="text-align:center">addr1,~n</td>
-<td style="text-align:left">这个不重要</td>
-</tr>
-</tbody>
-</table>
-<p>看起来很复杂吧，先来几个例子</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"hello\nmy name is sandow\nmy bolg is magdre.github.io"</span>  &gt;test.txt</span><br><span class="line"></span><br><span class="line">$ sed -n <span class="string">'$p'</span> test.txt</span><br><span class="line">my bolg is magdre.github.io</span><br><span class="line"></span><br><span class="line">$ sed -n <span class="string">'/sandow/p'</span> test.txt </span><br><span class="line">my name is sandow</span><br></pre></td></tr></table></figure>
-<h3 id="指令">指令</h3><p>上面看到很多d , p, g, s 等这些都是什么意思呢，他们都需要函数，那么接下来就来说说他们到底代表的什么意思</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">指令</th>
-<th style="text-align:left">描述</th>
-<th></th>
-<th style="text-align:center">指令</th>
-<th style="text-align:left">描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">=</td>
-<td style="text-align:left">打印行数</td>
-<td></td>
-<td style="text-align:center">r</td>
-<td style="text-align:left">从文件中记取数据</td>
-</tr>
-<tr>
-<td style="text-align:center">a\</td>
-<td style="text-align:left">在当前行下追加数据</td>
-<td></td>
-<td style="text-align:center">i\</td>
-<td style="text-align:left">在当前行上追加数据</td>
-</tr>
-<tr>
-<td style="text-align:center">c\</td>
-<td style="text-align:left">把选定行改为新文本</td>
-<td></td>
-<td style="text-align:center">d</td>
-<td style="text-align:left">删除所选择的行</td>
-</tr>
-<tr>
-<td style="text-align:center">s</td>
-<td style="text-align:left">替换指定字符</td>
-<td></td>
-<td style="text-align:center">q</td>
-<td style="text-align:left">退出sed编辑</td>
-</tr>
-<tr>
-<td style="text-align:center">n</td>
-<td style="text-align:left">读取下一个输入行，用下一个命令处理新的行</td>
-<td></td>
-<td style="text-align:center">N</td>
-<td style="text-align:left">这个百度去吧</td>
-</tr>
-<tr>
-<td style="text-align:center">h</td>
-<td style="text-align:left">复制pattern space到内存缓存区</td>
-<td></td>
-<td style="text-align:center">H</td>
-<td style="text-align:left">追加到缓存区</td>
-</tr>
-<tr>
-<td style="text-align:center">g</td>
-<td style="text-align:left">获取缓存区内容替换pattern space</td>
-<td></td>
-<td style="text-align:center">G</td>
-<td style="text-align:left">追加到 pattern space后</td>
-</tr>
-<tr>
-<td style="text-align:center">p</td>
-<td style="text-align:left">打印当前pattern space</td>
-<td></td>
-<td style="text-align:center">P</td>
-<td style="text-align:left">打印模版块的第一行</td>
-</tr>
-<tr>
-<td style="text-align:center">: label</td>
-<td style="text-align:left">建立参照位址</td>
-<td></td>
-<td style="text-align:center">b label</td>
-<td style="text-align:left">将指令跳到参照位址</td>
-</tr>
-<tr>
-<td style="text-align:center">w</td>
-<td style="text-align:left">写入文件</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>当需要对一个位址执行多个指令时需要用{}来括起来</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">addr&#123;</span><br><span class="line">commend1</span><br><span class="line">commend2</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>来来来，例子给你形象说明</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ cat test.txt</span><br><span class="line">hello</span><br><span class="line">my name is sandow</span><br><span class="line">my bolg is magdre.github.io</span><br><span class="line"></span><br><span class="line">$ sed <span class="string">'2a I am a gentleman'</span> test.txt</span><br><span class="line">hello</span><br><span class="line">my name is sandow</span><br><span class="line">I am a gentleman</span><br><span class="line">my bolg is magdre.github.io</span><br><span class="line"></span><br><span class="line">$ sed <span class="operator">-e</span> <span class="string">'2c\I am a gentleman'</span> <span class="operator">-e</span> <span class="string">'1i\stay hungry stay foolish'</span> test.txt</span><br><span class="line">stay hungry stay foolish</span><br><span class="line">hello</span><br><span class="line">I am a gentleman</span><br><span class="line">my bolg is magdre.github.io</span><br></pre></td></tr></table></figure>
-<p>这里有一个”!” 其功能很特别需要在这里说下，如下例</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@centOs ~]<span class="comment"># sed '/sandow/!d' test.txt </span></span><br><span class="line">my name is sandow</span><br></pre></td></tr></table></figure>
-<p>这时会删除除匹配到的那行外的所有行</p>
-<p><strong>替换字符举例</strong><br> <code>s/regexp/replacement/[flag]</code>  用正则表达式来匹配，匹配到后用replacement来做替换 在replacement里可以用\1到\9来输出前面regexp里的子表达式匹配到的内容。 另在replacement 里可以用 ‘&amp;’ 来代表前面所匹配到的内容。我们用flag来控制如何替换</p>
-<ul>
-<li>g 代表替换所有匹配到的内容</li>
-<li>num 当为数字为是从第几个匹配到的内容开始替换</li>
-<li>p  标准输出</li>
-<li>w filename 替换后输入名为filename的文件中</li>
-<li>空 仅替换第一个匹配到的内容<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ifconfig eth0 | sed -nr <span class="string">'2s/.*:(.*) .*:(.*) .*:(.*)/\1 \2 \3/gp'</span></span><br><span class="line"><span class="number">10.0</span>.<span class="number">0.17</span>  <span class="number">10.0</span>.<span class="number">0.255</span>  <span class="number">255.255</span>.<span class="number">255.0</span></span><br><span class="line"></span><br><span class="line">$ ifconfig eth0 | sed -nr <span class="string">'/Bcast/s/.*:(.*) .*:(.*) .*:(.*)/\1 \2 \3/gp'</span></span><br><span class="line"><span class="number">10.0</span>.<span class="number">0.17</span>  <span class="number">10.0</span>.<span class="number">0.255</span>  <span class="number">255.255</span>.<span class="number">255.0</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p><strong>变形</strong><br>说实话这个不怎么用，所以只附上其英文解释<br><code>y/source/dest/</code>   Transliterate  the  characters  in  the  pattern space  which appear in source to the corresponding  character  in dest.</p>
-<h3 id="sed_的小技巧">sed 的小技巧</h3><p><code>sed -n &#39;$=&#39; test.txt</code>    计算行数<br><code>ifconfig eth0 |sed 2q</code> 显示前两行内容<br><code>sed &#39;$!d&#39;</code> 或 ` sed -n ‘$p’  显示最后一行内容</p>
-<h2 id="gawk_-_pattern_scanning_and_processing_language">gawk - pattern scanning and processing language</h2><p>awk这就是一门轻量级语言，也没必要去认真研习，awk能解决的python都可以搞定，所以现在仅简单介绍下便好。</p>
+            Linux the three musketeerslinux中三剑客分别是grep, sed, awk. 他们都支持正则表达式，在文本处理上非常高效。现在就此三个命令做简单介绍
+[toc]
+grep, egrep, fgrepegrep, fgrep 是grep的扩展，其主要功能便是打印符合样式的行
+其控制打印的行数的参数有
 
-            
+-A NUM, –after-context=NUM    Prin
+            ...
           </span>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/the-three-musketeers/#more" rel="contents">
+              閱讀全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
