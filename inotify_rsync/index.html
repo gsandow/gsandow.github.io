@@ -53,115 +53,16 @@
 
 
 
-<meta name="description" content="主机规划
-
-
-服务器
-外网IP
-
-内网IP
-主机名称
-
-
-
-
-A1-nginx 负载服务器
-10.0.0.5/24
-
-127.16.1.5/24
-lb01
-
-
-A2-nginx 负载服务器
-10.0.0.6/24
-
-127.16.1.6/24
-lb02
-
-
-B1-apache软件web服务器
-10.0.0.7/24
-
-127.16.1.7/24
-web02
-
-
-B2-apache软件web服务器">
+<meta name="description" content="RSYNC 数据库服务器rsync, (remote synchronize) 是一个实现同步功能的软件，它在同步文件的同时，可以保持原来文件的权限，时间，软硬链接等附加信息。 rsync是用rsync 算法提供了一个客户机和远程文件服务器的文件同步的快速方法，而且可以通过ssh方式来传输文件，这样保密也非常好。主要用于远程数据备份与同步。 可以实现全备及增量备份，也可以本地数据同步。 在Cent">
 <meta property="og:type" content="article">
 <meta property="og:title" content="rsync + inotify 实现实时同步">
 <meta property="og:url" content="gsandow.github.io/inotify_rsync/index.html">
 <meta property="og:site_name" content="听雨阁">
-<meta property="og:description" content="主机规划
-
-
-服务器
-外网IP
-
-内网IP
-主机名称
-
-
-
-
-A1-nginx 负载服务器
-10.0.0.5/24
-
-127.16.1.5/24
-lb01
-
-
-A2-nginx 负载服务器
-10.0.0.6/24
-
-127.16.1.6/24
-lb02
-
-
-B1-apache软件web服务器
-10.0.0.7/24
-
-127.16.1.7/24
-web02
-
-
-B2-apache软件web服务器">
-<meta property="og:updated_time" content="2015-11-14T13:17:53.000Z">
+<meta property="og:description" content="RSYNC 数据库服务器rsync, (remote synchronize) 是一个实现同步功能的软件，它在同步文件的同时，可以保持原来文件的权限，时间，软硬链接等附加信息。 rsync是用rsync 算法提供了一个客户机和远程文件服务器的文件同步的快速方法，而且可以通过ssh方式来传输文件，这样保密也非常好。主要用于远程数据备份与同步。 可以实现全备及增量备份，也可以本地数据同步。 在Cent">
+<meta property="og:updated_time" content="2015-12-14T07:51:59.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="rsync + inotify 实现实时同步">
-<meta name="twitter:description" content="主机规划
-
-
-服务器
-外网IP
-
-内网IP
-主机名称
-
-
-
-
-A1-nginx 负载服务器
-10.0.0.5/24
-
-127.16.1.5/24
-lb01
-
-
-A2-nginx 负载服务器
-10.0.0.6/24
-
-127.16.1.6/24
-lb02
-
-
-B1-apache软件web服务器
-10.0.0.7/24
-
-127.16.1.7/24
-web02
-
-
-B2-apache软件web服务器">
+<meta name="twitter:description" content="RSYNC 数据库服务器rsync, (remote synchronize) 是一个实现同步功能的软件，它在同步文件的同时，可以保持原来文件的权限，时间，软硬链接等附加信息。 rsync是用rsync 算法提供了一个客户机和远程文件服务器的文件同步的快速方法，而且可以通过ssh方式来传输文件，这样保密也非常好。主要用于远程数据备份与同步。 可以实现全备及增量备份，也可以本地数据同步。 在Cent">
 
 
 
@@ -367,8 +268,8 @@ B2-apache软件web服务器">
         <div class="post-meta">
           <span class="post-time">
             發表於
-            <time itemprop="dateCreated" datetime="2015-11-14T21:17:53+08:00" content="2015-11-14">
-              2015-11-14
+            <time itemprop="dateCreated" datetime="2015-12-14T15:51:59+08:00" content="2015-12-14">
+              2015-12-14
             </time>
           </span>
 
@@ -413,88 +314,7 @@ B2-apache软件web服务器">
       
 
       
-        <span itemprop="articleBody"><h1 id="主机规划">主机规划</h1><table>
-<thead>
-<tr>
-<th style="text-align:left">服务器</th>
-<th style="text-align:left">外网IP</th>
-<th style="text-align:left"></th>
-<th style="text-align:left">内网IP</th>
-<th style="text-align:left">主机名称</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">A1-nginx 负载服务器</td>
-<td style="text-align:left">10.0.0.5/24</td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.5/24</td>
-<td style="text-align:left">lb01</td>
-</tr>
-<tr>
-<td style="text-align:left">A2-nginx 负载服务器</td>
-<td style="text-align:left">10.0.0.6/24</td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.6/24</td>
-<td style="text-align:left">lb02</td>
-</tr>
-<tr>
-<td style="text-align:left">B1-apache软件web服务器</td>
-<td style="text-align:left">10.0.0.7/24</td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.7/24</td>
-<td style="text-align:left">web02</td>
-</tr>
-<tr>
-<td style="text-align:left">B2-apache软件web服务器</td>
-<td style="text-align:left">10.0.0.8/24</td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.8/24</td>
-<td style="text-align:left">web01</td>
-</tr>
-<tr>
-<td style="text-align:left">C3-My Sql 数据库服务器</td>
-<td style="text-align:left"><code>10.0.0.51/24</code></td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.51/24</td>
-<td style="text-align:left">Db01</td>
-</tr>
-<tr>
-<td style="text-align:left">C1-NFS 存储服务器</td>
-<td style="text-align:left"><code>10.0.0.31/24</code></td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.31/24</td>
-<td style="text-align:left">NFS01</td>
-</tr>
-<tr>
-<td style="text-align:left">C2-rsync 数据库服务器</td>
-<td style="text-align:left"><code>10.0.0.41/24</code></td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.41/24</td>
-<td style="text-align:left">Backup</td>
-</tr>
-<tr>
-<td style="text-align:left">X-管理服务器</td>
-<td style="text-align:left"><code>10.0.0.61/24</code></td>
-<td style="text-align:left"></td>
-<td style="text-align:left">127.16.1.61/24</td>
-<td style="text-align:left">m01</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>红色仅为虚拟机中测试所用 <br><br>机房根据实际需求配置</p>
-</blockquote>
-<h2 id="克隆虚拟机并配置网卡">克隆虚拟机并配置网卡</h2><ol>
-<li>编辑eth0的配置文件：<code>vi /etc/sysconfig/network-scripts/ifcfg-eth0</code>，删除HWADDR地址那一行及UUID的行如下：</li>
-</ol>
-<pre><code>HWADDR=<span class="number">00</span>:<span class="number">0</span>c:<span class="number">29</span>:<span class="number">08</span>:<span class="number">28</span>:<span class="number">9f</span>     
-UUID=cee39dbb-<span class="number">6</span>a10-<span class="number">4425</span>-<span class="number">9</span>daf-<span class="number">768</span>b6e79a9c9
-</code></pre><ol>
-<li>清空 /etc/udev/rules.d/70-persistent-net.rules</li>
-<li>重启</li>
-</ol>
-<h2 id="RSYNC_数据库服务器">RSYNC 数据库服务器</h2><p>rsync, (remote synchronize) 是一个实现同步功能的软件，它在同步文件的同时，可以保持原来文件的权限，时间，软硬链接等附加信息。 rsync是用rsync 算法提供了一个客户机和远程文件服务器的文件同步的快速方法，而且可以通过ssh方式来传输文件，这样保密也非常好。主要用于远程数据备份与同步。 可以实现全备及增量备份，也可以本地数据同步。 在Centos5中rsync的版本是2.X，是把所有文件比对一遍后进行同步。在CentOs6中rsync的版本是3.0，是一边比对差异一边进行同步。而这里我们用的是3.0</p>
+        <span itemprop="articleBody"><h2 id="RSYNC_数据库服务器">RSYNC 数据库服务器</h2><p>rsync, (remote synchronize) 是一个实现同步功能的软件，它在同步文件的同时，可以保持原来文件的权限，时间，软硬链接等附加信息。 rsync是用rsync 算法提供了一个客户机和远程文件服务器的文件同步的快速方法，而且可以通过ssh方式来传输文件，这样保密也非常好。主要用于远程数据备份与同步。 可以实现全备及增量备份，也可以本地数据同步。 在Centos5中rsync的版本是2.X，是把所有文件比对一遍后进行同步。在CentOs6中rsync的版本是3.0，是一边比对差异一边进行同步。而这里我们用的是3.0</p>
 <p>首先检查rsync看是否安装，及安装的版本</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ rpm -qa rsync</span><br><span class="line">rsync-<span class="number">3.0</span><span class="number">.6</span>-<span class="number">12.</span>el6.x86_64</span><br></pre></td></tr></table></figure>
 <p>rsync有三种模式，分别是本地，ssh远程同步，daemon模式</p>
@@ -715,17 +535,13 @@ UUID=cee39dbb-<span class="number">6</span>a10-<span class="number">4425</span>-
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/regular-expressions/" rel="next" title="Regular Expressions">
-                <i class="fa fa-chevron-left"></i> Regular Expressions
+              <a href="/vim.md/" rel="next" title="">
+                <i class="fa fa-chevron-left"></i> 
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/vim/" rel="prev" title="vim常用操作">
-                vim常用操作 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -820,7 +636,7 @@ UUID=cee39dbb-<span class="number">6</span>a10-<span class="number">4425</span>-
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">14</span>
+              <span class="site-state-item-count">15</span>
               <span class="site-state-item-name">文章</span>
             </a>
           </div>
@@ -907,7 +723,7 @@ UUID=cee39dbb-<span class="number">6</span>a10-<span class="number">4425</span>-
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#主机规划"><span class="nav-number">1.</span> <span class="nav-text">主机规划</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#克隆虚拟机并配置网卡"><span class="nav-number">1.1.</span> <span class="nav-text">克隆虚拟机并配置网卡</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RSYNC_数据库服务器"><span class="nav-number">1.2.</span> <span class="nav-text">RSYNC 数据库服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#本地备份"><span class="nav-number">1.2.1.</span> <span class="nav-text">本地备份</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过shell远程传输(remote)"><span class="nav-number">1.2.2.</span> <span class="nav-text">通过shell远程传输(remote)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#daemon_模式，"><span class="nav-number">1.2.3.</span> <span class="nav-text">daemon 模式，</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#服务端的配置"><span class="nav-number">1.2.3.1.</span> <span class="nav-text">服务端的配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#客户端的配置"><span class="nav-number">1.2.3.2.</span> <span class="nav-text">客户端的配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#备份数据以及自动备份"><span class="nav-number">1.2.3.3.</span> <span class="nav-text">备份数据以及自动备份</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">1.2.4.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#crontab_+_rsync_定时推送"><span class="nav-number">1.3.</span> <span class="nav-text">crontab + rsync 定时推送</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实时同步"><span class="nav-number">1.4.</span> <span class="nav-text">实时同步</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#inotifywait_介绍"><span class="nav-number">1.4.1.</span> <span class="nav-text">inotifywait 介绍</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sersync"><span class="nav-number">1.5.</span> <span class="nav-text">sersync</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rsync常见错误与问题"><span class="nav-number">1.6.</span> <span class="nav-text">rsync常见错误与问题</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#RSYNC_数据库服务器"><span class="nav-number">1.</span> <span class="nav-text">RSYNC 数据库服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#本地备份"><span class="nav-number">1.1.</span> <span class="nav-text">本地备份</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过shell远程传输(remote)"><span class="nav-number">1.2.</span> <span class="nav-text">通过shell远程传输(remote)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#daemon_模式，"><span class="nav-number">1.3.</span> <span class="nav-text">daemon 模式，</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#服务端的配置"><span class="nav-number">1.3.1.</span> <span class="nav-text">服务端的配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#客户端的配置"><span class="nav-number">1.3.2.</span> <span class="nav-text">客户端的配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#备份数据以及自动备份"><span class="nav-number">1.3.3.</span> <span class="nav-text">备份数据以及自动备份</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">1.4.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#crontab_+_rsync_定时推送"><span class="nav-number">2.</span> <span class="nav-text">crontab + rsync 定时推送</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实时同步"><span class="nav-number">3.</span> <span class="nav-text">实时同步</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#inotifywait_介绍"><span class="nav-number">3.1.</span> <span class="nav-text">inotifywait 介绍</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sersync"><span class="nav-number">4.</span> <span class="nav-text">sersync</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rsync常见错误与问题"><span class="nav-number">5.</span> <span class="nav-text">rsync常见错误与问题</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">
